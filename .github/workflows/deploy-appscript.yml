@@ -37,6 +37,7 @@ jobs:
         run: clasp push -f
 
       - name: Deploy Apps Script (Update Existing URL)
-        run: clasp deploy -i "$DEPLOYMENT_ID" -d "Auto-deploy via GitHub Actions: ${{ github.sha }}"
+        run: |
+          clasp deploy -i "$DEPLOYMENT_ID" -d "Auto-deploy via GitHub Actions: ${{ github.sha }}"
         env:
           DEPLOYMENT_ID: ${{ secrets.DEPLOYMENT_ID }}
