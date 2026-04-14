@@ -1,0 +1,314 @@
+<style>
+/* ============================================================
+   IMPORT FONT - Google Fonts: Montserrat untuk tampilan modern
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+/* ============================================================
+   RESET & BASE - Menghapus margin/padding default browser
+   ============================================================ */
+* {
+  margin: 0;                    /* Hapus margin default semua elemen */
+  padding: 0;                   /* Hapus padding default semua elemen */
+  box-sizing: border-box;       /* Ukuran elemen sudah termasuk padding & border */
+}
+
+/* ============================================================
+   BODY - Mengatur tampilan seluruh halaman
+   ============================================================ */
+body {
+  font-family: 'Montserrat', sans-serif; /* Font utama halaman */
+  min-height: 100vh;                     /* Tinggi minimal setinggi layar */
+  display: flex;                         /* Gunakan flexbox untuk centering */
+  align-items: center;                   /* Posisi konten di tengah vertikal */
+  justify-content: center;              /* Posisi konten di tengah horizontal */
+  overflow: hidden;                      /* Sembunyikan konten yang melebihi layar */
+  position: relative;                    /* Jadikan parent untuk pseudo-element */
+}
+
+/* ============================================================
+   BACKGROUND PSEUDO-ELEMENT - Layer background dengan gambar
+   Menggunakan ::before agar blur tidak mempengaruhi konten
+   ============================================================ */
+body::before {
+  content: '';                           /* Wajib ada agar pseudo-element muncul */
+  position: fixed;                       /* Menempel di layar, tidak ikut scroll */
+  top: 0;                                /* Mulai dari pojok atas */
+  left: 0;                               /* Mulai dari pojok kiri */
+  width: 100%;                           /* Lebar penuh layar */
+  height: 100%;                          /* Tinggi penuh layar */
+
+  /* Color background */
+  /*background: linear-gradient(
+    #135deg,
+    rgb(0, 120, 255) 0%,
+    rgb(80, 180, 255) 50%,
+    rgb(220, 240, 255) 100% );
+
+  /* Gambar background dari Google Drive - konversi ke direct link */
+  background: white ;
+  background-size: cover;                /* Gambar menutup seluruh area */
+  background-position: center center;   /* Gambar terpusat */
+  background-repeat: no-repeat;         /* Gambar tidak diulang */
+
+  filter: blur(2px);                    /* Efek blur + gelap pada background */
+  transform: scale(1.05);               /* Sedikit diperbesar agar blur tidak terpotong di tepi */
+  z-index: -1;                          /* Letakkan di belakang semua konten */
+}
+
+/* ============================================================
+   LOGIN FORM CONTAINER - Kotak utama form login
+   ============================================================ */
+.loginForm {
+  width: 380px;
+  height: 500px;
+
+  padding: 40px 44px;              
+  display: flex;
+  flex-direction: column;          /* Susun isi secara vertikal */
+  justify-content: center;         /* Konten rata tengah vertikal */
+  align-items: center;             /* Rata tengah horizontal */
+  text-align: center;
+
+
+  /* Efek kaca / glassmorphism tipis */
+  background-color: rgba(255, 255, 255, 0.05); /* Background putih sangat transparan */
+  backdrop-filter: blur(2px);            /* Blur ringan pada area di balik kotak */
+  -webkit-backdrop-filter: blur(2px);    /* Kompatibilitas browser Safari */
+
+  border: 1.5px solid rgba(255, 255, 255, 0.25); /* Border putih semi-transparan */
+  border-radius: 20px;                    /* Sudut kotak sedikit melengkung */
+
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),       /* Bayangan luar gelap untuk kedalaman */
+    inset 0 1px 0 rgba(255,255,255,0.1); /* Highlight tipis di tepi atas dalam */
+}
+
+/* ============================================================
+   LOGO - Gambar logo Kemnaker di atas judul
+   ============================================================ */
+.logo {
+  content: '';                           /* Pseudo-element untuk menampilkan logo */
+  display: block;                        /* Tampilkan sebagai block agar bisa diberi ukuran */
+  width: 80px;                          /* Lebar logo */
+  height: 100px;                          /* Tinggi logo */
+  margin-top: 20px;   
+  margin-bottom: 40px;                   /* Tengahkan secara horizontal, beri jarak bawah */                 
+
+  /* Logo Kemnaker dari Google Drive */
+
+  background-size: contain;             /* Logo tampil proporsional dalam kotak */
+  background-repeat: no-repeat;         /* Logo tidak diulang */
+  background-position: center;          /* Logo terpusat */
+  
+  filter: brightness(0) saturate(100%) 
+          invert(14%) sepia(52%) 
+          saturate(2400%) 
+          hue-rotate(220deg) 
+          brightness(85%) 
+          contrast(105%);
+  /*filter: brightness(0) invert(1);      /* Ubah logo jadi putih agar cocok di background gelap */
+}
+
+/* ============================================================
+   JUDUL H1 - Teks "Login" sebagai heading utama
+   ============================================================ */
+.loginForm h1 {
+  color: #000000;                        /* Warna teks putih */
+  font-size: 28px;                       /* Ukuran font besar */
+  font-weight: 700;                      /* Tebal maksimal */
+  letter-spacing: 0.5px;                /* Sedikit jarak antar huruf */
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3); /* Bayangan teks agar lebih terbaca */
+}
+
+.loginForm p { 
+  color: rgba(0, 0, 0, 0.7); /* font Warna putih semi-transparan */ 
+  font-size: 13px; /* Ukuran font */ 
+  margin-bottom: 10px; /* Jarak bawah sebelum input */ 
+  font-weight: 700; /* Ketebalan font */ }
+
+/* ============================================================
+   FORM - Kontainer form (tidak ada styling khusus, mengikuti parent)
+   ============================================================ */
+#loginForm {
+  width: 100%;
+  margin-top: 10px;                      /* Jarak atas dari judul ke form */
+}
+
+/* ============================================================
+   LABEL - Teks label di atas input (disembunyikan karena ada placeholder)
+   ============================================================ */
+.loginForm label {
+  display: none;                         /* Sembunyikan label, placeholder sudah cukup */
+}
+
+/* ============================================================
+   INPUT FIELD - Kotak input email dan password
+   ============================================================ */
+.loginForm .form{
+  width:100%;
+  padding:12px 40px 10px 8px;
+  margin-bottom:12px;
+
+  background:transparent;
+  border:none;
+  border-bottom:2.5px solid rgba(0,0,0,0.5);
+
+  color:#000;
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  font-weight:600;
+
+  outline:none;
+  transition:border-color .3s ease;
+
+  /* icon email */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='rgba(0,0,0,1)' stroke-width='1.8' viewBox='0 0 24 24'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='M2 7l10 7 10-7'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:18px;
+}
+
+/* ============================================================
+   INPUT PASSWORD - TANPA ICON GEMBOK
+============================================================ */
+#password{
+  background:none; /* hapus icon gembok */
+  padding-right:35px; /* ruang untuk icon mata */
+}
+
+/* ============================================================
+   PASSWORD WRAPPER
+============================================================ */
+.password-wrap{
+  position:relative;
+}
+
+/* ============================================================
+   ICON SHOW PASSWORD (EYE)
+============================================================ */
+.password-wrap i{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:15px;
+  color:#444;
+  transition:.2s;
+}
+
+.password-wrap i:hover{
+  color:#2563eb;
+}
+
+/* ============================================================
+   INPUT FOCUS
+============================================================ */
+.loginForm .form:focus{
+  border-bottom:2.5px solid #2563eb;
+}
+
+/* ============================================================
+   PLACEHOLDER
+============================================================ */
+.loginForm .form::placeholder{
+  color:rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   INPUT FOCUS - Tampilan saat input sedang diklik/diisi
+   ============================================================ */
+.loginForm .form:focus {
+  border-bottom: 4px solid #000000;  /* border lebih terang saat diklik*/
+}
+
+/* ============================================================
+   PLACEHOLDER TEXT - Teks placeholder di dalam input
+   ============================================================ */
+.loginForm .form::placeholder {
+  color: rgba(255, 255, 255, 0.65);      /* Warna placeholder putih redup */
+  font-weight: 600;                      /* Sedikit tebal */
+  font-size: 13px;                       /* Ukuran font placeholder */
+}
+
+/* ============================================================
+   TOMBOL LOGIN - Tombol submit form
+   ============================================================ */
+#buttonLogin {
+  width: 100%;                           /* Lebar tombol */
+  margin-top: 10px;                      /* Jarak atas dari input terakhir */                      
+  padding: 12px 24px;                    /* Jarak dalam tombol */
+
+  /*background: transparent;              Background transparan */
+  background-color: #1D2951;
+  color: #ffffff;                        /* Warna teks putih */
+  font-family: 'Montserrat', sans-serif; /* Samakan font */
+  font-size: 13px;                       /* Ukuran font tombol */
+  font-weight: 700;                      /* Tebal */
+  letter-spacing: 1.5px;                /* Jarak antar huruf agar terlihat seperti label */
+  text-transform: uppercase;            /* Huruf kapital semua */
+
+  border: 1px solid #1D2951;            /* Border putih tegas */
+  border-radius: 30px;                   /* Sudut sedikit melengkung */
+  cursor: pointer;                      /* Kursor berubah jadi tangan saat hover */
+
+  transition: background 0.3s ease,     /* Animasi perubahan background saat hover */
+              color 0.3s ease,          /* Animasi perubahan warna teks saat hover */
+              transform 0.15s ease;     /* Animasi sedikit naik saat hover */
+}
+
+/* ============================================================
+   TOMBOL HOVER - Efek saat kursor diarahkan ke tombol
+   ============================================================ */
+#buttonLogin:hover {
+  background: rgb(0, 0, 128);            /* Background berubah navy saat hover */
+  color: #ffffff;                        /* Teks berubah jadi biru gelap saat hover */
+  transform: translateY(-1px);          /* Tombol sedikit naik ke atas */
+}
+
+/* ============================================================
+   TOMBOL ACTIVE - Efek saat tombol ditekan
+   ============================================================ */
+#buttonLogin:active {
+  transform: translateY(0);             /* Tombol kembali ke posisi normal saat diklik */
+  background: rgba(255, 255, 255, 0.75); /* Background sedikit redup saat diklik */
+}
+
+/* ============================================================
+   PESAN ERROR - Teks merah yang muncul jika login gagal
+   ============================================================ */
+#errorMessage {
+  display: block;                        /* Tampilkan sebagai block (baris baru) */
+  margin-top: 10px;                      /* Jarak atas dari tombol */
+  font-size: 12px;                       /* Ukuran font kecil */
+  color: #ff6b6b !important;            /* Warna merah muda yang lebih lembut (override inline style) */
+  font-weight: 600;                      /* Sedikit tebal */
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4); /* Bayangan agar terbaca di background gelap */
+}
+
+/* ============================================================
+   DATA DISPLAY - Konten yang muncul setelah login berhasil
+   ============================================================ */
+#dataDisplay h1 {
+  color: #ffffff !important;            /* Override warna hitam dari inline style */
+  font-size: 24px !important;           /* Override ukuran dari inline style */
+  font-weight: 700;                      /* Tebal */
+  text-align: center;                    /* Rata tengah */
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5); /* Bayangan teks */
+}
+
+/* ============================================================
+   RESPONSIVE - Tampilan di layar kecil / mobile
+   ============================================================ */
+@media (max-width: 520px) {
+  .loginForm {
+    width: 92vw;                         /* Lebar menyesuaikan layar mobile */
+    padding: 36px 24px 32px;            /* Kurangi padding di mobile */
+  }
+
+  .loginForm h1 {
+    font-size: 26px;                     /* Perkecil judul di mobile */
+  }
+}
+</style>
