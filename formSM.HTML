@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Surat Masuk</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <?!= include('formSM-css'); ?>
+</head>
+
+<body data-active="formSM">
+
+  <?!= include('Sidebar'); ?>
+
+  <div class="container main-content">
+    <!-- KARTU FORM -->
+    <div class="card" id="cardForm">
+      <div class="card-header">
+        <div class="card-header-icon"><i class="fa-solid fa-envelope-open-text" style="color: rgb(255, 255, 255);"></i>
+        </div>
+        <div>
+          <div class="card-title">Form Input Surat Masuk</div>
+        </div>
+        <span class="edit-badge" id="editBadge"> MODE EDIT</span>
+      </div>
+      <input type="hidden" id="editRowIndex" value="-1">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nomor Urut</label>
+          <input type="text" id="NoUrut" placeholder="Masukkan nomor urut berkas...">
+        </div>
+        <div class="form-group">
+          <label>Nomor Berkas</label>
+          <input type="text" id="NoBerkas" placeholder="Masukkan nomor berkas...">
+        </div>
+        <div class="form-group">
+          <label>Asal Surat</label>
+          <input type="text" id="AsalSurat" placeholder="Masukkan asal instansi/surat...">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Surat</label>
+          <input type="date" id="TanggalSurat">
+        </div>
+
+        <div class="form-group full" style="margin-top: 5px;">
+          <label>Perihal</label>
+          <textarea id="Perihal" placeholder="Masukkan perihal atau ringkasan surat masuk..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Nomor Surat</label>
+          <input type="text" id="NomorSurat" placeholder="Masukkan nomor surat...">
+        </div>
+        <div class="form-group">
+          <label>Jenis Surat</label>
+          <select id="JenisSurat">
+            <option value="">-- Pilih Jenis Surat --</option>
+            <option value="nota dinas">nota dinas</option>
+            <option value="surat pengantar">surat pengantar</option>
+            <option value="surat biasa">surat biasa</option>
+            <option value="surat keputusan">surat keputusan</option>
+            <option value="surat perintah tugas">surat perintah tugas</option>
+            <option value="berita acara">berita acara</option>
+            <option value="surat kontrak">surat kontrak</option>
+            <option value="surat penawaran">surat penawaran</option>
+            <option value="surat keterangan">surat keterangan</option>
+          </select>
+        </div>
+
+        <!-- Baris Upload File & Link Tautan -->
+        <div class="form-group full" style="margin-top: 5px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px 18px;">
+            <div class="form-group">
+              <label>Upload File (Drive)</label>
+              <div style="display:flex;gap:8px;">
+                <input type="file" id="fileInput" onclick="this.value=null" onchange="handleFileUpload(this)"
+                  style="display:none;">
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()"
+                  style="padding:9px 12px;font-size:0.8rem;width:100%;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Pilih File
+                </button>
+              </div>
+              <div id="uploadStatus" style="font-size:0.7rem;color:var(--gray-400);margin-top:2px;">Maks. 10MB</div>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Link File Tautan</label>
+              <input type="text" id="LinkTautan" placeholder="Link akan terisi otomatis saat upload file berhasil..."
+                readonly style="background:#f1f5f9;cursor:not-allowed;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnKirim" onclick="Simpan_Data()">Simpan</button>
+        <button class="btn btn-warning" id="btnUpdate" style="display:none" onclick="Update_Data()">Perbarui</button>
+        <button class="btn btn-danger" id="btnBatal" style="display:none" onclick="Batal_Edit()">Batal</button>
+        <button class="btn btn-danger" id="btnClear" onclick="Reset_Form()">Bersihkan</button>
+      </div>
+    </div>
+
+    <!-- KARTU TABEL -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon"><i class="fa-solid fa-table-list" style="color: rgb(255, 255, 255);"></i></div>
+        <div>
+          <div class="card-title">Daftar Surat Masuk</div>
+          <div class="card-subtitle" id="subtitleTabel">Menunggu sesi...</div>
+        </div>
+        <button class="btn btn-secondary" style="margin-left:auto;padding:7px 14px;font-size:.8rem"
+          onclick="downloadDataSM()" title="Unduh Laporan">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <button class="btn btn-secondary" style="margin-left:1px;padding:7px 14px;font-size:.8rem" onclick="Muat_Data()"
+          title="Segarkan Data">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+      </div>
+      <div class="search-wrap">
+        <div class="search-field" style="flex:2;min-width:220px;">
+          <div class="search-input-wrap">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchUniversal" placeholder="Cari Nomor Urut, Berkas, Asal Surat, Perihal, dll..."
+              oninput="filterTabel()">
+          </div>
+        </div>
+        <div class="search-field">
+          <input type="text" id="searchTanggal" placeholder="Cari Tahun/Tanggal Surat..." oninput="filterTabel()"
+            title="Cari berdasarkan tanggal surat">
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn btn-secondary" onclick="clearSearch()" style="padding:9px 14px;font-size:.8rem;height:40px"
+            title="Bersihkan Pencarian">
+            <i class="fa-solid fa-x"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-footer" style="margin-bottom:20px;">
+        <span id="infoJumlah">—</span>
+        <span id="infoFilter" style="color:var(--blue);font-weight:600;"></span>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <label
+            style="font-size:.75rem;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Tampilkan</label>
+          <select id="perPageSel" onchange="gantiPerPage()"
+            style="padding:5px 8px;font-size:.8rem;border:1.5px solid var(--gray-200);border-radius:6px;background:var(--gray-50);cursor:pointer;">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tblArsip">
+          <thead>
+            <tr>
+              <th style="text-align:center;width:44px;">No</th>
+              <th>Nomor Urut</th>
+              <th>Nomor Berkas</th>
+              <th>Asal Surat</th>
+              <th>Tanggal Surat</th>
+              <th>Nomor Surat</th>
+              <th>Perihal</th>
+              <th>Jenis Surat</th>
+              <th style="text-align:center;width:80px;">Link</th>
+              <th style="text-align:center;width:120px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tblBody">
+            <tr class="state-row">
+              <td colspan="10">Sedang Memuat Data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+
+      </div>
+    </div>
+
+    <div id="paginasiWrap"
+      style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap;"></div>
+  </div>
+
+  <!-- MODAL VIEW DETAIL -->
+  <div id="modalView">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-header-title" style="font-weight:700;font-size:1.1rem;">Detail Surat Masuk</div>
+          <div class="modal-header-sub" id="mvNoBerkas" style="font-size:0.8rem;opacity:0.9;margin-top:2px;">—</div>
+        </div>
+        <button onclick="tutupView()" title="Tutup"
+          style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;margin-left:auto;"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Nomor Urut</div>
+            <div class="detail-value" id="mvNoUrut">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nomor Berkas</div>
+            <div class="detail-value" id="mvNoBerkasVal">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Asal Surat</div>
+            <div class="detail-value" id="mvAsalSurat">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Tanggal Surat</div>
+            <div class="detail-value" id="mvTanggalSurat">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nomor Surat</div>
+            <div class="detail-value" id="mvNomorSurat">—</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Jenis Surat</div>
+            <div class="detail-value" id="mvJenisSurat">—</div>
+          </div>
+          <div class="detail-item full" style="grid-column: 1 / -1;">
+            <div class="detail-label">Perihal</div>
+            <div class="detail-value" id="mvPerihal">—</div>
+          </div>
+          <div class="detail-item full" style="grid-column: 1 / -1;">
+            <div class="detail-label">Tautan Dokumen</div>
+            <div class="detail-value" id="mvTautan">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <?!= include('session-helper'); ?>
+
+  <script>
+    var semuaData = [];
+    var dataDisplay = [];
+    var halamanAktif = 1;
+    var perPage = 25;
+
+    function _onSesiValid() {
+      Muat_Data();
+    }
+
+    function Muat_Data() {
+      document.getElementById('tblBody').innerHTML = '<tr class="state-row"><td colspan="10"><i class="fa-solid fa-arrows-rotate fa-spin"></i> Memuat data...</td></tr>';
+      document.getElementById('subtitleTabel').textContent = 'Sedang Memuat Data...';
+      google.script.run
+        .withSuccessHandler(function (rows) {
+          semuaData = dataDisplay = rows || [];
+          Render_Tabel(dataDisplay);
+          document.getElementById('subtitleTabel').textContent = 'Total ' + semuaData.length + ' data tersimpan';
+        })
+        .withFailureHandler(function (err) {
+          document.getElementById('tblBody').innerHTML = '<tr class="state-row"><td colspan="10" style="color:var(--danger)">Gagal memuat: ' + err.message + '</td></tr>';
+        })
+        .getAllSM();
+    }
+
+    function Render_Tabel(arr) {
+      var tbody = document.getElementById('tblBody');
+      if (!arr || arr.length === 0) {
+        tbody.innerHTML = '<tr class="state-row"><td colspan="10">Tidak ada data</td></tr>';
+        Upd_Info(0);
+        document.getElementById('paginasiWrap').innerHTML = '';
+        return;
+      }
+
+      var totalHalaman = Math.ceil(arr.length / perPage);
+      if (halamanAktif > totalHalaman) halamanAktif = 1;
+
+      var mulai = (halamanAktif - 1) * perPage;
+      var selesai = Math.min(mulai + perPage, arr.length);
+      var slice = arr.slice(mulai, selesai);
+
+      var html = '';
+      slice.forEach(function (b, i) {
+        var idx = semuaData.indexOf(b);
+        html += '<tr>'
+          + '<td class="td-no" style="text-align:center;">' + (Esc(b[0]) || '—') + '</td>'
+          + '<td style="text-align:center;" title="' + Esc(b[1]) + '">' + (Esc(b[1]) || '—') + '</td>'
+          + '<td style="text-align:center;" title="' + Esc(b[2]) + '">' + (Esc(b[2]) || '—') + '</td>'
+          + '<td title="' + Esc(b[3]) + '">' + (Esc(b[3]) || '—') + '</td>'
+          + '<td>' + (Fmt_Tgl(b[4]) || '—') + '</td>'
+          + '<td style="text-align:center;" title="' + Esc(b[5]) + '">' + (Esc(b[5]) || '—') + '</td>'
+          + '<td title="' + Esc(b[6]) + '">' + (Esc(b[6]) || '—') + '</td>'
+          + '<td title="' + Esc(b[7]) + '">' + (Esc(b[7]) || '—') + '</td>'
+          + '<td style="text-align:center;">' + (b[8] ? '<a href="' + Esc(b[8]) + '" target="_blank" style="color:var(--blue);font-weight:600;font-size:1.1rem;">🔗</a>' : '<span style="color:#cbd5e1">—</span>') + '</td>'
+          + '<td class="td-aksi" style="text-align:center;">'
+          + '<button class="btn-tbl btn-tbl-view" title="Detail" onclick="viewData(' + idx + ')"><i class="fa-solid fa-eye"></i></button>'
+          + '<button class="btn-tbl btn-tbl-edit" title="Edit" onclick="IsiFormEdit(' + idx + ')"><i class="fa-solid fa-pen-to-square"></i></button>'
+          + '<button class="btn-tbl btn-tbl-hapus" title="Hapus" onclick="KonfirmasiHapus(' + idx + ')"><i class="fa-solid fa-trash"></i></button>'
+          + '</td></tr>';
+      });
+      tbody.innerHTML = html;
+      Upd_Info(arr.length, mulai + 1, selesai);
+      Render_Paginasi(totalHalaman);
+    }
+
+    function Render_Paginasi(total) {
+      var wrap = document.getElementById('paginasiWrap');
+      if (total <= 1) { wrap.innerHTML = ''; return; }
+
+      var html = '';
+      var btnStyle = 'display:inline-flex;align-items:center;justify-content:center;'
+        + 'min-width:32px;height:32px;padding:0 8px;border:1.5px solid var(--gray-200);'
+        + 'border-radius:6px;background:var(--white);font-family:inherit;font-size:.8rem;'
+        + 'font-weight:600;cursor:pointer;color:var(--gray-600);transition:all .15s;';
+      var btnAktifStyle = btnStyle + 'background:#283289;color:white;border-color:#283289;';
+      var btnDisabledStyle = btnStyle + 'opacity:.4;cursor:not-allowed;';
+
+      if (halamanAktif > 1) {
+        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif - 1) + ')">'
+          + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+      } else {
+        html += '<button style="' + btnDisabledStyle + '" disabled>'
+          + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+      }
+
+      var pages = rentangHalaman(halamanAktif, total);
+      pages.forEach(function (p) {
+        if (p === '...') {
+          html += '<span style="padding:0 4px;color:var(--gray-400);font-size:.85rem;line-height:32px;">···</span>';
+        } else {
+          var st = (p === halamanAktif) ? btnAktifStyle : btnStyle;
+          html += '<button style="' + st + '" onclick="keHalaman(' + p + ')">' + p + '</button>';
+        }
+      });
+
+      if (halamanAktif < total) {
+        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif + 1) + ')">'
+          + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+      } else {
+        html += '<button style="' + btnDisabledStyle + '" disabled>'
+          + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+      }
+
+      wrap.innerHTML = html;
+    }
+
+    function rentangHalaman(aktif, total) {
+      if (total <= 7) {
+        var r = [];
+        for (var i = 1; i <= total; i++) r.push(i);
+        return r;
+      }
+      var pages = [1];
+      if (aktif > 3) pages.push('...');
+      var dari = Math.max(2, aktif - 1);
+      var sampai = Math.min(total - 1, aktif + 1);
+      for (var j = dari; j <= sampai; j++) pages.push(j);
+      if (aktif < total - 2) pages.push('...');
+      pages.push(total);
+      return pages;
+    }
+
+    function keHalaman(n) {
+      halamanAktif = n;
+      Render_Tabel(dataDisplay);
+    }
+
+    function gantiPerPage() {
+      perPage = parseInt(document.getElementById('perPageSel').value);
+      halamanAktif = 1;
+      Render_Tabel(dataDisplay);
+    }
+
+    function filterTabel() {
+      halamanAktif = 1;
+      var q = document.getElementById('searchUniversal').value.toLowerCase().trim();
+      var tgl = document.getElementById('searchTanggal').value;
+
+      dataDisplay = semuaData.filter(function (b) {
+        return (!q || b.some(function (s) { return s.toString().toLowerCase().includes(q); }))
+          && (!tgl || (b[4] && b[4].toString().toLowerCase().includes(tgl.toLowerCase())));
+      });
+      var f = [];
+      if (q) f.push('Pencarian: "' + q + '"');
+      if (tgl) f.push('Tanggal Surat: ' + tgl);
+
+      document.getElementById('infoFilter').textContent = f.length ? '🔍 ' + f.join(' · ') : '';
+      Render_Tabel(dataDisplay);
+    }
+
+    function clearSearch() {
+      document.getElementById('searchUniversal').value = '';
+      document.getElementById('searchTanggal').value = '';
+      document.getElementById('infoFilter').textContent = '';
+      dataDisplay = semuaData;
+      Render_Tabel(dataDisplay);
+    }
+
+    function downloadDataSM() {
+      Swal.fire({
+        title: `<div class="card-headerh2" style="font-size:1.2rem;font-weight:700;color:var(--navy);padding-bottom:8px;border-bottom:2px solid var(--gray-100);"> 
+                Unduh Daftar Surat Masuk
+                </div>`,
+        didOpen: function () {
+          var titleEl = document.querySelector('.swal2-title');
+          if (titleEl) {
+            titleEl.style.paddingTop = '8px';
+            titleEl.style.paddingBottom = '0';
+            titleEl.style.marginBottom = '0';
+          }
+        },
+        html: `
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;text-align:left;">
+          <div class="form-group">
+            <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH FORMAT:</label>
+            <select id="swal-format" style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="pdf">PDF (.pdf)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH BULAN:</label>
+            <select id="swal-bulan" style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+              <option value="">Semua Bulan</option>
+              <option value="01">Januari</option>
+              <option value="02">Februari</option>
+              <option value="03">Maret</option>
+              <option value="04">April</option>
+              <option value="05">Mei</option>
+              <option value="06">Juni</option>
+              <option value="07">Juli</option>
+              <option value="08">Agustus</option>
+              <option value="09">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH TAHUN:</label>
+            <input type="text" id="swal-tahun" placeholder="Contoh: 2026 (Kosongkan untuk semua)..." style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+          </div>
+        </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Unduh',
+        cancelButtonText: 'Batal',
+        preConfirm: () => {
+          return {
+            fmt: document.getElementById('swal-format').value,
+            bln: document.getElementById('swal-bulan').value,
+            thn: document.getElementById('swal-tahun').value.trim()
+          }
+        }
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          var param = result.value;
+
+          var filterText = [];
+          if (param.bln) {
+            var namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            filterText.push("Bulan " + namaBulan[parseInt(param.bln) - 1]);
+          }
+          if (param.thn) {
+            filterText.push("Tahun " + param.thn);
+          }
+          var displayFilter = filterText.length > 0 ? '' + filterText.join(' · ') : 'Pemrosesan Semua Data';
+
+          Swal.fire({
+            title: 'Menyiapkan File...',
+            text: displayFilter,
+            allowOutsideClick: false,
+            didOpen: function () { Swal.showLoading(); }
+          });
+
+          google.script.run
+            .withSuccessHandler(function (res) {
+              Swal.close();
+              if (res && res.url) {
+                try {
+                  window.open(res.url, '_blank');
+                } catch (e) {
+                  console.error("Popup blocked", e);
+                }
+
+                Swal.fire({
+                  icon: 'success',
+                  title: 'File Berhasil Diunduh!',
+                  html: `
+                    <div style="margin-top:10px;">
+                      <p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:15px;">
+                        Silahkan cek file yang sudah terunduh pada histori unduhan di browser anda!
+                      </p>
+                    </div>
+                  `,
+                  showConfirmButton: false,
+                  showCancelButton: true,
+                  cancelButtonText: 'Tutup',
+                  cancelButtonColor: '#94a3b8'
+                });
+
+                setTimeout(function () {
+                  google.script.run.cleanupTempSheet(res.tempSheetId, null);
+                }, 30000);
+              } else {
+                Swal.fire('Error', 'Gagal memproses file unduhan', 'error');
+              }
+            })
+            .withFailureHandler(ErrH)
+            .getDownloadUrlSM(param.bln, param.thn, param.fmt);
+        }
+      });
+    }
+
+    function handleFileUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      var jenisSurat = document.getElementById('JenisSurat').value;
+      if (!jenisSurat) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Jenis Surat Kosong',
+          text: 'Silakan pilih Jenis Surat terlebih dahulu sebelum mengunggah file agar dapat dikelompokkan dengan benar.'
+        });
+        input.value = '';
+        return;
+      }
+      var file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        Swal.fire('Gagal', 'Ukuran file maksimal 10MB', 'error');
+        input.value = '';
+        return;
+      }
+
+      var statusEl = document.getElementById('uploadStatus');
+      statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang mengunggah: ' + file.name + '...';
+      statusEl.style.color = 'var(--blue)';
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var base64Data = e.target.result;
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (res.success) {
+              document.getElementById('LinkTautan').value = res.url;
+              statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Berhasil diunggah: ' + res.name;
+              statusEl.style.color = 'var(--success)';
+              Swal.fire({ icon: 'success', title: 'File Terunggah', text: 'Tautan file telah otomatis terisi.', timer: 1500, showConfirmButton: false });
+            } else {
+              statusEl.innerHTML = '<i class="fa-solid fa-xmark"></i> Gagal: ' + res.message;
+              statusEl.style.color = 'var(--danger)';
+              Swal.fire('Gagal Unggah', res.message, 'error');
+            }
+          })
+          .withFailureHandler(function (err) {
+            statusEl.innerHTML = '<i class="fa-solid fa-xmark"></i> Error sistem';
+            statusEl.style.color = 'var(--danger)';
+            ErrH(err);
+          })
+          .uploadFileToDriveSM(base64Data, file.name, file.type, jenisSurat);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function Simpan_Data() {
+      var d = AmbilForm();
+      if (!d.Nomor_Urut) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Nomor Urut wajib diisi!' }); return; }
+      if (!d.Asal_Surat) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Asal Surat wajib diisi!' }); return; }
+      if (!d.Tanggal_Surat) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Tanggal Surat wajib diisi!' }); return; }
+
+      Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+      google.script.run
+        .withSuccessHandler(function () { Swal.fire({ icon: 'success', title: 'Tersimpan!', timer: 1800, showConfirmButton: false }); Reset_Form(); Muat_Data(); })
+        .withFailureHandler(ErrH).simpanSM(d);
+    }
+
+    var _viewIdx = -1;
+
+    function viewData(idx) {
+      var b = semuaData[idx];
+      if (!b) return;
+      _viewIdx = idx;
+
+      function val(v) { return (v && v.toString().trim()) ? v.toString().trim() : null; }
+      function set(id, v) {
+        var el = document.getElementById(id);
+        if (val(v)) {
+          if (id === 'mvTautan') {
+            el.innerHTML = '<a href="' + v + '" target="_blank" style="color:var(--blue);text-decoration:underline;font-weight:600;">Buka Dokumen <i class="fa-solid fa-up-right-from-square" style="font-size:0.7rem"></i></a>';
+          } else {
+            el.textContent = v;
+          }
+          el.style.color = '';
+        } else {
+          el.textContent = 'Tidak diisi';
+          el.style.color = 'var(--gray-400)';
+        }
+      }
+
+      document.getElementById('mvNoBerkas').textContent = val(b[2]) ? 'Berkas: ' + b[2] : 'Detail Surat Masuk';
+
+      set('mvNoUrut', b[1]);
+      set('mvNoBerkasVal', b[2]);
+      set('mvAsalSurat', b[3]);
+      set('mvTanggalSurat', Fmt_Tgl(b[4]));
+      set('mvNomorSurat', b[5]);
+      set('mvJenisSurat', b[7]);
+      set('mvPerihal', b[6]);
+      set('mvTautan', b[8]);
+
+      document.getElementById('modalView').classList.add('aktif');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function tutupView() {
+      document.getElementById('modalView').classList.remove('aktif');
+      document.body.style.overflow = '';
+      _viewIdx = -1;
+    }
+
+    document.getElementById('modalView').addEventListener('click', function (e) {
+      if (e.target === this) tutupView();
+    });
+
+    function IsiFormEdit(idx) {
+      var b = semuaData[idx]; if (!b) return;
+      document.getElementById('editRowIndex').value = idx;
+
+      document.getElementById('NoUrut').value = b[1] || '';
+      document.getElementById('NoBerkas').value = b[2] || '';
+      document.getElementById('AsalSurat').value = b[3] || '';
+
+      document.getElementById('TanggalSurat').value = Parse_Date_To_ISO(b[4] || '');
+      document.getElementById('NomorSurat').value = b[5] || '';
+      document.getElementById('Perihal').value = b[6] || '';
+      document.getElementById('JenisSurat').value = b[7] || '';
+      document.getElementById('LinkTautan').value = b[8] || '';
+
+      document.getElementById('uploadStatus').textContent = (b[8] ? 'File sudah ada' : 'Maks. 10MB');
+      document.getElementById('uploadStatus').style.color = (b[8] ? 'var(--success)' : 'var(--gray-400)');
+
+      document.getElementById('btnKirim').style.display = 'none';
+      document.getElementById('btnUpdate').style.display = 'inline-flex';
+      document.getElementById('btnBatal').style.display = 'inline-flex';
+      document.getElementById('btnClear').style.display = 'none';
+      document.body.classList.add('edit-mode');
+      document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function Update_Data() {
+      var idx = parseInt(document.getElementById('editRowIndex').value);
+      if (idx < 0) return;
+      var d = AmbilForm(); d.rowIndex = idx;
+      if (!d.Nomor_Urut) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Nomor Urut wajib diisi!' }); return; }
+      if (!d.Asal_Surat) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Asal Surat wajib diisi!' }); return; }
+      if (!d.Tanggal_Surat) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Tanggal Surat wajib diisi!' }); return; }
+
+      Swal.fire({ title: 'Memperbarui...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+      google.script.run
+        .withSuccessHandler(function () { Swal.fire({ icon: 'success', title: 'Diperbarui!', timer: 1800, showConfirmButton: false }); Batal_Edit(); Muat_Data(); })
+        .withFailureHandler(ErrH).editDataSM(d);
+    }
+
+    function KonfirmasiHapus(idx) {
+      var b = semuaData[idx]; if (!b) return;
+      Swal.fire({
+        icon: 'warning', title: 'Yakin Ingin Menghapus Data Ini?', html: 'Surat Masuk No. Urut <b>"' + (b[1] || 'ini') + '"</b> dari <b>"' + (b[3] || 'instansi') + '"</b> akan dihapus permanen.',
+        showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal',
+        confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8'
+      }).then(function (res) {
+        if (!res.isConfirmed) return;
+        Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+        google.script.run
+          .withSuccessHandler(function () { Swal.fire({ icon: 'success', title: 'Dihapus!', timer: 1800, showConfirmButton: false }); Muat_Data(); })
+          .withFailureHandler(ErrH).hapusDataSM(idx);
+      });
+    }
+
+    function AmbilForm() {
+      return {
+        Nomor_Urut: V('NoUrut'), Nomor_Berkas: V('NoBerkas'), Asal_Surat: V('AsalSurat'),
+        Tanggal_Surat: V('TanggalSurat'), Nomor_Surat: V('NomorSurat'), Perihal: V('Perihal'),
+        Jenis_Surat: V('JenisSurat'), Link_File_Tautan: V('LinkTautan')
+      };
+    }
+
+    function V(id) { return document.getElementById(id).value.trim(); }
+    function Esc(s) { if (!s) return ''; return s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function Fmt_Tgl(s) { if (!s) return '—'; var p = s.toString().slice(0, 10).split('-'); return p.length === 3 && p[0].length === 4 ? p[2] + '/' + p[1] + '/' + p[0] : s; }
+
+    function Parse_Date_To_ISO(str) {
+      if (!str) return '';
+      str = str.toString().trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      var m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+      var m2 = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if (m2) return m2[1] + '-' + m2[2].padStart(2, '0') + '-' + m2[3].padStart(2, '0');
+
+      var months = {
+        'januari': 'january', 'februari': 'february', 'maret': 'march', 'april': 'april',
+        'mei': 'may', 'juni': 'june', 'juli': 'july', 'agustus': 'august',
+        'september': 'september', 'oktober': 'october', 'november': 'november', 'desember': 'december',
+        'jan': 'jan', 'feb': 'feb', 'mar': 'mar', 'apr': 'apr', 'jun': 'jun', 'jul': 'jul', 'agu': 'aug', 'sep': 'sep', 'okt': 'oct', 'nov': 'nov', 'des': 'dec'
+      };
+      var cleanStr = str.toLowerCase();
+      for (var ind in months) {
+        cleanStr = cleanStr.replace(ind, months[ind]);
+      }
+      var parsed = Date.parse(cleanStr);
+      if (!isNaN(parsed)) {
+        var dt = new Date(parsed);
+        return dt.getFullYear() + '-' + (dt.getMonth() + 1).toString().padStart(2, '0') + '-' + dt.getDate().toString().padStart(2, '0');
+      }
+      return '';
+    }
+
+    function Upd_Info(n, dari, sampai) {
+      var teks = dari && sampai
+        ? 'Menampilkan ' + dari + '–' + sampai + ' dari ' + n + ' data'
+        : 'Menampilkan 0 dari ' + semuaData.length + ' data';
+      document.getElementById('infoJumlah').textContent = teks;
+    }
+
+    function Reset_Form() {
+      ['NoUrut', 'NoBerkas', 'AsalSurat', 'TanggalSurat', 'NomorSurat', 'Perihal', 'JenisSurat', 'LinkTautan'].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('uploadStatus').textContent = 'Maks. 10MB';
+      document.getElementById('uploadStatus').style.color = 'var(--gray-400)';
+    }
+
+    function Batal_Edit() {
+      document.getElementById('editRowIndex').value = -1;
+      document.getElementById('btnKirim').style.display = 'inline-flex';
+      document.getElementById('btnUpdate').style.display = 'none';
+      document.getElementById('btnBatal').style.display = 'none';
+      document.getElementById('btnClear').style.display = 'inline-flex';
+      document.body.classList.remove('edit-mode');
+      Reset_Form();
+    }
+
+    function ErrH(err) { Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Terjadi kesalahan.' }); }
+  </script>
+</body>
+
+</html>

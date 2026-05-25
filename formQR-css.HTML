@@ -1,0 +1,566 @@
+<style data-label="1">
+    :root {
+        --navy: #0f2544;
+        --blue: #1a56db;
+        --sky: #3b82f6;
+        --accent: #f59e0b;
+        --danger: #ef4444;
+        --success: #10b981;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-400: #94a3b8;
+        --gray-600: #475569;
+        --gray-800: #1e293b;
+        --white: #ffffff;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, .10);
+        --shadow-lg: 0 10px 40px rgba(0, 0, 0, .14);
+        --radius: 12px;
+        --radius-sm: 8px;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--gray-50);
+        color: var(--gray-800);
+        min-height: 100vh;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────── */
+    .container {
+        max-width: 1440px;
+        margin: 0;
+        padding: 24px 20px;
+    }
+
+    /* ── CARD ────────────────────────────────────────── */
+    .card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1.5px solid var(--gray-100);
+    }
+
+    .card-header-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--blue), var(--sky));
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--navy);
+    }
+
+    .card-subtitle {
+        font-size: 0.76rem;
+        color: var(--gray-400);
+        margin-top: 1px;
+    }
+
+    /* ── SEARCH ──────────────────────────────────────── */
+    .search-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: flex-end;
+        margin-bottom: 14px;
+    }
+
+    .search-field {
+        flex: 1;
+        min-width: 180px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .search-input-wrap {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.85rem;
+        pointer-events: none;
+        color: var(--gray-400);
+    }
+
+    .search-input-wrap input {
+        padding-left: 30px;
+    }
+
+    label {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--gray-600);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    /* ── FORM ──────────────────────────────────────── */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--navy);
+        text-transform: uppercase;
+    }
+
+    input[type="text"] {
+        padding: 9px 12px;
+        border: 1.5px solid var(--gray-200);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 0.88rem;
+        color: var(--gray-800);
+        background: var(--gray-50);
+        transition: border-color .18s, box-shadow .18s, background .18s;
+        width: 100%;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--blue);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(26, 86, 219, .12);
+    }
+
+    /* ── TOMBOL ──────────────────────────────────────── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 20px;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .18s;
+    }
+
+    .btn:active {
+        transform: scale(.97);
+    }
+
+    .btn-primary {
+        background: var(--blue);
+        color: white;
+    }
+
+    .btn-warning {
+        background: var(--accent);
+        color: var(--navy);
+    }
+
+    .btn-secondary {
+        background: var(--gray-100);
+        color: var(--gray-600);
+        border: 1px solid var(--gray-200);
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    /* ── TABEL ───────────────────────────────────────── */
+    .table-wrap {
+        overflow-x: auto;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+        font-size: 0.82rem;
+    }
+
+    thead tr {
+        background: #283289;
+        color: white;
+    }
+
+    thead th {
+        padding: 11px 14px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.73rem;
+        letter-spacing: .4px;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    tbody tr {
+        border-bottom: 1px solid var(--gray-100);
+        transition: background .12s;
+    }
+
+    tbody tr:hover {
+        background: #f0f7ff;
+    }
+
+    tbody tr:nth-child(even) {
+        background: var(--gray-50);
+    }
+
+    tbody tr:nth-child(even):hover {
+        background: #f0f7ff;
+    }
+
+    td {
+        border-bottom: 1px solid var(--gray-100);
+        padding: 9px 14px;
+        color: var(--gray-600);
+        max-width: 160px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+
+    td.td-no {
+        color: var(--gray-400);
+        font-size: 0.75rem;
+        text-align: center;
+        width: 42px;
+    }
+
+    td.td-aksi {
+        white-space: nowrap;
+    }
+
+    .btn-tbl {
+        padding: 4px 10px;
+        border: none;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    .btn-tbl-view {
+        background: #fffE99;
+        color: #a18a00;
+        margin-right: 5px;
+    }
+
+    .btn-tbl-view:hover {
+        background: #FFE302;
+        color: white;
+    }
+
+    .state-row td {
+        text-align: center;
+        padding: 40px;
+        color: var(--gray-400);
+        font-size: 0.88rem;
+    }
+
+    .table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        font-size: 0.78rem;
+        color: var(--gray-400);
+    }
+
+    /* ── PREVIEW LAYOUT ──────────────────────────────── */
+    .preview-wrap {
+        display: flex;
+        gap: 28px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .label-outer {
+        flex: 0 0 auto;
+        background: var(--gray-100);
+        border-radius: var(--radius-sm);
+        padding: 20px;
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .label-sheet {
+        display: inline-block;
+    }
+
+    .preview-panel {
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .preview-info {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+    }
+
+    .pi-row {
+        display: flex;
+        gap: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .pi-row:last-child {
+        border-bottom: none;
+    }
+
+    .pi-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        width: 130px;
+        flex-shrink: 0;
+        padding-top: 2px;
+    }
+
+    .pi-value {
+        font-size: 0.87rem;
+        color: var(--gray-800);
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .preview-note {
+        margin-top: 18px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        font-size: 0.78rem;
+        color: #1e40af;
+        line-height: 1.6;
+    }
+
+    /* ── LABEL TABLE (template arsip) ────────────────── */
+    .lbl-table {
+        border-collapse: collapse;
+        border: 2px solid #000;
+        font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+        font-size: 0.8rem;
+        background: #fff;
+        width: 480px;
+    }
+
+    .lbl-cell {
+        border: 1.5px solid #000;
+        padding: 4px 8px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    /* Header RETENSI */
+    .lbl-retensi-header {
+        font-weight: 800;
+        font-size: 0.78rem;
+        letter-spacing: 1px;
+        background: #fff;
+        padding: 5px 8px;
+    }
+
+    /* Sub-header Aktif / Inaktif / Ket */
+    .lbl-sub {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        background: #f8f8f8;
+    }
+
+    /* Nilai besar retensi */
+    .lbl-val-big {
+        font-size: 1.2rem;
+        font-weight: 800;
+        padding: 6px 8px;
+    }
+
+    /* LOKASI */
+    .lbl-lokasi-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        background: #f8f8f8;
+        writing-mode: horizontal-tb;
+    }
+
+    .lbl-lokasi-val {
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 6px 12px;
+    }
+
+    /* KODE KLASIFIKASI */
+    .lbl-kodeheader {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        background: #f8f8f8;
+    }
+
+    /* Baris instansi / unit / tahun */
+    .lbl-instansi {
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: .4px;
+        padding: 5px 8px;
+        text-align: center;
+        background: #fff;
+    }
+
+    .lbl-unitkerja {
+        font-size: 0.82rem;
+        font-weight: 700;
+        font-style: italic;
+        text-align: center;
+        padding: 4px 8px;
+    }
+
+    .lbl-tahun {
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-align: center;
+        padding: 4px 8px;
+    }
+
+    /* NO BOK / NO BERKAS header */
+    .lbl-bokheader,
+    .lbl-berkasheader,
+    .lbl-bcheader {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        background: #f8f8f8;
+        padding: 5px 8px;
+    }
+
+    /* Bottom row values */
+    .lbl-row-bot td {
+        padding: 10px 8px;
+    }
+
+    .lbl-bokval {
+        font-size: 1rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .lbl-berkasval {
+        font-size: 1rem;
+        font-weight: 800;
+        text-align: center;
+    }
+
+    .lbl-qrbox {
+        text-align: center;
+        padding: 8px !important;
+    }
+
+    .qr-box-inner {
+        display: inline-block;
+    }
+
+    .qr-box-inner img,
+    .qr-box-inner canvas {
+        display: block;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 768px) {
+        .container {
+            padding: 14px 12px;
+        }
+
+        .card {
+            padding: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .preview-wrap {
+            flex-direction: column;
+        }
+
+        .label-outer {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .lbl-table {
+            width: 100%;
+            min-width: 360px;
+        }
+    }
+</style>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <?!= include('formQR-css'); ?>
+</head>
+
+<body data-active="formQR">
+
+    <?!= include('Sidebar'); ?>
+
+    <div class="container main-content">
+
+        <!-- ── KARTU INPUT FORM ───────────────────────────────── -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div>
+                    <div class="card-title">Form Data QR Code</div>
+                    <div class="card-subtitle">Isi form di bawah ini untuk menghasilkan label QR Code otomatis</div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Retensi Aktif</label>
+                    <input type="text" id="inpAktif" placeholder="Contoh: 2" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Retensi Inaktif</label>
+                    <input type="text" id="inpInaktif" placeholder="Contoh: 3" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Retensi Ket</label>
+                    <input type="text" id="inpKet" placeholder="Contoh: M" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Lokasi</label>
+                    <input type="text" id="inpLokasi" placeholder="Contoh: RAK 1" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Kode Klasifikasi</label>
+                    <input type="text" id="inpKlasifikasi" placeholder="Contoh: AS.03.00" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Nama Instansi</label>
+                    <input type="text" id="inpInstansi" placeholder="Contoh: DITJEN BINWASNAKER DAN K3" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Unit Kerja</label>
+                    <input type="text" id="inpUnitKerja" placeholder="Contoh: Balai K3 Samarinda" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>Tahun</label>
+                    <input type="text" id="inpTahun" placeholder="Contoh: TAHUN 2014-2015" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>No BOK</label>
+                    <input type="text" id="inpNoBok" placeholder="Contoh: B.01.06/05" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                    <label>No Berkas</label>
+                    <input type="text" id="inpNoBerkas" placeholder="Contoh: 01-62" oninput="updateLabel()">
+                </div>
+            </div>
+            
+            <div class="btn-row" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Form
+                </button>
+            </div>
+        </div>
+
+        <!-- ── KARTU PREVIEW QR ──────────────────────────────────────────── -->
+        <div class="card" id="cardPreview">
+            <div class="card-header">
+                <div class="card-header-icon"><i class="fa-solid fa-eye"></i></div>
+                <div>
+                    <div class="card-title">Preview Label QR Code</div>
+                    <div class="card-subtitle">Tampilan label otomatis sesuai input di atas</div>
+                </div>
+            </div>
+
+            <!-- Area preview + unduh -->
+            <div class="preview-wrap">
+                <!-- Label kiri: preview visual -->
+                <div class="label-outer">
+                    <div class="label-sheet" id="labelSheet">
+                        <!-- Isi dinamis via JS -->
+                    </div>
+                </div>
+
+                <!-- Panel kanan: info & tombol unduh -->
+                <div class="preview-panel">
+                    <div class="btn-row" style="flex-direction:column; gap:10px;">
+                        <button class="btn btn-primary" onclick="unduhLabel('png')">
+                            <i class="fa-solid fa-image"></i> Unduh PNG
+                        </button>
+                        <button class="btn btn-success" onclick="unduhLabel('pdf')">
+                            <i class="fa-solid fa-file-pdf"></i> Unduh PDF (Print)
+                        </button>
+                    </div>
+
+                    <div class="preview-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Label akan otomatis diperbarui setiap kali Anda mengetik pada form. QR Code dihasilkan berdasarkan isi dari <strong>No BOK</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <!-- ── HIDDEN QR CANVAS (off-screen render) ─────────────────────── -->
+    <div id="qrHidden" style="position:fixed;left:-9999px;top:-9999px;"></div>
+
+    <!-- ── SESSION HELPER (navTo, konfirmasiLogout, cekSesi) ────────── -->
+    <?!= include('session-helper'); ?>
+
+    <script>
+        /* ══════════════════════════════════════════════════════════════════
+           Dipanggil oleh session-helper setelah sesi terkonfirmasi
+        ══════════════════════════════════════════════════════════════════ */
+        function _onSesiValid() {
+            updateLabel();
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           UPDATE LABEL DARI INPUT FORM
+        ══════════════════════════════════════════════════════════════════ */
+        function updateLabel() {
+            var aktif = document.getElementById('inpAktif').value || ' ';
+            var inaktif = document.getElementById('inpInaktif').value || ' ';
+            var ket = document.getElementById('inpKet').value || ' ';
+            var lokasi = document.getElementById('inpLokasi').value || ' ';
+            var klasifikasi = document.getElementById('inpKlasifikasi').value || ' ';
+            var instansi = document.getElementById('inpInstansi').value || ' ';
+            var unitKerja = document.getElementById('inpUnitKerja').value || ' ';
+            var tahun = document.getElementById('inpTahun').value || ' ';
+            var noBok = document.getElementById('inpNoBok').value || ' ';
+            var noBerkas = document.getElementById('inpNoBerkas').value || ' ';
+
+            var container = document.getElementById('labelSheet');
+            
+            var tahunStr = tahun;
+            if (tahun.trim() !== '' && !tahun.toUpperCase().includes('TAHUN')) {
+                tahunStr = 'TAHUN ' + tahun;
+            }
+
+            container.innerHTML = buildLabelHTML(noBok, noBerkas, klasifikasi, lokasi, tahunStr, aktif, inaktif, ket, instansi, unitKerja);
+
+            // Generate QR otomatis berdasarkan No BOK
+            var qrDiv = container.querySelector('.qr-box-inner');
+            if (qrDiv && noBok.trim() !== '') {
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, {
+                    text: noBok.trim(),
+                    width: 90,
+                    height: 90,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else if (qrDiv) {
+                qrDiv.innerHTML = '<div style="width:90px; height:90px; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:10px; border:1px dashed #ccc;">Isi No BOK</div>';
+            }
+        }
+
+        function buildLabelHTML(noBok, noBerkas, klas, lokasi, tahun, retAktif, retInaktif, retKet, instansi, unitKerja) {
+            return '\
+<table class="lbl-table">\
+  <tbody>\
+    <tr>\
+      <td class="lbl-cell lbl-retensi-header" colspan="3">RETENSI</td>\
+      <td class="lbl-cell lbl-lokasi-label" rowspan="2">LOKASI</td>\
+      <td class="lbl-cell lbl-kodeheader">KODE KLASIFIKASI</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-sub">AKTIF</td>\
+      <td class="lbl-cell lbl-sub">INAKTIF</td>\
+      <td class="lbl-cell lbl-sub">KET</td>\
+      <td class="lbl-cell lbl-kodeheader" rowspan="2" style="font-size:1.3rem;font-weight:800;vertical-align:middle;">' + escHtml(klas) + '</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-val-big">' + escHtml(retAktif) + '</td>\
+      <td class="lbl-cell lbl-val-big">' + escHtml(retInaktif) + '</td>\
+      <td class="lbl-cell lbl-val-big">' + escHtml(retKet) + '</td>\
+      <td class="lbl-cell lbl-lokasi-val">' + escHtml(lokasi) + '</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-instansi" colspan="5">' + escHtml(instansi) + '</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-unitkerja" colspan="5">' + escHtml(unitKerja) + '</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-tahun" colspan="5">' + escHtml(tahun) + '</td>\
+    </tr>\
+    <tr>\
+      <td class="lbl-cell lbl-bokheader" colspan="2">NO BOK</td>\
+      <td class="lbl-cell lbl-berkasheader" colspan="2">NO BERKAS</td>\
+      <td class="lbl-cell lbl-bcheader">BARCODE</td>\
+    </tr>\
+    <tr class="lbl-row-bot">\
+      <td class="lbl-cell lbl-bokval" colspan="2">' + escHtml(noBok) + '</td>\
+      <td class="lbl-cell lbl-berkasval" colspan="2">' + escHtml(noBerkas) + '</td>\
+      <td class="lbl-cell lbl-qrbox"><div class="qr-box-inner"></div></td>\
+    </tr>\
+  </tbody>\
+</table>';
+        }
+
+        function resetForm() {
+            document.getElementById('inpAktif').value = '';
+            document.getElementById('inpInaktif').value = '';
+            document.getElementById('inpKet').value = '';
+            document.getElementById('inpLokasi').value = '';
+            document.getElementById('inpKlasifikasi').value = '';
+            document.getElementById('inpInstansi').value = '';
+            document.getElementById('inpUnitKerja').value = '';
+            document.getElementById('inpTahun').value = '';
+            document.getElementById('inpNoBok').value = '';
+            document.getElementById('inpNoBerkas').value = '';
+            updateLabel();
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           UNDUH LABEL
+        ══════════════════════════════════════════════════════════════════ */
+        function unduhLabel(format) {
+            var noBokText = document.getElementById('inpNoBok').value || 'qr';
+            var noBok = noBokText.trim().replace(/[\/\\:*?"<>|]/g, '-');
+
+            if (format === 'png') {
+                unduhPNG(noBok);
+            } else {
+                unduhPDF(noBok);
+            }
+        }
+
+        function unduhPNG(nama) {
+            var hidden = document.getElementById('qrHidden');
+            hidden.innerHTML = '';
+
+            var wrap = document.createElement('div');
+            wrap.style.cssText = 'background:#fff;padding:0;display:inline-block;';
+            wrap.innerHTML = document.getElementById('labelSheet').innerHTML;
+            hidden.appendChild(wrap);
+
+            setTimeout(function () {
+                var qrDiv = wrap.querySelector('.qr-box-inner');
+                var noBokText = document.getElementById('inpNoBok').value.trim();
+                if (qrDiv && noBokText) {
+                    qrDiv.innerHTML = '';
+                    new QRCode(qrDiv, {
+                        text: noBokText,
+                        width: 90, height: 90,
+                        colorDark: '#000000', colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+                setTimeout(function () {
+                    if (typeof html2canvas !== 'undefined') {
+                        html2canvas(wrap, { scale: 3, backgroundColor: '#fff' }).then(function (canvas) {
+                            var a = document.createElement('a');
+                            a.download = 'QR_' + nama + '.png';
+                            a.href = canvas.toDataURL('image/png');
+                            a.click();
+                            hidden.innerHTML = '';
+                        });
+                    } else {
+                        Swal.fire({ icon: 'info', title: 'Info', text: 'Gunakan tombol PDF atau Ctrl+P untuk menyimpan label.' });
+                    }
+                }, 600);
+            }, 300);
+        }
+
+        function unduhPDF(nama) {
+            var css = document.querySelector('style[data-label]');
+            var cssText = css ? css.innerHTML : '';
+            var labelHTML = document.getElementById('labelSheet').innerHTML;
+            var noBokText = document.getElementById('inpNoBok').value.trim() || '-';
+
+            var win = window.open('', '_blank', 'width=700,height=600');
+            win.document.write('<!DOCTYPE html><html><head>'
+                + '<meta charset="UTF-8">'
+                + '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
+                + '<style>' + cssText + '\n'
+                + 'body{margin:0;padding:20px;background:#fff;font-family:\'Plus Jakarta Sans\',sans-serif;}'
+                + '.lbl-table{border-collapse:collapse;}'
+                + '@media print{@page{size:A5 landscape;margin:10mm;}body{padding:0;}}'
+                + '</style>'
+                + '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>'
+                + '</head><body>'
+                + '<div id="labelWrap" style="display:inline-block;">' + labelHTML + '</div>'
+                + '<script>'
+                + 'var qd=document.querySelector(".qr-box-inner");'
+                + 'if(qd && "' + noBokText.replace(/"/g, '\\"') + '" !== "-"){qd.innerHTML="";new QRCode(qd,{text:"' + noBokText.replace(/"/g, '\\"') + '",width:90,height:90,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.H});}'
+                + 'setTimeout(function(){window.print();},800);'
+                + '<\/script>'
+                + '</body></html>');
+            win.document.close();
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           HELPERS
+        ══════════════════════════════════════════════════════════════════ */
+        function escHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+
+    <!-- html2canvas untuk PNG export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+
+</html>

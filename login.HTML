@@ -1,201 +1,191 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <?!= include('project1-css'); ?>
+  <?!= include('login-css'); ?>
 </head>
+
 <body>
+  <div class="loginForm">
+    <img src="https://drive.google.com/thumbnail?id=1KlmiVn5j-Ll62gfCWv7Afc2rVFmtPN0z" class="logo">
+    <h1>WELCOME</h1>
+    <p>Please login using your registered email.</p>
+    <form id="loginForm">
+      <label>Email</label><br>
+      <input type="email" id="username" class="form" required><br>
+      <div class="password-wrap">
+        <label>Password</label><br>
+        <input type="password" id="password" class="form" required><br>
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
+      </div>
+      <input type="submit" value="Login" id="buttonLogin">
+    </form>
+    <span id="loginMsg" style="display:block;margin-top:10px;font-size:12px;min-height:18px;"></span>
+  </div>
 
-<div class="loginForm">
-  <img src="https://drive.google.com/thumbnail?id=1KlmiVn5j-Ll62gfCWv7Afc2rVFmtPN0z" class="logo">
-  <h1>WELCOME</h1>
-  <p>Please login using your registered email.</p>
-  <form id="loginForm">
-    <label>Email</label><br>
-    <input type="email" id="username" class="form" required><br>
-    <div class="password-wrap">
-      <label>Password</label><br>
-      <input type="password" id="password" class="form" required><br>
-      <i class="fa-solid fa-eye" id="togglePassword"></i>
-    </div>
-    <input type="submit" value="Login" id="buttonLogin">
-  </form>
-  <span id="loginMsg" style="display:block;margin-top:10px;font-size:12px;min-height:18px;"></span>
-</div>
+  <script>
+    var BASE = '<?= BASE_URL ?>';
 
-<script>
-  var BASE = 'https://script.google.com/macros/s/AKfycby-HCCJCr8TUeN08F7Ks8I9pmlVjPFBe4joT4-JhTeb/dev';
-
-  /* ── Simpan token ke semua storage ── */
-  function _simpanToken(token) {
-    try { sessionStorage.setItem('_st', token); } catch(e) {}
-    try { localStorage.setItem('_st', token); }   catch(e) {}
-    // Cookie session (hilang saat browser tutup)
-    document.cookie = '_st=' + encodeURIComponent(token)
-      + '; path=/; SameSite=Lax';
-  }
-
-  /* ── Hapus token dari semua storage ── */
-  function _hapusToken() {
-    try { sessionStorage.removeItem('_st'); } catch(e) {}
-    try { localStorage.removeItem('_st'); }   catch(e) {}
-    document.cookie = '_st=; max-age=0; path=/';
-  }
-
-  /* ── Baca token (coba semua storage) ── */
-  function _bacaToken() {
-    var t = '';
-    try { t = sessionStorage.getItem('_st') || ''; } catch(e) {}
-    if (!t) { try { t = localStorage.getItem('_st') || ''; } catch(e) {} }
-    if (!t) {
-      var m = document.cookie.match(/(?:^|;)\s*_st=([^;]*)/);
-      if (m) t = decodeURIComponent(m[1]);
-    }
-    return t;
-  }
-
-  /* ── Redirect: LANGSUNG, tanpa async/then ── */
-  /* Safari hanya mengizinkan navigasi yang dipicu LANGSUNG dari event user  */
-  /* atau dari kode synchronous yang berjalan tanpa jeda async               */
-  function _redirect(url) {
-  // Pisahkan base URL dan query string
-  var parts   = url.split('?');
-  var base    = parts[0];
-  var params  = parts[1] ? parts[1].split('&') : [];
-
-  // Buat form GET — parameter harus jadi hidden input, BUKAN di action URL
-  try {
-    var f = document.createElement('form');
-    f.method = 'GET';
-    f.action = base;        // action TANPA query string
-    f.target = '_top';
-    f.style.display = 'none';
-
-    // Setiap ?key=value dijadikan hidden input
-    params.forEach(function(p) {
-      var kv = p.split('=');
-      var inp = document.createElement('input');
-      inp.type  = 'hidden';
-      inp.name  = decodeURIComponent(kv[0]);
-      inp.value = decodeURIComponent(kv[1] || '');
-      f.appendChild(inp);
-    });
-
-    document.body.appendChild(f);
-    f.submit();
-    return;
-  } catch(e) {}
-
-  // Fallback: anchor click
-  try {
-    var a = document.createElement('a');
-    a.href = url; a.target = '_top';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    return;
-  } catch(e) {}
-
-  // Fallback: window.open
-  try { window.open(url, '_top'); return; } catch(e) {}
-
-  // Last resort
-  try { window.top.location.href = url; } catch(e) {
-    document.location.href = url;
-  }
-}
-
-  /* ── Cek token yang sudah ada saat halaman dibuka ── */
-  (function(){
-    var t = _bacaToken();
-    if (!t) return;
-
-    // Ada token → cek ke server
-    document.getElementById('loginMsg').textContent = '';
-    google.script.run
-      .withSuccessHandler(function(res){
-        if (res && res.valid) {
-          document.getElementById('loginMsg').textContent = '';
-          _redirect(BASE + '?page=Dashboard');
-        } else {
-          _hapusToken();
-          document.getElementById('loginMsg').textContent = '';
-        }
-      })
-      .withFailureHandler(function(){
-        _hapusToken();
-        document.getElementById('loginMsg').textContent = '';
-      })
-      .cekSesi(t);
-  })();
-
-  /* ── Submit form login ── */
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    var btn  = document.getElementById('buttonLogin');
-    var msg  = document.getElementById('loginMsg');
-    var user = document.getElementById('username').value.trim();
-    var pass = document.getElementById('password').value.trim();
-
-    if (!user || !pass) {
-      msg.style.color = '#ef4444';
-      msg.textContent = '⚠ Username dan password wajib diisi.';
-      return;
+    /* ══════════════════════════════════════════════════════════════
+       TOKEN HELPERS
+       Hanya sessionStorage — TIDAK localStorage/cookie agar token
+       mati saat tab ditutup (keamanan) dan tidak konflik antar tab.
+    ══════════════════════════════════════════════════════════════ */
+    function _simpanToken(token) {
+      try { sessionStorage.setItem('_st', token); } catch (e) { }
+      // Bersihkan localStorage & cookie agar tidak ada duplikat stale
+      try { localStorage.removeItem('_st'); } catch (e) { }
+      document.cookie = '_st=; max-age=0; path=/';
     }
 
-    btn.disabled = true;
-    btn.value    = 'Memproses...';
-    msg.style.color = '#64748b';
+    function _hapusToken() {
+      try { sessionStorage.removeItem('_st'); } catch (e) { }
+      try { localStorage.removeItem('_st'); } catch (e) { }
+      document.cookie = '_st=; max-age=0; path=/';
+    }
 
-    google.script.run
-      .withSuccessHandler(function(res) {
-        if (res && res.ok && res.token) {
-          // ✅ Simpan token 
-          _simpanToken(res.token);
+    function _bacaToken() {
+      try { return sessionStorage.getItem('_st') || ''; } catch (e) { return ''; }
+    }
 
-          msg.style.color = '#ffffff';
-          btn.value = ' Berhasil...';
+    /* ══════════════════════════════════════════════════════════════
+       REDIRECT SINKRON via form GET
+       ─ Tidak pakai window.open / location.href agar tidak diblokir
+         browser saat berada di dalam iframe Google Apps Script.
+       ─ target="_top" memastikan redirect keluar dari iframe.
+    ══════════════════════════════════════════════════════════════ */
+    function _redirect(url) {
+      var parts = url.split('?');
+      var base = parts[0];
+      var params = parts[1] ? parts[1].split('&') : [];
 
-          _redirect(BASE + '?page=Dashboard');
+      var f = document.createElement('form');
+      f.method = 'GET';
+      f.action = base;
+      f.target = '_top';
+      f.style.display = 'none';
 
-        } else {
+      params.forEach(function (p) {
+        var kv = p.split('=');
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = decodeURIComponent(kv[0]);
+        inp.value = decodeURIComponent(kv[1] || '');
+        f.appendChild(inp);
+      });
+
+      document.body.appendChild(f);
+      f.submit(); // sinkron — tidak diblokir browser
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       PERBAIKAN UTAMA:
+       Urutan yang benar agar redirect tidak gagal / terlambat:
+
+       1. checklogin()  → server Apps Script
+       2. SuccessHandler menerima { ok, token }
+       3. _simpanToken(token)  → SINKRON, selesai sebelum baris berikutnya
+       4. Tampilkan pesan status ringan (BUKAN Swal async)
+       5. setTimeout 500ms  → beri waktu agar sessionStorage benar-benar
+          ter-flush di semua browser (Safari iOS butuh ~200ms lebih lama)
+       6. _redirect()  → form.submit() sinkron
+
+       MENGAPA TIDAK ADA POPUP SweetAlert "Login Berhasil":
+       ─ Swal.fire() bersifat async (.then()-based).
+       ─ Jika _redirect() dipanggil di dalam .then() Swal,
+         browser memperlakukannya sebagai async popup → diblokir.
+       ─ Solusi: hapus Swal sukses, ganti dengan pesan teks inline.
+    ══════════════════════════════════════════════════════════════ */
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var btn = document.getElementById('buttonLogin');
+      var msg = document.getElementById('loginMsg');
+      var user = document.getElementById('username').value.trim();
+      var pass = document.getElementById('password').value.trim();
+
+      if (!user || !pass) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '⚠ Email dan password wajib diisi.';
+        return;
+      }
+
+      // Disable tombol & tampilkan status loading
+      btn.disabled = true;
+      btn.value = 'Memuat...';
+      msg.style.color = '#64748b';
+      msg.textContent = '';
+
+      google.script.run
+        .withSuccessHandler(function (res) {
+          if (res && res.ok && res.token) {
+
+            /* ── LANGKAH 1: Simpan token SEGERA (sinkron) ── */
+            _simpanToken(res.token);
+
+            /* ── LANGKAH 2: Verifikasi token sudah tersimpan ── */
+            var tersimpan = _bacaToken();
+            if (!tersimpan) {
+              // sessionStorage tidak tersedia (mode private tertentu)
+              // Tetap lanjutkan redirect; session-helper akan cekSesi dari server
+              console.warn('[login] sessionStorage tidak tersedia, melanjutkan redirect...');
+            }
+
+            /* ── LANGKAH 3: Tampilkan pesan sukses INLINE (bukan Swal) ── */
+            msg.style.color = '#22c55e';
+            msg.textContent = '✓ Login berhasil, mengalihkan...';
+            btn.value = 'Mengalihkan...';
+
+            /* ── LANGKAH 4: Redirect setelah 500ms ──
+               500ms cukup agar:
+               • sessionStorage ter-flush di Safari/iOS
+               • Browser selesai merender pesan sukses di atas
+               • Tidak ada async Promise yang sempat terselip
+            ── */
+            setTimeout(function () {
+              _redirect(BASE + '?page=Dashboard');
+            }, 500);
+
+          } else {
+            /* Login gagal — re-enable tombol & tampilkan error */
+            btn.disabled = false;
+            btn.value = 'Login';
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Login Gagal',
+              text: (res && res.msg) ? res.msg : 'Email atau password salah.',
+              confirmButtonColor: '#ef4444'
+            });
+          }
+        })
+        .withFailureHandler(function (err) {
           btn.disabled = false;
-          btn.value    = 'Login';
+          btn.value = 'Login';
+          msg.style.color = '#ef4444';
+          msg.textContent = '❌ ' + (err.message || 'Terjadi kesalahan server.');
 
-          // Swal hanya untuk pesan GAGAL — tidak ada redirect setelahnya
           Swal.fire({
             icon: 'error',
-            title: 'Login Gagal',
-            text: 'Username atau password salah.',
-            confirmButtonColor: '#ef4444'
+            title: 'Error Server',
+            text: err.message || 'Terjadi kesalahan. Coba beberapa saat lagi.'
           });
-        }
-      })
-      .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.value    = 'Login';
-        msg.style.color = '#ef4444';
-        msg.textContent = '❌ ' + (err.message || 'Terjadi kesalahan.');
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: err.message || 'Terjadi kesalahan server.'
-        });
-      })
-      .checklogin(user, pass);
-  });
+        })
+        .checklogin(user, pass);
+    });
 
-  /* ── Toggle show/hide password ── */
-  document.getElementById('togglePassword').addEventListener('click', function(){
-    var pw = document.getElementById('password');
-    pw.type = pw.type === 'password' ? 'text' : 'password';
-    this.classList.toggle('fa-eye');
-    this.classList.toggle('fa-eye-slash');
-  });
-</script>
+    /* ── Toggle visibilitas password ── */
+    document.getElementById('togglePassword').addEventListener('click', function () {
+      var pw = document.getElementById('password');
+      pw.type = pw.type === 'password' ? 'text' : 'password';
+      this.classList.toggle('fa-eye');
+      this.classList.toggle('fa-eye-slash');
+    });
+  </script>
 </body>
+
 </html>

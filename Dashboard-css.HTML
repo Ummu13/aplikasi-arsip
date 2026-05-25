@@ -1,0 +1,511 @@
+<style>
+    .container {
+        max-width: 1440px;
+        margin: 0;
+        padding: 24px 20px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .dash-section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 28px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .dash-section-title i {
+        color: #6366f1;
+    }
+
+    /* ── STATS ARCHIVE REPLACED WITH HERO BANNER ── */
+    .dashboard-banner {
+        position: relative;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 16px;
+        padding: 40px 48px;
+        color: white;
+        margin-bottom: 28px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .banner-content {
+        flex: 1;
+        z-index: 2;
+    }
+
+    .banner-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin: 0 0 8px;
+        background: linear-gradient(to right, #ffffff, #cbd5e1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .banner-subtitle {
+        font-size: 1rem;
+        color: #94a3b8;
+        margin: 0 0 24px;
+        font-weight: 500;
+    }
+
+    .banner-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .feat-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feat-tag i {
+        color: #10b981;
+    }
+
+    .banner-illustration {
+        width: 300px;
+        height: 200px;
+        flex-shrink: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .floating-svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    @keyframes float1 {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-8px) rotate(0.5deg);
+        }
+    }
+
+    @keyframes float2 {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-12px) rotate(-1deg);
+        }
+    }
+
+    .float-item-1 {
+        animation: float1 6s ease-in-out infinite;
+        transform-origin: center;
+    }
+
+    .float-item-2 {
+        animation: float2 8s ease-in-out infinite;
+        transform-origin: center;
+    }
+
+    /* ── FILTER CARD WRAPPER ── */
+    .filter-card-wrap {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .filter-card-header {
+        padding: 14px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .filter-sel {
+        padding: 6px 10px;
+        font-size: .78rem;
+        font-family: inherit;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        color: #334155;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+        transition: border-color .15s;
+        min-width: 130px;
+    }
+
+    .filter-sel:focus {
+        border-color: #6366f1;
+    }
+
+    /* ── MINI CARDS GRID ── */
+    .mini-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+        padding: 20px;
+        min-height: 100px;
+    }
+
+    /* Make wrappers flex so inner grid stretches to fill equal height */
+    #sppdCardWrap,
+    #amCardWrap {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mini-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1.5px solid #e2e8f0;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+        transition: transform .18s, box-shadow .18s, border-color .18s;
+        cursor: default;
+        position: relative;
+    }
+
+    .mini-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+        border-color: var(--accent, #6366f1);
+    }
+
+    .mini-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .mini-card-label {
+        font-size: .82rem;
+        font-weight: 700;
+        color: #334155;
+        text-transform: capitalize;
+        text-align: center;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Card inner filters styling */
+    .mini-card-filters {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+        margin-top: 2px;
+    }
+
+    .mini-card-filters.arsip-filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .mini-card-filters.arsip-filters .klas-sel {
+        grid-column: span 2;
+    }
+
+    .mini-filter-sel {
+        flex: 1;
+        padding: 5px 8px;
+        font-size: .72rem;
+        font-family: inherit;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 6px;
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+        transition: all .15s;
+        min-width: 0;
+    }
+
+    .mini-filter-sel:focus {
+        border-color: var(--accent, #6366f1);
+        background: #fff;
+    }
+
+    .mini-card-value-wrap {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: auto;
+        padding-top: 4px;
+    }
+
+    .mini-card-count {
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+    }
+
+    .mini-card-pct {
+        font-size: .75rem;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .mini-card-bar-wrap {
+        background: #f1f5f9;
+        border-radius: 4px;
+        height: 5px;
+        width: 100%;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    .mini-card-bar {
+        height: 5px;
+        border-radius: 4px;
+        transition: width .4s ease;
+    }
+
+    /* ── SPPD CARD AS A MINI-CARD MATCH ── */
+    .sppd-single-card {
+        grid-column: span 1;
+    }
+
+    .sppd-single-icon {
+        font-size: 2.5rem;
+        opacity: 0.85;
+    }
+
+    .sppd-single-count {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .sppd-single-label {
+        font-size: .8rem;
+        opacity: 0.75;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    /* ── CHART CARD ── */
+
+
+    /* ── LOADING STATE ── */
+    .ls {
+        padding: 20px;
+        color: #94a3b8;
+        font-size: .85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .badge-aktif {
+        color: #16a34a;
+    }
+
+    .badge-inaktif {
+        color: #ca8a04;
+    }
+
+    .badge-musnah {
+        color: #dc2626;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+        .stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-card {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .chart-wrap {
+            height: 240px;
+        }
+
+        .mini-card {
+            min-width: 140px;
+        }
+
+        .filter-sel {
+            min-width: 110px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ── SPPD & ALIH MEDIA: DUA KONTAINER, LEBAR CARD SAMA ── */
+
+    /* Row pembungkus luar: 1fr | 2fr agar card kiri = 1/3 total, kanan = 2/3 */
+    .dash-side-by-side {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+        align-items: stretch;
+        margin-bottom: 24px;
+    }
+
+    /* Setiap kolom: flex column agar kontainer bisa stretch penuh */
+    .dash-sppd-col,
+    .dash-am-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Section title di dalam kolom */
+    .dash-sppd-col .dash-section-title,
+    .dash-am-col .dash-section-title {
+        margin-top: 0;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+
+    /* Kontainer kartu masing-masing: stretch penuh */
+    #sppdCardWrap,
+    #amCardWrap {
+        flex: 1;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Grid SPPD: 1 kolom, card stretch penuh */
+    #sppdCards {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 20px;
+        align-items: stretch;
+    }
+
+    #sppdCards .sppd-single-card {
+        width: 100%;
+        box-sizing: border-box;
+        height: 100%;
+    }
+
+    /* Grid AM: 2 kolom dengan 1fr masing-masing */
+    #amCards {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 20px;
+        align-items: stretch;
+    }
+
+    #amCards .mini-card {
+        width: 100%;
+        box-sizing: border-box;
+        height: 100%;
+    }
+
+    /* Stretch 3 Arsip cards */
+    #arsipKetCards {
+        grid-template-columns: repeat(3, 1fr);
+        justify-content: center;
+    }
+
+    #arsipKetCards .mini-card {
+        max-width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .dash-side-by-side {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        #sppdCards {
+            flex: unset;
+        }
+
+        #amCards {
+            flex: unset;
+        }
+
+        #arsipKetCards {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+    }
+
+    @media (max-width: 576px) {
+        #amCards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

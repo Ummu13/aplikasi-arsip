@@ -1,0 +1,82 @@
+<?!= include('Navbar-css'); ?>
+<nav class="navbar">
+    <a class="navbar-brand" href="#"><i class="fa-solid fa-folder-open"></i>Sistem Arsip</a>
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="nav-links" id="navLinks">
+        <a class="nav-btn nav-btn-ghost" data-page="Dashboard" onclick="navTo('Dashboard')" title="Dashboard"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-house"></i><span>Dashboard</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="formArsip" onclick="navTo('formArsip')" title="Archive"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-box-archive"></i><span>Arsip</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="formSM" onclick="navTo('formSM')" title="Surat Masuk"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-envelopes-bulk"></i><span>Surat Masuk</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="formSK" onclick="navTo('formSK')" title="Surat Keluar"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-paper-plane"></i><span>Surat Keluar</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="formSPPD" onclick="navTo('formSPPD')" title="SPPD" style="cursor:pointer;">
+            <i class="fa-solid fa-inbox"></i><span>SPPD</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="formAhliMedia" onclick="navTo('formAhliMedia')" title="Alih Media"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-photo-film"></i><span>Alih Media</span>
+        </a>
+
+        <a class="nav-btn nav-btn-ghost" data-page="Qrcode" onclick="navTo('Qrcode')" title="QR Code"
+            style="cursor:pointer;">
+            <i class="fa-solid fa-qrcode"></i><span>QR Code</span>
+        </a>
+
+        <div class="dropdown">
+            <button style="background:transparent; width: 100%; text-align: left;" class="nav-btn nav-btn-ghost"
+                title="Database">
+                <i class="fa-solid fa-link" style="color:white;"></i><span>Database</span>
+            </button>
+            <div class="dropdown-content">
+                <a href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?gid=1148381401"
+                    target="_blank">
+                    Database Arsip
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?gid=1508608401"
+                    target="_blank">
+                    Daftar Arsip Alih Media
+                </a>
+            </div>
+        </div>
+
+        <a class="nav-btn nav-btn-danger" onclick="konfirmasiLogout()" title="Logout" style="cursor:pointer;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+        </a>
+    </div>
+</nav>
+
+<script>
+    function toggleMobileMenu() {
+        var navLinks = document.getElementById('navLinks');
+        navLinks.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (event) {
+        var isClickInside = document.querySelector('.navbar').contains(event.target);
+        var navLinks = document.getElementById('navLinks');
+        if (!isClickInside && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+        }
+    });
+</script>

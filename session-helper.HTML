@@ -1,6 +1,10 @@
 <script>
-  var BASE = 'https://script.google.com/macros/s/AKfycby-HCCJCr8TUeN08F7Ks8I9pmlVjPFBe4joT4-JhTeb/dev';
+  var BASE = '<?= BASE_URL ?>';
 
+  /* ══════════════════════════════════════════════════════════════
+     REDIRECT SINKRON — sama persis dengan login.HTML agar
+     kedua file menggunakan metode yang konsisten.
+  ══════════════════════════════════════════════════════════════ */
   function _redirect(url) {
     var parts = url.split('?');
     var base = parts[0];
@@ -20,19 +24,13 @@
       f.submit();
       return;
     } catch (e) { }
-    try { var a = document.createElement('a'); a.href = url; a.target = '_top'; a.style.display = 'none'; document.body.appendChild(a); a.click(); return; } catch (e) { }
-    try { window.open(url, '_top'); return; } catch (e) { }
+    // Fallback jika form.submit() gagal (sangat jarang)
     try { window.top.location.href = url; } catch (e) { document.location.href = url; }
   }
 
   function _bacaToken() {
     var t = '';
     try { t = sessionStorage.getItem('_st') || ''; } catch (e) { }
-    if (!t) { try { t = localStorage.getItem('_st') || ''; } catch (e) { } }
-    if (!t) {
-      var m = document.cookie.match(/(?:^|;)\s*_st=([^;]*)/);
-      if (m) t = decodeURIComponent(m[1]);
-    }
     return t;
   }
 
@@ -42,7 +40,17 @@
     document.cookie = '_st=; max-age=0; path=/';
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     OVERLAY LOADING + CEK SESI
+     PERBAIKAN:
+     1. Tambah timeout global 12 detik — jika cekSesi() tidak
+        merespons (network lambat / GAS cold-start), overlay
+        dihapus & user diarahkan ke login daripada stuck selamanya.
+     2. Flag _redirecting mencegah double-redirect jika success
+        handler dan timeout sama-sama terpicu.
+  ══════════════════════════════════════════════════════════════ */
   (function () {
+    /* ── Buat overlay loading ── */
     var overlay = document.createElement('div');
     overlay.id = '_sesOverlay';
     overlay.style.cssText = [
@@ -52,52 +60,90 @@
       'gap:14px', 'font-family:Plus Jakarta Sans,sans-serif', 'color:#64748b'
     ].join(';');
     overlay.innerHTML =
-      '<div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:_spin .8s linear infinite;"></div>'
-      + '<div style="font-size:.9rem;font-weight:600;">Memeriksa sesi...</div>'
-      + '<style>@keyframes _spin{to{transform:rotate(360deg);}}</style>';
+      '<div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#6366f1;' +
+      'border-radius:50%;animation:_spin .8s linear infinite;"></div>' +
+      '<div style="font-size:.9rem;font-weight:600;">Memeriksa sesi...</div>' +
+      '<style>@keyframes _spin{to{transform:rotate(360deg);}}</style>';
     document.body.appendChild(overlay);
 
     var token = _bacaToken();
+    var _redirecting = false; // flag agar tidak double-redirect
 
+    /* ── PERBAIKAN: Timeout fallback 12 detik ──
+       Jika google.script.run tidak merespons dalam 12 detik
+       (GAS cold-start bisa sampai 8–10 detik), anggap sesi
+       tidak valid dan arahkan ke login.
+    ── */
+    var _timeoutId = setTimeout(function () {
+      if (_redirecting) return;
+      _redirecting = true;
+      _hapusToken();
+      _redirect(BASE + '?page=login');
+    }, 12000);
+
+    /* ── Jika tidak ada token, langsung ke login tanpa menunggu ── */
+    if (!token) {
+      clearTimeout(_timeoutId);
+      _redirecting = true;
+      _hapusToken();
+      _redirect(BASE + '?page=login');
+      return; // hentikan eksekusi IIFE lebih lanjut
+    }
+
+    /* ── Panggil cekSesi ke server ── */
     google.script.run
       .withSuccessHandler(function (res) {
+        clearTimeout(_timeoutId); // batalkan timeout karena sudah merespons
+        if (_redirecting) return;
+
         if (res && res.valid) {
+          /* Sesi valid — hapus overlay & jalankan callback halaman */
           var el = document.getElementById('_sesOverlay');
           if (el) el.remove();
           if (typeof _onSesiValid === 'function') _onSesiValid();
         } else {
+          /* Sesi tidak valid / expired */
+          _redirecting = true;
           _hapusToken();
           _redirect(BASE + '?page=login');
         }
       })
       .withFailureHandler(function () {
+        clearTimeout(_timeoutId);
+        if (_redirecting) return;
+        _redirecting = true;
         _hapusToken();
         _redirect(BASE + '?page=login');
       })
       .cekSesi(token);
   })();
 
+  /* ══════════════════════════════════════════════════════════════
+     NAVIGASI & LOGOUT
+  ══════════════════════════════════════════════════════════════ */
   function navTo(page) {
     _redirect(BASE + '?page=' + page);
   }
 
   function konfirmasiLogout() {
     Swal.fire({
-      icon: 'question', title: 'Logout?',
-      text: 'Anda akan keluar dari sesi ini.',
+      icon: 'question',
+      text: 'Anda Yakin Ingin Keluar?',
       showCancelButton: true,
-      confirmButtonText: 'Ya, Logout',
+      confirmButtonText: 'Logout',
       cancelButtonText: 'Batal',
       confirmButtonColor: '#ef4444'
     }).then(function (res) {
       if (!res.isConfirmed) return;
+      var token = _bacaToken();
       google.script.run
         .withSuccessHandler(function () { _hapusToken(); _redirect(BASE + '?page=login'); })
         .withFailureHandler(function () { _hapusToken(); _redirect(BASE + '?page=login'); })
-        .logout();
+        .logout(token);
     });
   }
 
+  /* ── Tandai nav-btn aktif sesuai halaman saat ini ── */
   document.addEventListener('DOMContentLoaded', function () {
     var aktif = document.body.dataset.active;
     document.querySelectorAll('.nav-btn').forEach(function (btn) {

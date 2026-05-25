@@ -1,384 +1,563 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Arsip</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <?!= include('project2-css'); ?>
-  <style>
-    /* ── STAT CARDS ── */
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px;}
-    .stat-card{;border-radius:14px;padding:20px 22px;box-shadow:0 2px 12px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:6px;border-left:5px solid transparent;transition:transform .18s,box-shadow .18s;cursor:default;}
-    .stat-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
-    .stat-card.total{background: linear-gradient(135deg,rgba(79, 172, 254, 0.4),rgba(0, 51, 102, 0.3));
-                     backdrop-filter: blur(12px);
-                     -webkit-backdrop-filter: blur(12px);
-                     border-radius: 15px;
-                     border: 1px solid rgba(255,255,255,0.2);
-                     color: white;}
-    .stat-card.aktif{background: linear-gradient(135deg,rgba(46, 204, 113, 0.4),rgba(39, 174, 96, 0.3));
-                     backdrop-filter: blur(12px);
-                     -webkit-backdrop-filter: blur(12px);
-                     border-radius: 15px;
-                     border: 1px solid rgba(255,255,255,0.2);
-                     color: white;}
-    .stat-card.inaktif{background: linear-gradient(135deg,rgba(255, 215, 0, 0.4),rgba(255, 165, 0, 0.3));
-                       backdrop-filter: blur(12px);
-                       -webkit-backdrop-filter: blur(12px);
-                       border-radius: 15px;
-                       border: 1px solid rgba(255,255,255,0.2);
-                       color: #333;}
-    .stat-card.musnah{background: linear-gradient(135deg,rgba(255, 77, 77, 0.4),rgba(179, 0, 0, 0.3));
-                      backdrop-filter: blur(12px);
-                      -webkit-backdrop-filter: blur(12px);
-                      border-radius: 15px;
-                      border: 1px solid rgba(255,255,255,0.2);
-                      color: white;}
-    .stat-icon{font-size:50px;text-align:right;margin-bottom:10px}
-    .stat-label{font-size:.78rem;color:#ffffff;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-    .stat-value{font-size:2rem;font-weight:800;color:#ffffff;line-height:1;margin-top:10px}
-    .stat-sub{font-size:.75rem;color:#ffffff;}
-
-    /* ── CHART CARD ── */
-    .chart-card{background:#fff;border-radius:14px;padding:22px 24px 28px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:24px;}
-    .chart-header{display:flex;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
-    .chart-title{font-size:1rem;font-weight:700;color:#1e293b;flex:1;min-width:160px;padding-top:4px;}
-
-    .chart-wrap{position:relative;height:340px;}
-
-    /* ── TOGGLE BUTTONS ── */
-    .filter-panel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
-    .toggle-btn{padding:6px 16px;border-radius:20px;border:2px solid #e2e8f0;background:#f8fafc;color:#475569;
-      font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;}
-    .toggle-btn:hover{border-color:#6366f1;color:#6366f1;}
-    .toggle-btn.active{background:#6366f1;border-color:#6366f1;color:#fff;}
-
-    /* ── TABLE CARD ── */
-    .dash-table-card{background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:24px;}
-    .dash-table-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-    .dash-table-title{font-size:1rem;font-weight:700;color:#1e293b;flex:1;}
-    .dtw{overflow-x:auto;}
-    .dtw table{width:100%;border-collapse:collapse;font-size:.82rem;}
-    .dtw thead th{background:#f1f5f9;color:#475569;font-weight:700;padding:10px 12px;text-align:left;white-space:nowrap;}
-    .dtw tbody tr:nth-child(even){background:#f8fafc;}
-    .dtw tbody tr:hover{background:#eff6ff;}
-    .dtw tbody td{padding:9px 12px;color:#334155;border-bottom:1px solid #f1f5f9;}
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
-    .badge-aktif{color:#16a34a;}
-    .badge-inaktif{color:#ca8a04;}
-    .badge-musnah{color:#dc2626;}
-    .ls{text-align:center;padding:40px 0;color:#94a3b8;}
-    .ls i{font-size:2rem;display:block;margin-bottom:8px;animation:sp 1s linear infinite;}
-    @keyframes sp{to{transform:rotate(360deg);}}
-    @media(max-width:640px){.stat-value{font-size:1.5rem;}.chart-wrap{height:240px;}}
-  </style>
+  <?!= include('Dashboard-css'); ?>
 </head>
+
 <body data-active="Dashboard">
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <a class="navbar-brand" href="#"><div class="icon-box"></div>Sistem Arsip</a>
-  <a class="nav-btn nav-btn-ghost" data-page="Dashboard" onclick="navTo('Dashboard')" title="Dashboard">
-    <i class="fa-solid fa-house"></i><span>Dashboard</span>
-  </a>
-  <a class="nav-btn nav-btn-ghost" data-page="formArsip" onclick="navTo('formArsip')" title="Arsip">
-    <i class="fa-solid fa-box-archive"></i><span>Arsip</span>
-  </a>
-  <a class="nav-btn nav-btn-accent"
-     href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?usp=sharing"
-     target="_blank" title="Database">
-    <i class="fa-solid fa-database"></i><span>Spreadsheet</span>
-  </a>
-  <a class="nav-btn nav-btn-danger" onclick="konfirmasiLogout()" title="Logout">
-    <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
-  </a>
-</nav>
+  <?!= include('Sidebar'); ?>
 
-<div class="container">
+  <div class="container main-content">
 
-  <!-- STAT CARDS -->
-  <div class="stat-grid">
-    <div class="stat-card total">
-      <span class="stat-value" id="cTotal">—</span>
-      <span class="stat-icon"><i class="fa-solid fa-box-archive" style="color: rgba(229, 229, 229, 0.6);"></i></span>
-      <span class="stat-label">Total Arsip</span>
-      <span class="stat-sub">Semua data tersimpan</span>
-    </div>
-    <div class="stat-card aktif">
-      <span class="stat-value" id="cAktif">—</span>
-      <span class="stat-icon"><i class="fa-solid fa-road-circle-check" style="color: rgba(229, 229, 229, 0.6);"></i></span>
-      <span class="stat-label">Aktif</span>
-      <span class="stat-sub" id="pAktif">—% dari total</span>
-    </div>
-    <div class="stat-card inaktif">
-      <span class="stat-value" id="cInaktif">—</span>
-      <span class="stat-icon"><i class="fa-solid fa-pause" style="color: rgba(229, 229, 229, 0.6);"></i></span>
-      <span class="stat-label">Inaktif</span>
-      <span class="stat-sub" id="pInaktif">—% dari total</span>
-    </div>
-    <div class="stat-card musnah">
-      <span class="stat-value" id="cMusnah">—</span>
-      <span class="stat-icon"><i class="fa-solid fa-file-circle-xmark" style="color: rgba(229, 229, 229, 0.6);"></i></span>
-      <span class="stat-label">Musnah</span>
-      <span class="stat-sub" id="pMusnah">—% dari total</span>
-    </div>
-  </div>
-
-  <!-- CHART CARD -->
-  <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">Grafik Distribusi Arsip</div>
-      <div class="filter-panel">
-        <button class="toggle-btn active" id="btnByKet"  onclick="gantiKat('keterangan')">Keterangan</button>
-        <button class="toggle-btn"        id="btnByKlas" onclick="gantiKat('klasifikasi')">Kode Klasifikasi</button>
-        <button class="toggle-btn"        id="btnByThn"  onclick="gantiKat('tahun')">Tahun</button>
+    <!-- ── SECTION: HERO BANNER ─────────────────────────────────── -->
+    <div class="dashboard-banner">
+      <div class="banner-overlay"></div>
+      <div class="banner-content">
+        <h1 class="banner-title">Sistem Arsip & Dokumentasi</h1>
+        <p class="banner-subtitle">Balai Keselamatan dan Kesehatan Kerja Samarinda</p>
+        <div class="banner-features">
+          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Surat Masuk</span>
+          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Surat Keluar</span>
+          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Alih Media</span>
+          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> SPPD</span>
+          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Arsip</span>
+        </div>
+      </div>
+      <div class="banner-illustration">
+        <svg viewBox="0 0 400 300" class="floating-svg">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.8" />
+              <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.8" />
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="10" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+          <rect x="100" y="160" width="200" height="70" rx="15" fill="#1e293b" stroke="url(#grad1)" stroke-width="3"
+            filter="url(#glow)" />
+          <line x1="120" y1="195" x2="280" y2="195" stroke="#334155" stroke-dasharray="5 5" />
+          <circle cx="135" cy="195" r="5" fill="#38bdf8" />
+          <circle cx="155" cy="195" r="5" fill="#22c55e" />
+          <g class="float-item-1">
+            <path d="M 80,60 H 120 L 130,75 H 180 V 130 H 80 Z" fill="url(#grad1)" rx="10" opacity="0.9" />
+            <rect x="95" y="85" width="70" height="35" rx="5" fill="#ffffff" opacity="0.95" />
+            <line x1="105" y1="95" x2="155" y2="95" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+            <line x1="105" y1="105" x2="135" y2="105" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+          </g>
+          <g class="float-item-2">
+            <rect x="230" y="50" width="80" height="100" rx="10" fill="url(#grad2)" opacity="0.9" />
+            <path d="M 285,50 L 310,75 V 150 H 230 Z" fill="#f8fafc" opacity="0.1" />
+            <line x1="245" y1="80" x2="295" y2="80" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+            <line x1="245" y1="95" x2="295" y2="95" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+            <line x1="245" y1="110" x2="275" y2="110" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+          </g>
+          <path d="M 130,130 Q 150,150 200,160" stroke="#6366f1" stroke-dasharray="3 3" fill="none" opacity="0.6" />
+          <path d="M 270,150 Q 250,150 200,160" stroke="#38bdf8" stroke-dasharray="3 3" fill="none" opacity="0.6" />
+        </svg>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chartArsip"></canvas></div>
-  </div>
 
-  <!-- TABLE CARD -->
-  <div class="dash-table-card">
-    <div class="dash-table-header">
-      <div class="dash-table-title">Ringkasan</div>
-      <button class="btn btn-secondary" style="padding:6px 14px;font-size:.78rem;" onclick="Muat_Data()">
-        <i class="fa-solid fa-arrows-rotate"></i> Refresh
-      </button>
+    <!-- ── SECTION: SURAT MASUK per JENIS ──────────────────────── -->
+    <div class="dash-section-title">
+      <i class="fa-solid fa-envelope-open-text"></i> Surat Masuk per Jenis Surat
     </div>
-    <div id="tblWrap">
-      <div class="ls"><i class="fa-solid fa-arrows-rotate"></i>Menunggu sesi...</div>
+    <div class="filter-card-wrap" id="smCardWrap">
+      <div class="mini-card-grid" id="smCards"></div>
     </div>
-  </div>
 
-</div><!-- /container -->
+    <!-- ── SECTION: SURAT KELUAR per JENIS ─────────────────────── -->
+    <div class="dash-section-title">
+      <i class="fa-solid fa-paper-plane"></i> Surat Keluar per Jenis Surat
+    </div>
+    <div class="filter-card-wrap" id="skCardWrap">
+      <div class="mini-card-grid" id="skCards"></div>
+    </div>
 
-<!-- SESSION HELPER -->
-<?!= include('session-helper'); ?>
+    <!-- ── SECTION: SPPD & ALIH MEDIA (DUA KONTAINER, CARD SAMA LEBAR) ── -->
+    <div class="dash-side-by-side">
 
-<script>
-/* ── VARIABEL ── */
-var semuaData = [];
-var grafik    = null;
-var katAktif  = 'keterangan';
+      <!-- Kolom kiri: SPPD -->
+      <div class="dash-sppd-col">
+        <div class="dash-section-title">
+          <i class="fa-solid fa-file-lines"></i> Jumlah SPPD
+        </div>
+        <div class="filter-card-wrap" id="sppdCardWrap">
+          <div id="sppdCards"></div>
+        </div>
+      </div>
 
-var WARNA = ['#6366f1','#22c55e','#f59e0b','#ef4444','#3b82f6','#a855f7',
-             '#14b8a6','#f97316','#ec4899','#0ea5e9','#84cc16','#e11d48'];
+      <!-- Kolom kanan: Alih Media -->
+      <div class="dash-am-col">
+        <div class="dash-section-title">
+          <i class="fa-solid fa-file-video"></i> Alih Media per Keterangan
+        </div>
+        <div class="filter-card-wrap" id="amCardWrap">
+          <div id="amCards"></div>
+        </div>
+      </div>
 
-var KOL_MAP  = {keterangan:'Status Keterangan', klasifikasi:'Kode Klasifikasi', tahun:'Tahun'};
-var JUDUL_MAP = {keterangan:'Ringkasan per Status Keterangan', klasifikasi:'Ringkasan per Kode Klasifikasi', tahun:'Ringkasan per Tahun'};
+    </div>
 
-/* ── DIPANGGIL session-helper setelah sesi valid ── */
-function _onSesiValid() { Muat_Data(); }
+    <!-- ── SECTION: ARSIP per KETERANGAN ───────────────────────── -->
+    <div class="dash-section-title">
+      <i class="fa-solid fa-box-archive"></i> Arsip per Keterangan
+    </div>
+    <div class="filter-card-wrap" id="arsipKetCardWrap">
+      <div class="mini-card-grid" id="arsipKetCards"></div>
+    </div>
 
-/* ────────────────────────────────────────────────────────
-   MUAT DATA DARI SHEET
-──────────────────────────────────────────────────────── */
-function Muat_Data() {
-  document.getElementById('tblWrap').innerHTML = '<div class="ls"><i class="fa-solid fa-arrows-rotate"></i>Memuat...</div>';
-  ['cTotal','cAktif','cInaktif','cMusnah'].forEach(function(id){ document.getElementById(id).textContent = '—'; });
+    <!-- ── CHART ARSIP ─────────────────────────────────────────── -->
 
-  google.script.run
-    .withSuccessHandler(function(rows) {
-      semuaData = rows || [];
-      HitungStat();
-      RenderGrafik(katAktif);
-      RenderTabel(katAktif);
-    })
-    .withFailureHandler(function(err) {
-      document.getElementById('tblWrap').innerHTML =
-        '<div class="ls" style="color:#ef4444;">⚠️ ' + (err.message||'Error') + '</div>';
-    })
-    .getAll();
-}
 
-/* ────────────────────────────────────────────────────────
-   HITUNG STATISTIK CARDS
-──────────────────────────────────────────────────────── */
-function HitungStat() {
-  var tot = semuaData.length;
-  var akt = semuaData.filter(function(b){ return b[12]==='Aktif'; }).length;
-  var ina = semuaData.filter(function(b){ return b[12]==='Inaktif'; }).length;
-  var mus = semuaData.filter(function(b){ return b[12]==='Musnah'; }).length;
-  var p   = function(n){ return tot>0 ? Math.round(n/tot*100) : 0; };
+  </div><!-- /container -->
 
-  document.getElementById('cTotal').textContent   = tot;
-  document.getElementById('cAktif').textContent   = akt;
-  document.getElementById('cInaktif').textContent = ina;
-  document.getElementById('cMusnah').textContent  = mus;
-  document.getElementById('pAktif').textContent   = p(akt) + '% dari total';
-  document.getElementById('pInaktif').textContent = p(ina) + '% dari total';
-  document.getElementById('pMusnah').textContent  = p(mus) + '% dari total';
-}
+  <!-- SESSION HELPER -->
+  <?!= include('session-helper'); ?>
 
-/* ────────────────────────────────────────────────────────
-   GANTI KATEGORI
-──────────────────────────────────────────────────────── */
-function gantiKat(kat) {
-  katAktif = kat;
-  ['btnByKet','btnByKlas','btnByThn'].forEach(function(id){
-    document.getElementById(id).classList.remove('active');
-  });
-  document.getElementById({keterangan:'btnByKet', klasifikasi:'btnByKlas', tahun:'btnByThn'}[kat])
-    .classList.add('active');
-  RenderGrafik(kat);
-  RenderTabel(kat);
-}
+  <script>
+    /* ── SEMUA DATA ── */
+    var allStats = { sm: [], sk: [], sppd: [], am: [], arsip: [] };
+    var grafik = null;
+    var katAktif = 'keterangan';
 
-/* ────────────────────────────────────────────────────────
-   AMBIL NILAI KUNCI dari satu baris berdasarkan kategori
-──────────────────────────────────────────────────────── */
-function NilaiKunci(b, kat) {
-  if (kat === 'keterangan')  return b[12] ? b[12].trim() : '(Kosong)';
-  if (kat === 'klasifikasi') return b[3]  ? b[3].trim()  : '(Kosong)';
-  if (kat === 'tahun') {
-    var t = b[5] ? b[5].toString().trim() : '';
-    return (t.length >= 4 && parseInt(t.slice(0,4)) > 1900) ? t.slice(0,4) : '(Tidak diketahui)';
-  }
-  return '';
-}
+    var WARNA = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7',
+      '#14b8a6', '#f97316', '#ec4899', '#0ea5e9', '#84cc16', '#e11d48'];
 
-/* ────────────────────────────────────────────────────────
-   GRUP DATA → { label: count }
-──────────────────────────────────────────────────────── */
-function Grup(kat) {
-  var r = {};
-  semuaData.forEach(function(b) {
-    var k = NilaiKunci(b, kat);
-    r[k] = (r[k] || 0) + 1;
-  });
-  return r;
-}
+    var NAMA_BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-/* ────────────────────────────────────────────────────────
-   RENDER GRAFIK BATANG
-──────────────────────────────────────────────────────── */
-function RenderGrafik(kat) {
-  var g   = Grup(kat);
-  var lbl = Object.keys(g).sort(function(a, b) {
-    return kat === 'tahun' ? parseInt(a) - parseInt(b) : g[b] - g[a];
-  });
-  var val = lbl.map(function(l){ return g[l]; });
-  var ctx = document.getElementById('chartArsip').getContext('2d');
+    /* ── HELPER: build card HTML ── */
+    function buildBlankCardHtml(type, key, color, icon, onchangeFn, isArsip, extraClass) {
+      extraClass = extraClass || '';
+      var filterHtml = '';
+      if (isArsip) {
+        filterHtml = '<div class="mini-card-filters arsip-filters">'
+          + '  <select class="mini-filter-sel klas-sel" onchange="' + onchangeFn + '"><option value="">Klasifikasi</option></select>'
+          + '  <select class="mini-filter-sel year-sel" onchange="' + onchangeFn + '"><option value="">Tahun</option></select>'
+          + '  <select class="mini-filter-sel month-sel" onchange="' + onchangeFn + '">'
+          + '    <option value="">Bulan</option>'
+          + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
+          + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
+          + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
+          + '  </select>'
+          + '</div>';
+      } else {
+        filterHtml = '<div class="mini-card-filters">'
+          + '  <select class="mini-filter-sel year-sel" onchange="' + onchangeFn + '"><option value="">Tahun</option></select>'
+          + '  <select class="mini-filter-sel month-sel" onchange="' + onchangeFn + '">'
+          + '    <option value="">Bulan</option>'
+          + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
+          + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
+          + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
+          + '  </select>'
+          + '</div>';
+      }
 
-  if (grafik) { grafik.destroy(); grafik = null; }
+      return '<div class="mini-card' + extraClass + '" data-type="' + type + '" data-key="' + key + '" style="--accent:' + color + '">'
+        + '<div class="mini-card-header" style="justify-content:center;">'
+        + '  <div class="mini-card-label" title="' + key + '" style="text-align:center;white-space:normal;">' + key + '</div>'
+        + '</div>'
+        + filterHtml
+        + '<div class="mini-card-value-wrap">'
+        + '  <div class="mini-card-count">—</div>'
+        + '  <div class="mini-card-pct">—%</div>'
+        + '</div>'
+        + '<div class="mini-card-bar-wrap">'
+        + '  <div class="mini-card-bar" style="width:0%;background:' + color + ';"></div>'
+        + '</div>'
+        + '</div>';
+    }
 
-  grafik = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: lbl.length ? lbl : ['(Tidak ada data)'],
-      datasets: [{
-        label          : KOL_MAP[kat] || kat,
-        data           : val.length ? val : [0],
-        backgroundColor: lbl.map(function(_, i){ return WARNA[i % WARNA.length]; }),
-        borderRadius   : 8,
-        borderSkipped  : false,
-        barPercentage  : 0.65
-      }]
-    },
-    options: {
-      responsive         : true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend : { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(c) {
-              var base = semuaData.length;
-              var p = base > 0 ? Math.round(c.raw / base * 100) : 0;
-              return '  ' + c.raw + ' arsip (' + p + '%)';
+    /* ── INIT BLANK CARDS PRE-LOAD ── */
+    function initBlankCards() {
+      // 1. Surat Masuk (9 cards)
+      var smKeys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
+      var smColors = ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e', '#f97316', '#0ea5e9', '#14b8a6', '#22c55e'];
+      var smHtml = '';
+      smKeys.forEach(function (key, i) {
+        smHtml += buildBlankCardHtml('sm', key, smColors[i], 'fa-solid fa-envelope-open-text', 'calculateAllSM()');
+      });
+      document.getElementById('smCards').innerHTML = smHtml;
+
+      // 2. Surat Keluar (9 cards)
+      var skHtml = '';
+      smKeys.forEach(function (key, i) {
+        skHtml += buildBlankCardHtml('sk', key, smColors[i], 'fa-solid fa-paper-plane', 'calculateAllSK()');
+      });
+      document.getElementById('skCards').innerHTML = skHtml;
+
+      // 3. SPPD (kolom kiri) → #sppdCards
+      var sppdHtml = '<div class="mini-card sppd-single-card" style="--accent:#3b82f6;">'
+        + '<div class="mini-card-header" style="justify-content:center;">'
+        + '  <div class="mini-card-label" style="text-align:center;">Total SPPD</div>'
+        + '</div>'
+        + '<div class="mini-card-filters">'
+        + '  <select class="mini-filter-sel year-sel" onchange="renderSPPDCard()"><option value="">Tahun</option></select>'
+        + '  <select class="mini-filter-sel month-sel" onchange="renderSPPDCard()">'
+        + '    <option value="">Bulan</option>'
+        + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
+        + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
+        + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
+        + '  </select>'
+        + '</div>'
+        + '<div class="mini-card-value-wrap">'
+        + '  <div class="mini-card-count sppd-single-count">—</div>'
+        + '</div>'
+        + '</div>';
+      document.getElementById('sppdCards').innerHTML = sppdHtml;
+
+      // 4. Alih Media (kolom kanan) → #amCards
+      var amKeys = ['PNBP', 'DIPA'];
+      var amColors = ['#14b8a6', '#0ea5e9'];
+      var amHtml = '';
+      amKeys.forEach(function (key, i) {
+        amHtml += buildBlankCardHtml('am', key, amColors[i], 'fa-solid fa-file-video', 'calculateAllAM()');
+      });
+      document.getElementById('amCards').innerHTML = amHtml;
+
+      // 4. Arsip (3 cards)
+      var arsipKeys = ['Aktif', 'Inaktif', 'Musnah'];
+      var arsipColors = ['#22c55e', '#f59e0b', '#ef4444'];
+      var arsipHtml = '';
+      arsipKeys.forEach(function (key, i) {
+        arsipHtml += buildBlankCardHtml('arsip', key, arsipColors[i], 'fa-solid fa-box-archive', 'calculateAllArsip()', true);
+      });
+      document.getElementById('arsipKetCards').innerHTML = arsipHtml;
+    }
+
+    /* ── INIT ── */
+    function _onSesiValid() {
+      initBlankCards();
+      Muat_Data();
+    }
+
+    function Muat_Data() {
+      google.script.run
+        .withSuccessHandler(function (data) {
+          allStats = data || { sm: [], sk: [], sppd: [], am: [], arsip: [] };
+          isiDropdownTahun();
+          calculateAllSM();
+          calculateAllSK();
+          calculateAllAM();
+          calculateAllArsip();
+          renderSPPDCard();
+          RenderGrafik(katAktif);
+        })
+        .withFailureHandler(function (err) {
+          ['smCards', 'skCards', 'sppdCards', 'amCards', 'arsipKetCards'].forEach(function (id) {
+            document.getElementById(id).innerHTML = '<div class="ls" style="color:#ef4444;">⚠️ Gagal: ' + (err.message || 'Error') + '</div>';
+          });
+        })
+        .getDashboardStats();
+    }
+
+    /* ── HELPER: ekstrak tahun/bulan dari string YYYY-MM-DD ── */
+    function extractYear(s) {
+      if (!s) return '';
+      var m = s.toString().match(/^(\d{4})/);
+      return m ? m[1] : '';
+    }
+    function extractMonth(s) {
+      if (!s) return '';
+      var m = s.toString().match(/^\d{4}-(\d{2})/);
+      return m ? m[1] : '';
+    }
+
+    /* ── ISI DROPDOWN TAHUN ── */
+    function isiDropdownTahun() {
+      var tahunSets = {
+        sm: new Set(), sk: new Set(), sppd: new Set(), am: new Set(), arsip: new Set()
+      };
+
+      allStats.sm.forEach(function (r) { var y = extractYear(r[4]); if (y) tahunSets.sm.add(y); });
+      allStats.sk.forEach(function (r) { var y = extractYear(r[3]); if (y) tahunSets.sk.add(y); });
+      allStats.sppd.forEach(function (r) {
+        [r[6], r[7], r[8]].forEach(function (d) { var y = extractYear(d); if (y) tahunSets.sppd.add(y); });
+      });
+      allStats.am.forEach(function (r) { var y = extractYear(r[6]); if (y) tahunSets.am.add(y); });
+      allStats.arsip.forEach(function (r) { var y = extractYear(r[5]); if (y) tahunSets.arsip.add(y); });
+
+      function fillAllSels(selector, set) {
+        var sortedYears = Array.from(set).sort().reverse();
+        document.querySelectorAll(selector).forEach(function (sel) {
+          var cur = sel.value;
+          while (sel.options.length > 1) sel.remove(1);
+          sortedYears.forEach(function (y) {
+            var opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            sel.appendChild(opt);
+          });
+          if (cur) sel.value = cur;
+        });
+      }
+
+      fillAllSels('.mini-card[data-type="sm"] .year-sel', tahunSets.sm);
+      fillAllSels('.mini-card[data-type="sk"] .year-sel', tahunSets.sk);
+      fillAllSels('.sppd-single-card .year-sel', tahunSets.sppd);
+      fillAllSels('.mini-card[data-type="am"] .year-sel', tahunSets.am);
+      fillAllSels('.mini-card[data-type="arsip"] .year-sel', tahunSets.arsip);
+
+      var klasSet = new Set();
+      allStats.arsip.forEach(function (r) { var k = (r[3] || '').trim(); if (k) klasSet.add(k); });
+      var sortedKlas = Array.from(klasSet).sort();
+
+      document.querySelectorAll('.mini-card[data-type="arsip"] .klas-sel').forEach(function (sel) {
+        var cur = sel.value;
+        while (sel.options.length > 1) sel.remove(1);
+        sortedKlas.forEach(function (k) {
+          var opt = document.createElement('option');
+          opt.value = k; opt.textContent = k;
+          sel.appendChild(opt);
+        });
+        if (cur) sel.value = cur;
+      });
+    }
+
+    /* ── FILTER helper ── */
+    function filterByTglYM(rows, colIdx, tahun, bulan) {
+      return rows.filter(function (r) {
+        var d = (r[colIdx] || '').toString();
+        if (tahun && extractYear(d) !== tahun) return false;
+        if (bulan && extractMonth(d) !== bulan) return false;
+        return true;
+      });
+    }
+
+    /* ── CALCULATE SURAT MASUK ── */
+    function calculateAllSM() {
+      var total = 0;
+      var counts = {};
+      var keys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="sm"][data-key="' + key + '"]');
+        if (!card) return;
+        var tahun = card.querySelector('.year-sel').value;
+        var bulan = card.querySelector('.month-sel').value;
+        var rows = filterByTglYM(allStats.sm, 4, tahun, bulan);
+        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
+        counts[key] = cnt;
+        total += cnt;
+      });
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="sm"][data-key="' + key + '"]');
+        if (!card) return;
+        var cnt = counts[key];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        card.querySelector('.mini-card-count').textContent = cnt;
+        card.querySelector('.mini-card-bar').style.width = pct + '%';
+        card.querySelector('.mini-card-pct').textContent = pct + '%';
+      });
+    }
+
+    /* ── CALCULATE SURAT KELUAR ── */
+    function calculateAllSK() {
+      var total = 0;
+      var counts = {};
+      var keys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="sk"][data-key="' + key + '"]');
+        if (!card) return;
+        var tahun = card.querySelector('.year-sel').value;
+        var bulan = card.querySelector('.month-sel').value;
+        var rows = filterByTglYM(allStats.sk, 3, tahun, bulan);
+        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
+        counts[key] = cnt;
+        total += cnt;
+      });
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="sk"][data-key="' + key + '"]');
+        if (!card) return;
+        var cnt = counts[key];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        card.querySelector('.mini-card-count').textContent = cnt;
+        card.querySelector('.mini-card-bar').style.width = pct + '%';
+        card.querySelector('.mini-card-pct').textContent = pct + '%';
+      });
+    }
+
+    /* ── CALCULATE ALIH MEDIA ── */
+    function calculateAllAM() {
+      var total = 0;
+      var counts = {};
+      var keys = ['PNBP', 'DIPA'];
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="am"][data-key="' + key + '"]');
+        if (!card) return;
+        var tahun = card.querySelector('.year-sel').value;
+        var bulan = card.querySelector('.month-sel').value;
+
+        var rows = allStats.am.filter(function (r) {
+          var d = (r[6] || '').toString();
+          if (tahun && d.indexOf(tahun) === -1) return false;
+          if (bulan) {
+            var hasMonth = d.indexOf('-' + bulan) !== -1 || d.indexOf(bulan + '-') !== -1;
+            if (!hasMonth) return false;
+          }
+          return true;
+        });
+
+        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
+        counts[key] = cnt;
+        total += cnt;
+      });
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="am"][data-key="' + key + '"]');
+        if (!card) return;
+        var cnt = counts[key];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        card.querySelector('.mini-card-count').textContent = cnt;
+        card.querySelector('.mini-card-bar').style.width = pct + '%';
+        card.querySelector('.mini-card-pct').textContent = pct + '%';
+      });
+    }
+
+    /* ── CALCULATE ARSIP PER KETERANGAN ── */
+    function calculateAllArsip() {
+      var total = 0;
+      var counts = {};
+      var keys = ['Aktif', 'Inaktif', 'Musnah'];
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="arsip"][data-key="' + key + '"]');
+        if (!card) return;
+        var klas = card.querySelector('.klas-sel').value;
+        var tahun = card.querySelector('.year-sel').value;
+        var bulan = card.querySelector('.month-sel').value;
+
+        var rows = allStats.arsip.filter(function (r) {
+          if (klas && (r[3] || '').trim() !== klas) return false;
+          if (tahun && extractYear(r[5] || '') !== tahun) return false;
+          if (bulan && extractMonth(r[5] || '') !== bulan) return false;
+          return true;
+        });
+
+        var cnt = rows.filter(function (r) { return (r[12] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
+        counts[key] = cnt;
+        total += cnt;
+      });
+
+      keys.forEach(function (key) {
+        var card = document.querySelector('.mini-card[data-type="arsip"][data-key="' + key + '"]');
+        if (!card) return;
+        var cnt = counts[key];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        card.querySelector('.mini-card-count').textContent = cnt;
+        card.querySelector('.mini-card-bar').style.width = pct + '%';
+        card.querySelector('.mini-card-pct').textContent = pct + '%';
+      });
+    }
+
+    /* ── RENDER SPPD ── */
+    function renderSPPDCard() {
+      var card = document.querySelector('.sppd-single-card');
+      if (!card) return;
+      var tahun = card.querySelector('.year-sel').value;
+      var bulan = card.querySelector('.month-sel').value;
+
+      var rows = allStats.sppd.filter(function (r) {
+        var dates = [r[6], r[7], r[8]];
+        return dates.some(function (d) {
+          if (tahun && extractYear(d || '') !== tahun) return false;
+          if (bulan && extractMonth(d || '') !== bulan) return false;
+          return true;
+        });
+      });
+      if (!tahun && !bulan) rows = allStats.sppd;
+
+      card.querySelector('.sppd-single-count').textContent = rows.length;
+    }
+
+    /* ── GRAFIK ARSIP ── */
+    function gantiKat(kat) {
+      katAktif = kat;
+      ['btnByKet', 'btnByKlas', 'btnByThn'].forEach(function (id) {
+        document.getElementById(id).classList.remove('active');
+      });
+      document.getElementById({ keterangan: 'btnByKet', klasifikasi: 'btnByKlas', tahun: 'btnByThn' }[kat])
+        .classList.add('active');
+      RenderGrafik(kat);
+    }
+
+    function NilaiKunci(b, kat) {
+      if (kat === 'keterangan') return b[12] ? b[12].trim() : '(Kosong)';
+      if (kat === 'klasifikasi') return b[3] ? b[3].trim() : '(Kosong)';
+      if (kat === 'tahun') {
+        var t = b[5] ? b[5].toString().trim() : '';
+        return (t.length >= 4 && parseInt(t.slice(0, 4)) > 1900) ? t.slice(0, 4) : '(Tidak diketahui)';
+      }
+      return '';
+    }
+
+    function RenderGrafik(kat) {
+      var data = allStats.arsip;
+      var g = {};
+      data.forEach(function (b) {
+        var k = NilaiKunci(b, kat);
+        g[k] = (g[k] || 0) + 1;
+      });
+      var lbl = Object.keys(g).sort(function (a, b) {
+        return kat === 'tahun' ? parseInt(a) - parseInt(b) : g[b] - g[a];
+      });
+      var val = lbl.map(function (l) { return g[l]; });
+      var ctx = document.getElementById('chartArsip').getContext('2d');
+      if (grafik) { grafik.destroy(); grafik = null; }
+      grafik = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: lbl.length ? lbl : ['(Tidak ada data)'],
+          datasets: [{
+            label: { keterangan: 'Keterangan', klasifikasi: 'Kode Klasifikasi', tahun: 'Tahun' }[kat] || kat,
+            data: val.length ? val : [0],
+            backgroundColor: lbl.map(function (_, i) { return WARNA[i % WARNA.length]; }),
+            borderRadius: 8, borderSkipped: false, barPercentage: 0.65
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (c) {
+                  var base = data.length;
+                  var p = base > 0 ? Math.round(c.raw / base * 100) : 0;
+                  return '  ' + c.raw + ' arsip (' + p + '%)';
+                }
+              }
             }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' }, color: '#475569', maxRotation: 35 } },
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#94a3b8', precision: 0 } }
           }
         }
-      },
-      scales: {
-        x: {
-          grid : { display: false },
-          ticks: { font: { family:'Plus Jakarta Sans', size:11, weight:'600' }, color:'#475569', maxRotation:35 }
-        },
-        y: {
-          beginAtZero: true,
-          grid : { color:'#f1f5f9' },
-          ticks: { font: { family:'Plus Jakarta Sans', size:11 }, color:'#94a3b8', precision:0 }
-        }
-      }
-    }
-  });
-}
-
-/* ────────────────────────────────────────────────────────
-   RENDER TABEL RINGKASAN
-──────────────────────────────────────────────────────── */
-function RenderTabel(kat) {
-  var g   = Grup(kat);
-  var tot = semuaData.length;
-
-  var entries = Object.entries(g).sort(function(a, b) {
-    return kat === 'tahun' ? parseInt(a[0]) - parseInt(b[0]) : b[1] - a[1];
-  });
-
-  if (!entries.length) {
-    document.getElementById('tblWrap').innerHTML =
-      '<div class="ls" style="color:#94a3b8;">Tidak ada data</div>';
-    return;
-  }
-
-  var maxV = Math.max.apply(null, entries.map(function(e){ return e[1]; }));
-
-  var html = '<div class="dtw"><table>'
-    + '<thead><tr>'
-    + '<th>No</th>'
-    + '<th>' + Esc(KOL_MAP[kat]) + '</th>'
-    + '<th style="text-align:right">Jumlah</th>'
-    + '<th style="text-align:right">Persentase</th>'
-    + '<th style="min-width:130px">Proporsi</th>'
-    + '</tr></thead><tbody>';
-
-  entries.forEach(function(en, i) {
-    var lbl = en[0], cnt = en[1];
-    var pct = tot > 0 ? (cnt / tot * 100).toFixed(1) : '0.0';
-    var bar = maxV > 0 ? Math.round(cnt / maxV * 100) : 0;
-    var w   = WARNA[i % WARNA.length];
-
-    var lblH = Esc(lbl);
-    if (kat === 'keterangan') {
-      var bdg = lbl==='Aktif'?'badge-aktif' : lbl==='Inaktif'?'badge-inaktif' : lbl==='Musnah'?'badge-musnah' : '';
-      if (bdg) lblH = '<span class="badge ' + bdg + '">' + Esc(lbl) + '</span>';
+      });
     }
 
-    html += '<tr>'
-      + '<td style="color:#94a3b8;font-weight:600;">' + (i+1) + '</td>'
-      + '<td>' + lblH + '</td>'
-      + '<td style="text-align:right;font-weight:700;color:#1e293b;">' + cnt + '</td>'
-      + '<td style="text-align:right;color:#6366f1;font-weight:600;">' + pct + '%</td>'
-      + '<td>'
-      +   '<div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:9px;">'
-      +     '<div style="width:' + bar + '%;height:9px;background:' + w + ';border-radius:6px;transition:width .4s;"></div>'
-      +   '</div>'
-      + '</td>'
-      + '</tr>';
-  });
-
-  html += '<tr style="background:#f8fafc;font-weight:700;">'
-    + '<td colspan="2" style="color:#1e293b;padding:10px 12px;">TOTAL</td>'
-    + '<td style="text-align:right;color:#6366f1;padding:10px 12px;">' + tot + '</td>'
-    + '<td style="text-align:right;color:#6366f1;padding:10px 12px;">100%</td>'
-    + '<td></td>'
-    + '</tr>';
-
-  html += '</tbody></table></div>';
-  document.getElementById('tblWrap').innerHTML = html;
-}
-
-/* ── ESCAPE HTML ── */
-function Esc(s) {
-  if (!s) return '';
-  return s.toString()
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-</script>
+    function Esc(s) { if (!s) return ''; return s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  </script>
 </body>
+
 </html>

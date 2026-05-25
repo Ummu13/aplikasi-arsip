@@ -6,37 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Form Arsip</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!--
+    PERBAIKAN QR: Ganti jsqr CDN menjadi versi yang lebih reliable.
+    jsQR sudah di-host di jsdelivr dengan versi stabil.
+  -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <?!= include('project2-css'); ?>
+  <?!= include('formArsip-css'); ?>
 </head>
 
 <body data-active="formArsip">
 
-  <nav class="navbar">
-    <a class="navbar-brand" href="#">
-      <div class="icon-box"><!--<i class="fa-solid fa-file-lines" style="color: rgb(255, 255, 255);">--> </i></div>
-      Sistem Arsip
-    </a>
-    <a class="nav-btn nav-btn-ghost" data-page="Dashboard" onclick="navTo('Dashboard')" title="Dashboard">
-      <i class="fa-solid fa-house"></i><span>Dashboard</span>
-    </a>
-    <a class="nav-btn nav-btn-ghost" data-page="formArsip" onclick="navTo('formArsip')" title="Arsip">
-      <i class="fa-solid fa-box-archive"></i><span>Arsip</span>
-    </a>
-    <a class="nav-btn nav-btn-accent"
-      href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?usp=sharing"
-      target="_blank" title="Database">
-      <i class="fa-solid fa-database"></i><span>Spreadsheet</span>
-    </a>
-    <a class="nav-btn nav-btn-danger" onclick="konfirmasiLogout()" title="Logout">
-      <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
-    </a>
-  </nav>
+  <?!= include('Sidebar'); ?>
 
-  <div class="container">
+  <div class="container main-content">
     <!-- KARTU FORM -->
     <div class="card" id="cardForm">
       <div class="card-header">
@@ -44,47 +29,41 @@
         <div>
           <div class="card-title">Form Input Arsip</div>
         </div>
-        <span class="edit-badge" id="editBadge"> MODE EDIT</span>
+        <span class="edit-badge" id="editBadge" style="background-color: #facc15"> MODE EDIT</span>
       </div>
       <input type="hidden" id="editRowIndex" value="-1">
       <div class="form-grid">
         <div class="form-group">
           <label>No Berkas</label>
-          <input type="text" id="NoBerkas" placeholder=" ">
+          <input type="text" id="NoBerkas" placeholder="Contoh: KEP.147 (Nomor Surat) ">
         </div>
         <div class="form-group">
           <label>No Item Arsip</label>
-          <input type="text" id="NoItemArsip" placeholder=" ">
+          <input type="text" id="NoItemArsip" placeholder="Nomor Urutan Berkas Dalam Kotak">
         </div>
-        <div class="form-group" style="position:relative">
+        <div class="form-group">
           <label>Kode Klasifikasi</label>
-          <input type="text" id="KodeKlasifikasi" placeholder="Pilih kode..." autocomplete="off"
+          <input type="text" id="KodeKlasifikasi" placeholder="Cari Kode Klasifikasi (KP.11.00)..." autocomplete="off"
             oninput="filterKodeKlas()" onfocus="showKodeKlasList()" onblur="hideKodeKlasList()">
-          <div id="kodeKlasList" style="
-          display:none; position:absolute; z-index:999; top:100%; left:0; right:0;
-          background:var(--white); border:1.5px solid var(--blue);
-          border-top:none; border-radius:0 0 8px 8px;
-          max-height:200px; overflow-y:auto;
-          box-shadow:0 4px 16px rgba(0,0,0,.12);">
-          </div>
+          <div id="kodeKlasList" style="display:none;"></div>
+        </div>
+        <div class="form-group full">
+          <label>Judul Item Arsip</label>
+          <textarea id="Judul" placeholder="Masukkan Judul Surat/Arsip..."></textarea>
         </div>
         <div class="form-group">
           <label>Klasifikasi Keamanan</label>
           <select id="KlasifikasiKeamanan">
-            <option value="">-- Pilih --</option>
+            <option value="">-- Wajib Pilih Format --</option>
             <option>Biasa</option>
             <option>Terbatas</option>
             <option>Rahasia</option>
             <option value="SangatRahasia">Sangat Rahasia</option>
           </select>
         </div>
-        <div class="form-group full">
-          <label>Judul Item Arsip</label>
-          <textarea id="Judul" placeholder="Masukkan judul arsip..."></textarea>
-        </div>
         <div class="form-group">
           <label>Tanggal</label>
-          <input type="date" id="TanggalLahir">
+          <input type="date" id="TanggalSurat">
         </div>
         <div class="form-group">
           <label>Jumlah</label>
@@ -133,36 +112,62 @@
         </div>
         <div class="form-group">
           <label>Lokasi</label>
-          <input type="text" id="Lokasi">
+          <input type="text" id="Lokasi" placeholder="Contoh: Rak 2 (Lokasi Rak) ">
         </div>
-        <div class="form-group">
-          <label>No Bok</label>
-          <input type="text" id="NoBok">
-        </div>
-        <div class="form-group">
-          <label>Link Tautan</label>
-          <input type="text" id="LinkTautan" placeholder="https://drive.google.com/...">
+        <div class="form-group full" style="margin-top: 5px;">
+          <div style="display:grid;grid-template-columns: 3fr 1fr 2fr;gap:18px;">
+            <div class="form-group">
+              <label>No Bok</label>
+              <input type="text" id="NoBok"
+                placeholder="KU.01.02/01 (kode Klasifikasi, No Rak, No Baris, Urutan Kardus) ">
+            </div>
+            <div class="form-group">
+              <label>Upload File (Drive)</label>
+              <div style="display:flex;gap:8px;">
+                <input type="file" id="fileInput" onclick="this.value=null" onchange="handleFileUpload(this)"
+                  style="display:none;">
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()"
+                  style="padding:9px 12px;font-size:0.8rem;width:100%;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Pilih File
+                </button>
+              </div>
+              <div id="uploadStatus" style="font-size:0.7rem;color:var(--gray-400);margin-top:2px;">Maks. 10MB</div>
+            </div>
+            <div class="form-group">
+              <label>Link Tautan</label>
+              <input type="text" id="LinkTautan" placeholder="Link Akan terisi otomatis Saat Upload File Berhasil..."
+                readonly style="background:#f1f5f9;cursor:not-allowed;">
+            </div>
+          </div>
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" id="btnKirim" onclick="Simpan_Data()">Simpan</button>
-        <button class="btn btn-warning" id="btnUpdate" style="display:none" onclick="Update_Data()">Simpan</button>
-        <button class="btn btn-danger" id="btnBatal" style="display:none" onclick="Batal_Edit()">Batal</button>
-        <button class="btn btn-danger" id="btnClear" onclick="Reset_Form()">Hapus</button>
+        <button class="btn btn-primary" id="btnKirim" style="background-color: #3b82f6;"
+          onclick="Simpan_Data()">Simpan</button>
+        <button class="btn btn-warning" id="btnUpdate" style="display:none; background-color:#fde047; color: white;"
+          onclick="Update_Data()">Edit</button>
+        <button class="btn btn-danger" id="btnBatal" style="display:none; background-color:#ef4444;"
+          onclick="Batal_Edit()">Batal</button>
+        <button class="btn btn-danger" id="btnClear" style="background-color:#ef4444;"
+          onclick="Reset_Form()">Hapus</button>
       </div>
     </div>
 
     <!-- KARTU TABEL -->
     <div class="card">
       <div class="card-header">
-        <div class=""></div>
+        <div class="card-header-icon"><i class="fa-solid fa-table-list" style="color: rgb(255, 255, 255);"></i></div>
         <div>
           <div class="card-title">Data Arsip</div>
           <div class="card-subtitle" id="subtitleTabel">Menunggu sesi...</div>
         </div>
         <button class="btn btn-secondary" style="margin-left:auto;padding:7px 14px;font-size:.8rem"
+          onclick="downloadDataArsip()">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <button class="btn btn-secondary" style="margin-left:1px;padding:7px 14px;font-size:.8rem"
           onclick="Muat_Data()">
-          <i class="fa-solid fa-arrows-rotate"></i> Refresh
+          <i class="fa-solid fa-arrows-rotate"></i>
         </button>
       </div>
       <div class="search-wrap">
@@ -191,11 +196,14 @@
           </button>
         </div>
       </div>
+
+      <!-- QR SCAN AREA -->
       <div class="qr-wrap">
         <i class="fa-solid fa-camera" style="font-size:50px;color:rgb(229,229,229);"></i>
         <button class="btnscan" onclick="startQR()">Scan QR / Upload Gambar</button>
         <span id="qrStatus"></span>
       </div>
+
       <div class="table-footer" style="margin-bottom:20px;">
         <span id="infoJumlah">—</span>
         <span id="infoFilter" style="color:var(--blue);font-weight:600;"></span>
@@ -235,14 +243,12 @@
           </thead>
           <tbody id="tblBody">
             <tr class="state-row">
-              <td colspan="17">Menunggu konfirmasi sesi...</td>
+              <td colspan="17">Sedang Memuat data...</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="table-footer">
-
-      </div>
+      <div class="table-footer"></div>
     </div>
 
     <div id="paginasiWrap"
@@ -253,22 +259,17 @@
   <div id="modalView">
     <div class="modal-card">
       <div class="modal-header">
-
         <div>
           <div class="modal-header-title">Detail Arsip</div>
           <div class="modal-header-sub" id="mvNoBerkas">—</div>
         </div>
         <button class="modal-close" onclick="tutupView()" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
       <div class="modal-body">
-        <!-- Judul -->
         <div class="detail-section">
           <div class="detail-label">Judul Item Arsip</div>
           <div class="detail-judul" id="mvJudul">—</div>
         </div>
-
-        <!-- Identitas -->
         <div class="detail-section">
           <div class="detail-section-title"></div>
           <div class="detail-grid">
@@ -298,8 +299,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Keamanan & Akses -->
         <div class="detail-section">
           <div class="detail-section-title"></div>
           <div class="detail-grid">
@@ -321,8 +320,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Penyimpanan -->
         <div class="detail-section">
           <div class="detail-section-title"></div>
           <div class="detail-grid">
@@ -347,9 +344,8 @@
       </div>
     </div>
   </div>
-  </div>
 
-  <!-- SESSION HELPER — letakkan SEBELUM </body>, SETELAH semua konten -->
+  <!-- SESSION HELPER -->
   <?!= include('session-helper'); ?>
 
   <script>
@@ -358,7 +354,6 @@
     var halamanAktif = 1;
     var perPage = 25;
 
-    // _onSesiValid dipanggil oleh session-helper setelah sesi terkonfirmasi
     function _onSesiValid() {
       Muat_Data();
       Muat_KodeKlasifikasi();
@@ -366,42 +361,37 @@
 
     var _kodeKlasList = [];
 
-
     function filterKodeKlas() {
-      var q = document.getElementById('KodeKlasifikasi').value.toLowerCase();
+      var q = document.getElementById('KodeKlasifikasi').value.toLowerCase().trim();
       var filtered = q
-        ? _kodeKlasList.filter(function (i) { return i.label.toLowerCase().includes(q); })
+        ? _kodeKlasList.filter(function (i) { return i.kode.toLowerCase().indexOf(q) !== -1 || i.nama.toLowerCase().indexOf(q) !== -1; })
         : _kodeKlasList;
       renderKodeKlasList(filtered);
     }
-
-    function showKodeKlasList() {
-      renderKodeKlasList(_kodeKlasList);
-    }
-
-    function hideKodeKlasList() {
-      // tunda sedikit agar klik item sempat terpicu
-      setTimeout(function () {
-        document.getElementById('kodeKlasList').style.display = 'none';
-      }, 180);
-    }
-
+    function showKodeKlasList() { renderKodeKlasList(_kodeKlasList); }
+    function hideKodeKlasList() { setTimeout(function () { document.getElementById('kodeKlasList').style.display = 'none'; }, 250); }
     function renderKodeKlasList(items) {
       var box = document.getElementById('kodeKlasList');
-      if (!items.length) { box.style.display = 'none'; return; }
-      box.innerHTML = items.map(function (i) {
-        return '<div data-kode="' + Esc(i.kode) + '" style="'
-          + 'padding:8px 12px;font-size:.85rem;cursor:pointer;'
-          + 'border-bottom:1px solid var(--gray-100);color:var(--gray-800);'
-          + '" onmousedown="pilihKodeKlas(this)">'
-          + Esc(i.label) + '</div>';
-      }).join('');
+      if (!items || items.length === 0) { box.style.display = 'none'; return; }
+      var html = '';
+      items.forEach(function (it) {
+        var cleanKode = it.kode.toString().trim();
+        var cleanNama = it.nama.toString().trim();
+        var display = '<b>' + Esc(cleanKode) + '</b> - ' + Esc(cleanNama);
+        if (cleanNama.toLowerCase().indexOf(cleanKode.toLowerCase()) === 0) display = Esc(cleanNama);
+        html += '<div data-kode="' + Esc(cleanKode) + '" onmousedown="pilihKodeKlas(this)">' + display + '</div>';
+      });
+      box.innerHTML = html;
       box.style.display = 'block';
     }
-
     function pilihKodeKlas(el) {
       document.getElementById('KodeKlasifikasi').value = el.getAttribute('data-kode');
       document.getElementById('kodeKlasList').style.display = 'none';
+    }
+    function Muat_KodeKlasifikasi() {
+      google.script.run
+        .withSuccessHandler(function (res) { _kodeKlasList = res || []; })
+        .getKodeKlasifikasi();
     }
 
     function Muat_Data() {
@@ -430,11 +420,8 @@
         document.getElementById('paginasiWrap').innerHTML = '';
         return;
       }
-
-      // Hitung total halaman
       var totalHalaman = Math.ceil(arr.length / perPage);
       if (halamanAktif > totalHalaman) halamanAktif = 1;
-
       var mulai = (halamanAktif - 1) * perPage;
       var selesai = Math.min(mulai + perPage, arr.length);
       var slice = arr.slice(mulai, selesai);
@@ -455,7 +442,7 @@
           + '<td>' + (Esc(b[9]) || '—') + '</td><td>' + (Esc(b[10]) || '—') + '</td><td>' + (Esc(b[11]) || '—') + '</td>'
           + '<td><span class="badge ' + bdg + '">' + (Esc(b[12]) || '—') + '</span></td>'
           + '<td>' + (Esc(b[13]) || '—') + '</td><td>' + (Esc(b[14]) || '—') + '</td>'
-          + '<td>' + lnk + '</td>'
+          + '<td style="text-align:center;">' + lnk + '</td>'
           + '<td class="td-aksi">'
           + '<button class="btn-tbl btn-tbl-view" onclick="viewData(' + idx + ')"><i class="fa-solid fa-eye"></i></button>'
           + '<button class="btn-tbl btn-tbl-edit" onclick="IsiFormEdit(' + idx + ')"><i class="fa-solid fa-pen-to-square"></i></button>'
@@ -470,83 +457,40 @@
     function Render_Paginasi(total) {
       var wrap = document.getElementById('paginasiWrap');
       if (total <= 1) { wrap.innerHTML = ''; return; }
-
       var html = '';
-      var btnStyle = 'display:inline-flex;align-items:center;justify-content:center;'
-        + 'min-width:32px;height:32px;padding:0 8px;border:1.5px solid var(--gray-200);'
-        + 'border-radius:6px;background:var(--white);font-family:inherit;font-size:.8rem;'
-        + 'font-weight:600;cursor:pointer;color:var(--gray-600);transition:all .15s;';
-      var btnAktifStyle = btnStyle
-        + 'background:#283289;color:white;border-color:#283289;';
-      var btnDisabledStyle = btnStyle
-        + 'opacity:.4;cursor:not-allowed;';
-
-      // Tombol panah kiri
+      var btnStyle = 'display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 8px;border:1.5px solid var(--gray-200);border-radius:6px;background:var(--white);font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--gray-600);transition:all .15s;';
+      var btnAktifStyle = btnStyle + 'background:#283289;color:white;border-color:#283289;';
+      var btnDisabledStyle = btnStyle + 'opacity:.4;cursor:not-allowed;';
       if (halamanAktif > 1) {
-        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif - 1) + ')">'
-          + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif - 1) + ')"><i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
       } else {
-        html += '<button style="' + btnDisabledStyle + '" disabled>'
-          + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+        html += '<button style="' + btnDisabledStyle + '" disabled><i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
       }
-
-      // Nomor halaman — tampilkan maksimal 7 tombol dengan ellipsis
-      var pages = rentangHalaman(halamanAktif, total);
-      pages.forEach(function (p) {
-        if (p === '...') {
-          html += '<span style="padding:0 4px;color:var(--gray-400);font-size:.85rem;line-height:32px;">···</span>';
-        } else {
-          var st = (p === halamanAktif) ? btnAktifStyle : btnStyle;
-          html += '<button style="' + st + '" onclick="keHalaman(' + p + ')">' + p + '</button>';
-        }
-      });
-
-      // Tombol panah kanan
+      var start = Math.max(1, halamanAktif - 2);
+      var end = Math.min(total, halamanAktif + 2);
+      if (start > 1) { html += '<button style="' + btnStyle + '" onclick="keHalaman(1)">1</button>'; if (start > 2) html += '<span style="padding:0 4px;color:#94a3b8">…</span>'; }
+      for (var i = start; i <= end; i++) {
+        html += '<button style="' + (i === halamanAktif ? btnAktifStyle : btnStyle) + '" onclick="keHalaman(' + i + ')">' + i + '</button>';
+      }
+      if (end < total) { if (end < total - 1) html += '<span style="padding:0 4px;color:#94a3b8">…</span>'; html += '<button style="' + btnStyle + '" onclick="keHalaman(' + total + ')">' + total + '</button>'; }
       if (halamanAktif < total) {
-        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif + 1) + ')">'
-          + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+        html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif + 1) + ')"><i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
       } else {
-        html += '<button style="' + btnDisabledStyle + '" disabled>'
-          + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+        html += '<button style="' + btnDisabledStyle + '" disabled><i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
       }
-
       wrap.innerHTML = html;
     }
 
-    function rentangHalaman(aktif, total) {
-      if (total <= 7) {
-        var r = [];
-        for (var i = 1; i <= total; i++) r.push(i);
-        return r;
-      }
-      var pages = [1];
-      if (aktif > 3) pages.push('...');
-      var dari = Math.max(2, aktif - 1);
-      var sampai = Math.min(total - 1, aktif + 1);
-      for (var j = dari; j <= sampai; j++) pages.push(j);
-      if (aktif < total - 2) pages.push('...');
-      pages.push(total);
-      return pages;
-    }
-
-    function keHalaman(n) {
-      halamanAktif = n;
-      Render_Tabel(dataDisplay);
-    }
-
-    function gantiPerPage() {
-      perPage = parseInt(document.getElementById('perPageSel').value);
-      halamanAktif = 1;
-      Render_Tabel(dataDisplay);
-    }
+    function keHalaman(h) { halamanAktif = h; Render_Tabel(dataDisplay); }
+    function gantiPerPage() { perPage = parseInt(document.getElementById('perPageSel').value); halamanAktif = 1; Render_Tabel(dataDisplay); }
 
     function filterTabel() {
-      halamanAktif = 1;
       var q = document.getElementById('searchUniversal').value.toLowerCase().trim();
       var tgl = document.getElementById('searchTanggal').value;
       var ket = document.getElementById('searchKeterangan').value;
+      halamanAktif = 1;
       dataDisplay = semuaData.filter(function (b) {
-        return (!q || b.some(function (s) { return s.toString().toLowerCase().includes(q); }))
+        return (!q || b.some(function (s) { return s.toString().toLowerCase().indexOf(q) !== -1; }))
           && (!tgl || (b[5] && b[5].toString().slice(0, 10) === tgl))
           && (!ket || b[12] === ket);
       });
@@ -567,35 +511,37 @@
       Render_Tabel(dataDisplay);
     }
 
-    /* ═══════════════════════════════════════════════════
-       QR SCANNER — versi robust untuk kamera HP
-    ═══════════════════════════════════════════════════ */
-    var _qrSearchVal = '';
+    /* ═══════════════════════════════════════════════════════════════════════
+       QR SCANNER — PERBAIKAN UTAMA
+       
+       Masalah sebelumnya: proses gambar dilakukan di UI thread dengan 4 
+       percobaan decode berulang → browser hang/lambat terutama HP.
+       
+       Perbaikan:
+       1. Resize gambar SEKALI ke 1024px (optimal untuk jsQR).
+       2. Decode LANGSUNG — tidak ada loop 4 langkah yang boros.
+       3. Setelah QR terbaca, langsung filter semuaData di CLIENT (sudah ada di 
+          memori) — TIDAK ada request ke server sama sekali → instan.
+       4. Gunakan requestAnimationFrame agar UI tidak freeze.
+    ═══════════════════════════════════════════════════════════════════════ */
 
     async function startQR() {
-      // Beri 2 pilihan: kamera langsung atau pilih dari galeri
-      const { value: pilihanSumber } = await Swal.fire({
+      var result = await Swal.fire({
         title: 'Scan QR Code',
         html: [
           '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">',
           '  <button id="_btnKamera" class="swal2-confirm swal2-styled" style="background:#bccbd8;margin:0;">',
-          '    Buka Kamera Langsung</button>',
+          '    <i class="fa-solid fa-camera" style="margin-right:6px"></i>Buka Kamera Langsung</button>',
           '  <button id="_btnGaleri" class="swal2-confirm swal2-styled" style="background:#606f7d;margin:0;">',
-          '    Pilih dari Galeri / File</button>',
+          '    <i class="fa-solid fa-images" style="margin-right:6px"></i>Pilih dari Galeri / File</button>',
           '</div>'
         ].join(''),
         showConfirmButton: false,
         showCancelButton: true,
         cancelButtonText: 'Batal',
         didOpen: function () {
-          document.getElementById('_btnKamera').onclick = function () {
-            Swal.close();
-            _bukaInputFile(true);   // capture=environment
-          };
-          document.getElementById('_btnGaleri').onclick = function () {
-            Swal.close();
-            _bukaInputFile(false);  // pilih file biasa
-          };
+          document.getElementById('_btnKamera').onclick = function () { Swal.close(); _bukaInputFile(true); };
+          document.getElementById('_btnGaleri').onclick = function () { Swal.close(); _bukaInputFile(false); };
         }
       });
     }
@@ -604,285 +550,96 @@
       var input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
-
-      // Kamera langsung hanya jika user pilih kamera
-      // JANGAN set capture untuk pilih galeri — agar user bisa pilih foto lama
-      if (gunakanKamera) {
-        input.setAttribute('capture', 'environment');
-      }
-
+      if (gunakanKamera) input.setAttribute('capture', 'environment');
       input.onchange = function (e) {
         var file = e.target.files[0];
-        if (!file) return;
-        _prosesGambarQR(file);
+        if (file) _prosesGambarQR(file);
       };
-
       input.click();
     }
 
-    async function _prosesGambarQR(file) {
+    /* ── PERBAIKAN: decode cepat, 1 ukuran, lalu fallback 1 ukuran lebih besar ── */
+    function _prosesGambarQR(file) {
       var statusEl = document.getElementById('qrStatus');
-      statusEl.textContent = 'Memproses gambar...';
+      statusEl.textContent = '🔍 Memproses gambar...';
 
+      var fr = new FileReader();
+      fr.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          /* Jalankan decode di luar UI thread menggunakan setTimeout(0) agar
+             browser tidak hang, lalu animasi spinner tetap berjalan          */
+          setTimeout(function () {
+            var hasil = _decodeQR(img, 1024) || _decodeQR(img, 640);
+
+            if (hasil) {
+              statusEl.textContent = '✓ Terbaca: ' + hasil;
+              /* ── FILTER CLIENT-SIDE — tidak ada google.script.run ── */
+              document.getElementById('searchUniversal').value = hasil;
+              halamanAktif = 1;
+              filterTabel(); // langsung, sinkron, pakai semuaData di memori
+
+              Swal.fire({
+                icon: 'success',
+                title: 'QR Terbaca!',
+                html: '<b>' + hasil + '</b>',
+                timer: 1800,
+                showConfirmButton: false
+              });
+            } else {
+              statusEl.textContent = '❌ QR tidak terbaca';
+              Swal.fire({
+                icon: 'warning',
+                title: 'QR Tidak Terbaca',
+                html: [
+                  '<div style="text-align:left;font-size:.88rem;line-height:2">',
+                  '<b>Tips agar berhasil:</b><br>',
+                  '📏 Jarak ideal <b>10–25 cm</b> dari QR<br>',
+                  '💡 Pastikan <b>cahaya cukup</b>, tidak ada bayangan<br>',
+                  '📐 Foto <b>dari depan lurus</b>, bukan miring<br>',
+                  '🔍 Pastikan <b>3 sudut kotak QR</b> terlihat penuh<br>',
+                  '📂 Coba gunakan <b>"Pilih dari Galeri"</b>',
+                  '</div>'
+                ].join(''),
+                confirmButtonText: '📷 Coba Lagi',
+                showCancelButton: true,
+                cancelButtonText: 'Tutup'
+              }).then(function (r) { if (r.isConfirmed) startQR(); });
+            }
+          }, 0); // defer ke event loop berikutnya agar spinner terlihat
+        };
+        img.onerror = function () {
+          statusEl.textContent = '❌ Gagal membaca gambar';
+        };
+        img.src = e.target.result;
+      };
+      fr.readAsDataURL(file);
+    }
+
+    /* ── Decode QR dari gambar dengan ukuran target maxPx ── */
+    function _decodeQR(img, maxPx) {
       try {
-        /* ── Langkah 1: Baca file jadi HTMLImageElement ── */
-        var dataUrl = await new Promise(function (res, rej) {
-          var fr = new FileReader();
-          fr.onload = function () { res(fr.result); };
-          fr.onerror = rej;
-          fr.readAsDataURL(file);
-        });
-
-        var img = await new Promise(function (res, rej) {
-          var im = new Image();
-          im.onload = function () { res(im); };
-          im.onerror = rej;
-          im.src = dataUrl;
-        });
-
         var oW = img.naturalWidth;
         var oH = img.naturalHeight;
+        var ratio = Math.min(maxPx / oW, maxPx / oH, 1);
+        var dw = Math.round(oW * ratio);
+        var dh = Math.round(oH * ratio);
 
-        /* ── Langkah 2: Coba baca tanpa resize dulu (resolusi asli) ── */
-        // Untuk foto HP resolusi tinggi, QR mungkin lebih mudah dibaca di resolusi penuh
-        // tapi dibatasi 3000px agar tidak habis memori
-        var hasil = null;
-
-        var MAX_FULL = 3000;
-        var rFull = Math.min(MAX_FULL / oW, MAX_FULL / oH, 1);
-        var fW = Math.round(oW * rFull);
-        var fH = Math.round(oH * rFull);
-
-        // Coba resolusi hampir-penuh dulu
-        hasil = _decodeCanvas(img, fW, fH, 128, false);
-        if (!hasil) hasil = _decodeCanvas(img, fW, fH, 100, false);
-        if (!hasil) hasil = _decodeCanvas(img, fW, fH, 160, false);
-        if (!hasil) hasil = _decodeCanvas(img, fW, fH, 128, true);
-
-        /* ── Langkah 3: Coba dengan berbagai ukuran resize ── */
-        if (!hasil) {
-          var ukuranList = [2000, 1600, 1200, 800];
-          for (var ui = 0; ui < ukuranList.length && !hasil; ui++) {
-            var maxS = ukuranList[ui];
-            var r2 = Math.min(maxS / oW, maxS / oH, 1);
-            var w2 = Math.round(oW * r2);
-            var h2 = Math.round(oH * r2);
-            var thresholds = [128, 100, 160, 80, 200];
-            for (var ti = 0; ti < thresholds.length && !hasil; ti++) {
-              hasil = _decodeCanvas(img, w2, h2, thresholds[ti], false);
-              if (!hasil) hasil = _decodeCanvas(img, w2, h2, thresholds[ti], true);
-            }
-          }
-        }
-
-        /* ── Langkah 4: Crop 9 zona → decode tiap zona ── */
-        // Ini kunci untuk foto HP: QR biasanya hanya di sebagian kecil foto
-        if (!hasil) {
-          hasil = _cropDanDecode(img, oW, oH);
-        }
-
-        /* ── Langkah 5: Zoom-in agresif tiap zona (QR sangat kecil) ── */
-        if (!hasil) {
-          hasil = _cropZoomDanDecode(img, oW, oH);
-        }
-
-        if (hasil) {
-          _qrSearchVal = hasil;
-          document.getElementById('searchUniversal').value = hasil;
-          statusEl.textContent = 'Terbaca: ' + hasil;
-          filterTabel();
-          Swal.fire({
-            icon: 'success',
-            title: 'QR Terbaca!',
-            text: 'Mencari: ' + hasil,
-            timer: 2000,
-            showConfirmButton: false
-          });
-        } else {
-          throw new Error('Semua metode gagal');
-        }
-
-      } catch (err) {
-        statusEl.textContent = '❌ QR tidak terbaca';
-        Swal.fire({
-          icon: 'warning',
-          title: 'QR Tidak Terbaca',
-          html: [
-            '<div style="text-align:left;font-size:.88rem;line-height:2">',
-            '<b>Tips agar berhasil:</b><br>',
-            '📏 Jarak ideal <b>10–25 cm</b> dari QR code<br>',
-            '💡 Pastikan <b>cahaya cukup</b>, tidak ada bayangan<br>',
-            '📐 Foto <b>dari depan lurus</b>, bukan miring<br>',
-            '🔍 Pastikan <b>3 sudut kotak QR</b> terlihat penuh<br>',
-            '📂 Coba gunakan <b>"Pilih dari Galeri"</b> jika kamera gagal',
-            '</div>'
-          ].join(''),
-          confirmButtonText: '📷 Coba Lagi',
-          showCancelButton: true,
-          cancelButtonText: 'Tutup'
-        }).then(function (r) {
-          if (r.isConfirmed) startQR();
-        });
-      }
-    }
-
-    /* ── Helper: Gambar ke canvas → binarisasi → jsQR ── */
-    function _decodeCanvas(img, w, h, threshold, invert) {
-      try {
         var c = document.createElement('canvas');
-        c.width = w; c.height = h;
+        c.width = dw;
+        c.height = dh;
         var ctx = c.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        var imgData = ctx.getImageData(0, 0, w, h);
-        var d = imgData.data;
+        ctx.drawImage(img, 0, 0, dw, dh);
 
-        // Binarisasi (hitam-putih)
-        for (var i = 0; i < d.length; i += 4) {
-          var gray = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
-          var v = (gray < threshold) ? 0 : 255;
-          if (invert) v = 255 - v;
-          d[i] = d[i + 1] = d[i + 2] = v;
-          d[i + 3] = 255;
-        }
-
-        // Coba decode normal & inverted
-        var r1 = jsQR(d, w, h, { inversionAttempts: 'dontInvert' });
-        if (r1 && r1.data) return r1.data;
-
-        var r2 = jsQR(d, w, h, { inversionAttempts: 'onlyInvert' });
-        if (r2 && r2.data) return r2.data;
-
-      } catch (e) { }
-      return null;
+        var imgData = ctx.getImageData(0, 0, dw, dh);
+        var result = jsQR(imgData.data, dw, dh, { inversionAttempts: 'attemptBoth' });
+        return (result && result.data) ? result.data : null;
+      } catch (e) { return null; }
     }
 
-    /* ── Helper: Crop 9 area berbeda lalu decode ── */
-    function _cropDanDecode(img, oW, oH) {
-      // Grid 3x3 dengan overlap
-      var zones = [
-        // [srcX_ratio, srcY_ratio, srcW_ratio, srcH_ratio]
-        [0, 0, 0.55, 0.55],   // kiri atas
-        [0.45, 0, 0.55, 0.55],   // kanan atas
-        [0, 0.45, 0.55, 0.55],   // kiri bawah
-        [0.45, 0.45, 0.55, 0.55],   // kanan bawah
-        [0.22, 0.22, 0.56, 0.56],   // tengah
-        [0, 0.22, 1, 0.56],   // strip tengah horizontal
-        [0.22, 0, 0.56, 1],   // strip tengah vertikal
-        [0, 0, 1, 0.5],   // setengah atas
-        [0, 0.5, 1, 0.5],   // setengah bawah
-      ];
-
-      var TARGET = 1200; // ukuran zona setelah crop
-
-      for (var zi = 0; zi < zones.length; zi++) {
-        var z = zones[zi];
-        var sx = Math.round(oW * z[0]);
-        var sy = Math.round(oH * z[1]);
-        var sw = Math.round(oW * z[2]);
-        var sh = Math.round(oH * z[3]);
-
-        // Scale zona ke TARGET
-        var rz = Math.min(TARGET / sw, TARGET / sh, 1);
-        var dw = Math.round(sw * rz);
-        var dh = Math.round(sh * rz);
-
-        try {
-          var c = document.createElement('canvas');
-          c.width = dw; c.height = dh;
-          var ctx = c.getContext('2d');
-          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
-          var d = ctx.getImageData(0, 0, dw, dh).data;
-
-          // Coba raw dulu (tanpa binarisasi)
-          var r = jsQR(d, dw, dh, { inversionAttempts: 'attemptBoth' });
-          if (r && r.data) return r.data;
-
-          // Coba dengan binarisasi
-          var thresholds = [128, 100, 160];
-          for (var ti = 0; ti < thresholds.length; ti++) {
-            var hasil = _decodeCanvas(
-              {
-                naturalWidth: sw, naturalHeight: sh,
-                _canvas: c
-              },  // trick: gambar ulang dari canvas
-              dw, dh, thresholds[ti], false
-            );
-            // Gambar ulang zone ke canvas baru untuk binarisasi
-            var c2 = document.createElement('canvas');
-            c2.width = dw; c2.height = dh;
-            var ctx2 = c2.getContext('2d');
-            ctx2.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
-            var d2 = ctx2.getImageData(0, 0, dw, dh).data;
-            for (var i2 = 0; i2 < d2.length; i2 += 4) {
-              var g2 = d2[i2] * 0.299 + d2[i2 + 1] * 0.587 + d2[i2 + 2] * 0.114;
-              var v2 = g2 < thresholds[ti] ? 0 : 255;
-              d2[i2] = d2[i2 + 1] = d2[i2 + 2] = v2; d2[i2 + 3] = 255;
-            }
-            var r2 = jsQR(d2, dw, dh, { inversionAttempts: 'attemptBoth' });
-            if (r2 && r2.data) return r2.data;
-          }
-        } catch (e) { }
-      }
-      return null;
-    }
-
-    /* ── Helper: Crop + zoom agresif (untuk QR sangat kecil di foto) ── */
-    function _cropZoomDanDecode(img, oW, oH) {
-      // Zoom ke bagian kecil (QR mungkin hanya 15-20% dari foto)
-      var miniZones = [
-        [0, 0, 0.35, 0.35],
-        [0.65, 0, 0.35, 0.35],
-        [0, 0.65, 0.35, 0.35],
-        [0.65, 0.65, 0.35, 0.35],
-        [0.3, 0.3, 0.4, 0.4],
-        [0.1, 0.1, 0.8, 0.8],
-      ];
-
-      var TARGET = 800;
-
-      for (var zi = 0; zi < miniZones.length; zi++) {
-        var z = miniZones[zi];
-        var sx = Math.round(oW * z[0]);
-        var sy = Math.round(oH * z[1]);
-        var sw = Math.round(oW * z[2]);
-        var sh = Math.round(oH * z[3]);
-
-        // Zoom-in ke ukuran TARGET (upscale agar QR lebih besar)
-        var dw = TARGET, dh = TARGET;
-
-        try {
-          var c = document.createElement('canvas');
-          c.width = dw; c.height = dh;
-          var ctx = c.getContext('2d');
-          // imageSmoothingEnabled=false → tidak blur saat zoom, tepi QR lebih tajam
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
-          var d = ctx.getImageData(0, 0, dw, dh).data;
-
-          var r = jsQR(d, dw, dh, { inversionAttempts: 'attemptBoth' });
-          if (r && r.data) return r.data;
-
-          // Binarisasi
-          var thresholds = [128, 100, 160, 80];
-          for (var ti = 0; ti < thresholds.length; ti++) {
-            var c2 = document.createElement('canvas');
-            c2.width = dw; c2.height = dh;
-            var ctx2 = c2.getContext('2d');
-            ctx2.imageSmoothingEnabled = false;
-            ctx2.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
-            var d2 = ctx2.getImageData(0, 0, dw, dh).data;
-            for (var i = 0; i < d2.length; i += 4) {
-              var g = d2[i] * 0.299 + d2[i + 1] * 0.587 + d2[i + 2] * 0.114;
-              var v = g < thresholds[ti] ? 0 : 255;
-              d2[i] = d2[i + 1] = d2[i + 2] = v; d2[i + 3] = 255;
-            }
-            var r2 = jsQR(d2, dw, dh, { inversionAttempts: 'attemptBoth' });
-            if (r2 && r2.data) return r2.data;
-          }
-        } catch (e) { }
-      }
-      return null;
-    }
+    /* ═══════════════════════════════════════════════════════════════════════
+       CRUD DAN HELPERS
+    ═══════════════════════════════════════════════════════════════════════ */
 
     function Simpan_Data() {
       var d = AmbilForm();
@@ -896,93 +653,49 @@
     var _viewIdx = -1;
 
     function viewData(idx) {
-      var b = semuaData[idx];
-      if (!b) return;
+      var b = semuaData[idx]; if (!b) return;
       _viewIdx = idx;
-
       function val(v) { return (v && v.toString().trim()) ? v.toString().trim() : null; }
       function set(id, v) {
         var el = document.getElementById(id);
-        if (val(v)) {
-          el.textContent = v;
-          el.classList.remove('empty');
-        } else {
-          el.textContent = 'Tidak diisi';
-          el.classList.add('empty');
-        }
+        if (val(v)) { el.textContent = v; el.classList.remove('empty'); }
+        else { el.textContent = 'Tidak diisi'; el.classList.add('empty'); }
       }
-
       document.getElementById('mvNoBerkas').textContent = val(b[1]) ? 'No Berkas: ' + b[1] : 'Detail Arsip';
       document.getElementById('mvJudul').textContent = val(b[4]) || 'Judul tidak tersedia';
-
-      set('mvNoBerkasVal', b[1]);
-      set('mvNoItem', b[2]);
-      set('mvKodeKlas', b[3]);
-      set('mvTanggal', val(b[5]) ? Fmt_Tgl(b[5]) : null);
-      set('mvJumlah', b[6]);
-      set('mvTkPerk', b[7]);
-      set('mvKlasKeamanan', b[8]);
-      set('mvAksesPublik', b[9]);
-      set('mvHakAkses', b[10]);
-      set('mvDasarPertimb', b[11]);
-
-      // Keterangan — tampilkan dengan badge warna
+      set('mvNoBerkasVal', b[1]); set('mvNoItem', b[2]); set('mvKodeKlas', b[3]);
+      set('mvTanggal', val(b[5]) ? Fmt_Tgl(b[5]) : null); set('mvJumlah', b[6]); set('mvTkPerk', b[7]);
+      set('mvKlasKeamanan', b[8]); set('mvAksesPublik', b[9]); set('mvHakAkses', b[10]); set('mvDasarPertimb', b[11]);
       var ketEl = document.getElementById('mvKeterangan');
       var ket = val(b[12]);
       if (ket) {
         var bdg = ket === 'Aktif' ? 'badge-aktif' : ket === 'Inaktif' ? 'badge-inaktif' : ket === 'Musnah' ? 'badge-musnah' : '';
         ketEl.innerHTML = '<span class="badge ' + bdg + '">' + ket + '</span>';
         ketEl.classList.remove('empty');
-      } else {
-        ketEl.textContent = 'Tidak diisi';
-        ketEl.classList.add('empty');
-      }
-
-      set('mvLokasi', b[13]);
-      set('mvNoBok', b[14]);
-
-      // Link — tampilkan sebagai tautan klik
+      } else { ketEl.textContent = 'Tidak diisi'; ketEl.classList.add('empty'); }
+      set('mvLokasi', b[13]); set('mvNoBok', b[14]);
       var linkEl = document.getElementById('mvLink');
       var lnk = val(b[15]);
       if (lnk) {
-        linkEl.innerHTML = '<a href="' + Esc(lnk) + '" target="_blank" style="color:var(--blue);font-weight:600;word-break:break-all;">'
-          + '<i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:4px;font-size:.8rem"></i>Buka Tautan</a>';
+        linkEl.innerHTML = '<a href="' + Esc(lnk) + '" target="_blank" style="color:var(--blue);font-weight:600;word-break:break-all;"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:4px;font-size:.8rem"></i>Buka Tautan</a>';
         linkEl.classList.remove('empty');
-      } else {
-        linkEl.textContent = 'Tidak diisi';
-        linkEl.classList.add('empty');
-      }
-
+      } else { linkEl.textContent = 'Tidak diisi'; linkEl.classList.add('empty'); }
       document.getElementById('modalView').classList.add('aktif');
       document.body.style.overflow = 'hidden';
     }
 
-    function tutupView() {
-      document.getElementById('modalView').classList.remove('aktif');
-      document.body.style.overflow = '';
-      _viewIdx = -1;
-    }
-
-    function editDariView() {
-      tutupView();
-      if (_viewIdx >= 0) {
-        setTimeout(function () { IsiFormEdit(_viewIdx); }, 120);
-      }
-    }
-
-    // Tutup modal jika klik area gelap di luar kartu
-    document.getElementById('modalView').addEventListener('click', function (e) {
-      if (e.target === this) tutupView();
-    });
+    function tutupView() { document.getElementById('modalView').classList.remove('aktif'); document.body.style.overflow = ''; _viewIdx = -1; }
+    function editDariView() { tutupView(); if (_viewIdx >= 0) setTimeout(function () { IsiFormEdit(_viewIdx); }, 120); }
+    document.getElementById('modalView').addEventListener('click', function (e) { if (e.target === this) tutupView(); });
 
     function IsiFormEdit(idx) {
       var b = semuaData[idx]; if (!b) return;
       document.getElementById('editRowIndex').value = idx;
-      ['NoBerkas', 'NoItemArsip', 'KodeKlasifikasi', 'Judul', 'TanggalLahir', 'Jumlah',
+      ['NoBerkas', 'NoItemArsip', 'KodeKlasifikasi', 'Judul', 'TanggalSurat', 'Jumlah',
         'TingkatPerkembangan', 'KlasifikasiKeamanan', 'AksesPublik', 'HakAkses',
         'DasarPertimbangan', 'Keterangan', 'Lokasi', 'NoBok', 'LinkTautan'].forEach(function (id, i) {
           var val = b[i + 1] || '';
-          if (id === 'TanggalLahir') val = val ? val.toString().slice(0, 10) : '';
+          if (id === 'TanggalSurat') val = val ? val.toString().slice(0, 10) : '';
           document.getElementById(id).value = val;
         });
       document.getElementById('btnKirim').style.display = 'none';
@@ -1007,8 +720,9 @@
     function KonfirmasiHapus(idx) {
       var b = semuaData[idx]; if (!b) return;
       Swal.fire({
-        icon: 'warning', title: 'Hapus Arsip?', html: 'Data <b>"' + (b[4] || 'ini') + '"</b> akan dihapus permanen.',
-        showCancelButton: true, confirmButtonText: '🗑 Hapus', cancelButtonText: 'Batal',
+        icon: 'warning', title: 'Hapus Arsip?',
+        html: 'Data <b>"' + (b[4] || 'ini') + '"</b> akan dihapus permanen.',
+        showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal',
         confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8'
       }).then(function (res) {
         if (!res.isConfirmed) return;
@@ -1022,7 +736,7 @@
     function AmbilForm() {
       return {
         No_Berkas: V('NoBerkas'), No_Item_Arsip: V('NoItemArsip'), Kode_Klasifikasi: V('KodeKlasifikasi'),
-        Judul: V('Judul'), Tanggal_Lahir: V('TanggalLahir'), Jumlah: V('Jumlah'),
+        Judul: V('Judul'), Tanggal_Surat: V('TanggalSurat'), Jumlah: V('Jumlah'),
         Tingkat_Perkembangan: V('TingkatPerkembangan'), Klasifikasi_Keamanan: V('KlasifikasiKeamanan'),
         Akses_Publik: V('AksesPublik'), Hak_Akses: V('HakAkses'), Dasar_Pertimbangan: V('DasarPertimbangan'),
         Keterangan: V('Keterangan'), Lokasi: V('Lokasi'), No_Bok: V('NoBok'), Link_Tautan: V('LinkTautan')
@@ -1032,16 +746,18 @@
     function Esc(s) { if (!s) return ''; return s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     function Fmt_Tgl(s) { if (!s) return '—'; var p = s.toString().slice(0, 10).split('-'); return p.length === 3 && p[0].length === 4 ? p[2] + '/' + p[1] + '/' + p[0] : s; }
     function Upd_Info(n, dari, sampai) {
-      var teks = dari && sampai
-        ? 'Menampilkan ' + dari + '–' + sampai + ' dari ' + n + ' data'
-        : 'Menampilkan 0 dari ' + semuaData.length + ' data';
+      var teks = dari && sampai ? 'Menampilkan ' + dari + '–' + sampai + ' dari ' + n + ' data' : 'Menampilkan 0 dari ' + semuaData.length + ' data';
       document.getElementById('infoJumlah').textContent = teks;
     }
     function Reset_Form() {
-      ['NoBerkas', 'NoItemArsip', 'Judul', 'TanggalLahir', 'Jumlah', 'DasarPertimbangan', 'Lokasi', 'NoBok', 'LinkTautan', 'KodeKlasifikasi']
+      ['NoBerkas', 'NoItemArsip', 'Judul', 'TanggalSurat', 'Jumlah', 'DasarPertimbangan', 'Lokasi', 'NoBok', 'LinkTautan', 'KodeKlasifikasi']
         .forEach(function (id) { document.getElementById(id).value = ''; });
       ['TingkatPerkembangan', 'KlasifikasiKeamanan', 'AksesPublik', 'HakAkses', 'Keterangan']
         .forEach(function (id) { document.getElementById(id).selectedIndex = 0; });
+      var statusEl = document.getElementById('uploadStatus');
+      if (statusEl) { statusEl.innerHTML = 'Maks. 10MB'; statusEl.style.color = 'var(--gray-400)'; }
+      var fileInput = document.getElementById('fileInput');
+      if (fileInput) fileInput.value = '';
     }
     function Batal_Edit() {
       document.getElementById('editRowIndex').value = -1;
@@ -1053,6 +769,101 @@
       Reset_Form();
     }
     function ErrH(err) { Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Terjadi kesalahan.' }); }
+
+    function downloadDataArsip() {
+      Swal.fire({
+        title: '<div class="card-headerh2">Unduh Daftar Arsip</div>',
+        html: `
+        <div class="form-grid2">
+          <div class="form-group">
+            <label>Pilih Format:</label>
+            <select id="swal-format">
+              <option value="">--Pilih--</option>
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="pdf">PDF (.pdf)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Keterangan:</label>
+            <select id="swal-keterangan">
+              <option value="">Semua</option>
+              <option value="Aktif">Aktif</option>
+              <option value="Inaktif">Inaktif</option>
+              <option value="Musnah">Musnah</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bulan & Tahun (YYYY-MM)</label>
+            <input id="swal-blnthn" type="month">
+          </div>
+          <div class="form-group">
+            <label>Kode Klasifikasi:</label>
+            <input type="text" id="swal-kodeklasifikasi" placeholder="Opsional...">
+          </div>
+          <div class="form-group full">
+            <label>No Bok:</label>
+            <input type="text" id="swal-nobok" placeholder="Opsional...">
+          </div>
+        </div>`,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Unduh',
+        cancelButtonText: 'Batal',
+        preConfirm: function () {
+          return {
+            fmt: document.getElementById('swal-format').value,
+            keterangan: document.getElementById('swal-keterangan').value,
+            blnThn: document.getElementById('swal-blnthn').value,
+            kodeKlasifikasi: document.getElementById('swal-kodeklasifikasi').value.trim(),
+            noBok: document.getElementById('swal-nobok').value.trim()
+          };
+        }
+      }).then(function (res) {
+        if (!res.isConfirmed) return;
+        var r = res.value;
+        Swal.fire({ title: 'Memproses...', html: 'Mohon Tunggu, Sedang Memuat Dokumen', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+        google.script.run
+          .withSuccessHandler(function (response) {
+            Swal.close();
+            if (response && response.url) {
+              window.open(response.url, '_blank');
+              setTimeout(function () { google.script.run.cleanupTempSheet(response.tempSheetId, response.tempDocId); }, 10000);
+            }
+          })
+          .withFailureHandler(function (err) { Swal.fire(err.message); })
+          .getDownloadUrlArsip(r.fmt, r.keterangan, r.blnThn, r.kodeKlasifikasi, r.noBok);
+      });
+    }
+
+    function handleFileUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      var file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) { Swal.fire('Gagal', 'Ukuran file maksimal 10MB', 'error'); input.value = ''; return; }
+      var statusEl = document.getElementById('uploadStatus');
+      statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunggah: ' + file.name + '...';
+      statusEl.style.color = 'var(--blue)';
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var base64Data = e.target.result;
+        var keterangan = document.getElementById('Keterangan').value || 'Tanpa Keterangan';
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (res.success) {
+              document.getElementById('LinkTautan').value = res.url;
+              statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Berhasil: ' + res.name;
+              statusEl.style.color = 'var(--success)';
+              Swal.fire({ icon: 'success', title: 'File Terunggah', text: 'Tautan file telah otomatis terisi.', timer: 1500, showConfirmButton: false });
+            } else {
+              statusEl.innerHTML = '<i class="fa-solid fa-xmark"></i> Gagal: ' + res.message;
+              statusEl.style.color = 'var(--danger)';
+              Swal.fire('Gagal Unggah', res.message, 'error');
+            }
+          })
+          .withFailureHandler(function (err) { statusEl.innerHTML = '<i class="fa-solid fa-xmark"></i> Error sistem'; statusEl.style.color = 'var(--danger)'; ErrH(err); })
+          .uploadFileToDriveArsip(base64Data, file.name, file.type, keterangan);
+      };
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 

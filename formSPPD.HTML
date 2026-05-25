@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form SPPD</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <?!= include('formSPPD-css'); ?>
+</head>
+
+<body data-active="formSPPD">
+
+    <?!= include('Sidebar'); ?>
+
+    <div class="container main-content">
+        <!-- KARTU FORM -->
+        <div class="card" id="cardForm">
+            <div class="card-header">
+                <div class="card-header-icon"><i class="fa-solid fa-file-lines" style="color: rgb(255, 255, 255);"></i>
+                </div>
+                <div>
+                    <div class="card-title">Form Surat Perintah Perjalanan Dinas (SPPD)</div>
+                </div>
+                <span class="edit-badge" id="editBadge"> MODE EDIT</span>
+            </div>
+            <input type="hidden" id="editRowIndex" value="-1">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>No. Urut</label>
+                    <input type="text" id="NoUrut" placeholder="Nomor Urutan SPPD Perbulan">
+                </div>
+                <div class="form-group">
+                    <label>No. SPPD</label>
+                    <input type="text" id="NoSPPD" placeholder="Nomor Urutan SPPD Pertahun">
+                </div>
+                <div class="form-group">
+                    <label>Nama</label>
+                    <input type="text" id="Nama" placeholder="Nama Pelaksana Perjalanan Dinas">
+                </div>
+                <div class="form-group full">
+                    <label>Tujuan Perjalanan Dinas</label>
+                    <textarea id="TujuanSPPD" placeholder="Masukkan Tujuan Perjalanan Dinas..."></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Tempat Tujuan Perjalanan Dinas</label>
+                    <input type="text" id="TempatTujuanSPPD" placeholder="Masukkan Tempat Tujuan...">
+                </div>
+                <div class="form-group">
+                    <label>Dari</label>
+                    <input type="date" id="Dari">
+                </div>
+                <div class="form-group">
+                    <label>Sampai</label>
+                    <input type="date" id="Sampai">
+                </div>
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="TanggalSPPD">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnKirim" onclick="Simpan_Data()">Simpan</button>
+                <button class="btn btn-warning" id="btnUpdate" style="display:none"
+                    onclick="Update_Data()">Simpan</button>
+                <button class="btn btn-danger" id="btnBatal" style="display:none" onclick="Batal_Edit()">Batal</button>
+                <button class="btn btn-danger" id="btnClear" onclick="Reset_Form()">Hapus</button>
+            </div>
+        </div>
+
+        <!-- KARTU TABEL -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-icon"><i class="fa-solid fa-table-list" style="color: rgb(255, 255, 255);"></i>
+                </div>
+                <div>
+                    <div class="card-title">Data SPPD</div>
+                    <div class="card-subtitle" id="subtitleTabel">Menunggu sesi...</div>
+                </div>
+                <button class="btn btn-secondary" style="margin-left:auto;padding:7px 14px;font-size:.8rem"
+                    onclick="downloadDataSPPD()">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+                <button class="btn btn-secondary" style="margin-left:1px;padding:7px 14px;font-size:.8rem"
+                    onclick="Muat_Data()">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+            </div>
+            <div class="search-wrap">
+                <div class="search-field" style="flex:2;min-width:220px;">
+                    <div class="search-input-wrap">
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="searchUniversal"
+                            placeholder="Ketik Nama, No. SPPD, Tujuan, Tempat Tujuan, dll..." oninput="filterTabel()">
+                    </div>
+                </div>
+                <div class="search-field">
+                    <input type="text" id="searchTanggal" placeholder="Cari Tahun/Bulan..." oninput="filterTabel()"
+                        title="Cari berdasarkan tanggal / tahun">
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button class="btn btn-secondary" onclick="clearSearch()"
+                        style="padding:9px 14px;font-size:.8rem;height:40px" title="Clear Filters">
+                        <i class="fa-solid fa-x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-footer" style="margin-bottom:20px;">
+                <span id="infoJumlah">—</span>
+                <span id="infoFilter" style="color:var(--blue);font-weight:600;"></span>
+                <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+                    <label
+                        style="font-size:.75rem;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Tampilkan</label>
+                    <select id="perPageSel" onchange="gantiPerPage()"
+                        style="padding:5px 8px;font-size:.8rem;border:1.5px solid var(--gray-200);border-radius:6px;background:var(--gray-50);cursor:pointer;">
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="tblArsip">
+                    <thead>
+                        <tr>
+                            <th rowspan="2"
+                                style="text-align:center;width:44px;vertical-align:middle;border-bottom:1px solid #cbd5e1;">
+                                No</th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">No.
+                                Urut</th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">No.
+                                SPPD</th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">Nama
+                            </th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">Tujuan
+                                Perjalanan Dinas</th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">Tempat
+                                Tujuan Perjalanan Dinas</th>
+                            <th colspan="2" style="text-align:center;border-bottom:1px solid #cbd5e1;">Waktu Perjalanan
+                                Dinas</th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">Tanggal
+                            </th>
+                            <th rowspan="2"
+                                style="text-align:center;vertical-align:middle;border-bottom:1px solid #cbd5e1;">Aksi
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align:center;border-bottom:1px solid #cbd5e1;">Dari</th>
+                            <th style="text-align:center;border-bottom:1px solid #cbd5e1;">Sampai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblBody">
+                        <tr class="state-row">
+                            <td colspan="10">Sedang Memuat Data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-footer"></div>
+        </div>
+
+        <div id="paginasiWrap"
+            style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap;">
+        </div>
+    </div>
+
+    <!-- MODAL VIEW DETAIL -->
+    <div id="modalView">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-header-title">Detail SPPD</div>
+                    <div class="modal-header-sub" id="mvNoBerkas">—</div>
+                </div>
+                <button class="modal-close" onclick="tutupView()" title="Tutup"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-section-title"></div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">No. Urut</div>
+                            <div class="detail-value" id="mvNoUrut">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">No. SPPD</div>
+                            <div class="detail-value" id="mvNoSPPD">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Nama</div>
+                            <div class="detail-value" id="mvNama">—</div>
+                        </div>
+                        <div class="detail-item full">
+                            <div class="detail-label">Tujuan Perjalanan Dinas</div>
+                            <div class="detail-value" id="mvTujuan">—</div>
+                        </div>
+                        <div class="detail-item full">
+                            <div class="detail-label">Tempat Tujuan Perjalanan Dinas</div>
+                            <div class="detail-value" id="mvTempatTujuan">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dari</div>
+                            <div class="detail-value" id="mvDari">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Sampai</div>
+                            <div class="detail-value" id="mvSampai">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tanggal</div>
+                            <div class="detail-value" id="mvTanggal">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?!= include('session-helper'); ?>
+
+    <script>
+        var semuaData = [];
+        var dataDisplay = [];
+        var halamanAktif = 1;
+        var perPage = 25;
+
+        function _onSesiValid() {
+            Muat_Data();
+        }
+
+        function Muat_Data() {
+            document.getElementById('tblBody').innerHTML = '<tr class="state-row"><td colspan="10"><i class="fa-solid fa-arrows-rotate"></i> Memuat data...</td></tr>';
+            document.getElementById('subtitleTabel').textContent = 'Sedang Memuat Data...';
+            google.script.run
+                .withSuccessHandler(function (rows) {
+                    semuaData = dataDisplay = rows || [];
+                    Render_Tabel(dataDisplay);
+                    document.getElementById('subtitleTabel').textContent = 'Total ' + semuaData.length + ' data tersimpan';
+                })
+                .withFailureHandler(function (err) {
+                    document.getElementById('tblBody').innerHTML = '<tr class="state-row"><td colspan="10">Gagal memuat: ' + err.message + '</td></tr>';
+                })
+                .getAllSPPD();
+        }
+
+        function Render_Tabel(arr) {
+            var tbody = document.getElementById('tblBody');
+            if (!arr || arr.length === 0) {
+                tbody.innerHTML = '<tr class="state-row"><td colspan="10">Tidak ada data</td></tr>';
+                Upd_Info(0);
+                document.getElementById('paginasiWrap').innerHTML = '';
+                return;
+            }
+
+            var totalHalaman = Math.ceil(arr.length / perPage);
+            if (halamanAktif > totalHalaman) halamanAktif = 1;
+
+            var mulai = (halamanAktif - 1) * perPage;
+            var selesai = Math.min(mulai + perPage, arr.length);
+            var slice = arr.slice(mulai, selesai);
+
+            var html = '';
+            slice.forEach(function (b, i) {
+                var idx = semuaData.indexOf(b);
+                html += '<tr>'
+                    + '<td class="td-no">' + (Esc(b[0]) || '—') + '</td>'
+                    + '<td title="' + Esc(b[1]) + '">' + (Esc(b[1]) || '—') + '</td>'
+                    + '<td title="' + Esc(b[2]) + '">' + (Esc(b[2]) || '—') + '</td>'
+                    + '<td title="' + Esc(b[3]) + '">' + (Esc(b[3]) || '—') + '</td>'
+                    + '<td title="' + Esc(b[4]) + '">' + (Esc(b[4]) || '—') + '</td>'
+                    + '<td title="' + Esc(b[5]) + '">' + (Esc(b[5]) || '—') + '</td>'
+                    + '<td style="text-align:center;">' + (Esc(b[6]) ? Fmt_Tgl(b[6]) : '—') + '</td>'
+                    + '<td style="text-align:center;">' + (Esc(b[7]) ? Fmt_Tgl(b[7]) : '—') + '</td>'
+                    + '<td style="text-align:center;">' + (Esc(b[8]) ? Fmt_Tgl(b[8]) : '—') + '</td>'
+                    + '<td class="td-aksi">'
+                    + '<button class="btn-tbl btn-tbl-view" title="Detail" onclick="viewData(' + idx + ')"><i class="fa-solid fa-eye"></i></button>'
+                    + '<button class="btn-tbl btn-tbl-edit" title="Edit" onclick="IsiFormEdit(' + idx + ')"><i class="fa-solid fa-pen-to-square"></i></button>'
+                    + '<button class="btn-tbl btn-tbl-hapus" title="Hapus" onclick="KonfirmasiHapus(' + idx + ')"><i class="fa-solid fa-trash"></i></button>'
+                    + '</td></tr>';
+            });
+            tbody.innerHTML = html;
+            Upd_Info(arr.length, mulai + 1, selesai);
+            Render_Paginasi(totalHalaman);
+        }
+
+        function Render_Paginasi(total) {
+            var wrap = document.getElementById('paginasiWrap');
+            if (total <= 1) { wrap.innerHTML = ''; return; }
+
+            var html = '';
+            var btnStyle = 'display:inline-flex;align-items:center;justify-content:center;'
+                + 'min-width:32px;height:32px;padding:0 8px;border:1.5px solid var(--gray-200);'
+                + 'border-radius:6px;background:var(--white);font-family:inherit;font-size:.8rem;'
+                + 'font-weight:600;cursor:pointer;color:var(--gray-600);transition:all .15s;';
+            var btnAktifStyle = btnStyle + 'background:#0f2544;color:white;border-color:#0f2544;';
+            var btnDisabledStyle = btnStyle + 'opacity:.4;cursor:not-allowed;';
+
+            if (halamanAktif > 1) {
+                html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif - 1) + ')">'
+                    + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+            } else {
+                html += '<button style="' + btnDisabledStyle + '" disabled>'
+                    + '<i class="fa-solid fa-chevron-left" style="font-size:.7rem"></i></button>';
+            }
+
+            var pages = rentangHalaman(halamanAktif, total);
+            pages.forEach(function (p) {
+                if (p === '...') {
+                    html += '<span style="padding:0 4px;color:var(--gray-400);font-size:.85rem;line-height:32px;">···</span>';
+                } else {
+                    var st = (p === halamanAktif) ? btnAktifStyle : btnStyle;
+                    html += '<button style="' + st + '" onclick="keHalaman(' + p + ')">' + p + '</button>';
+                }
+            });
+
+            if (halamanAktif < total) {
+                html += '<button style="' + btnStyle + '" onclick="keHalaman(' + (halamanAktif + 1) + ')">'
+                    + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+            } else {
+                html += '<button style="' + btnDisabledStyle + '" disabled>'
+                    + '<i class="fa-solid fa-chevron-right" style="font-size:.7rem"></i></button>';
+            }
+
+            wrap.innerHTML = html;
+        }
+
+        function rentangHalaman(aktif, total) {
+            if (total <= 7) {
+                var r = [];
+                for (var i = 1; i <= total; i++) r.push(i);
+                return r;
+            }
+            var pages = [1];
+            if (aktif > 3) pages.push('...');
+            var dari = Math.max(2, aktif - 1);
+            var sampai = Math.min(total - 1, aktif + 1);
+            for (var j = dari; j <= sampai; j++) pages.push(j);
+            if (aktif < total - 2) pages.push('...');
+            pages.push(total);
+            return pages;
+        }
+
+        function keHalaman(n) {
+            halamanAktif = n;
+            Render_Tabel(dataDisplay);
+        }
+
+        function gantiPerPage() {
+            perPage = parseInt(document.getElementById('perPageSel').value);
+            halamanAktif = 1;
+            Render_Tabel(dataDisplay);
+        }
+
+        function filterTabel() {
+            halamanAktif = 1;
+            var q = document.getElementById('searchUniversal').value.toLowerCase().trim();
+            var tgl = document.getElementById('searchTanggal').value;
+
+            dataDisplay = semuaData.filter(function (b) {
+                return (!q || b.some(function (s) { return s.toString().toLowerCase().includes(q); }))
+                    && (!tgl || b.some(function (s) { return s.toString().toLowerCase().includes(tgl.toLowerCase()); }));
+            });
+            var f = [];
+            if (q) f.push('Pencarian: "' + q + '"');
+            if (tgl) f.push('Tanggal/Tahun: ' + tgl);
+
+            document.getElementById('infoFilter').textContent = f.length ? '🔍 ' + f.join(' · ') : '';
+            Render_Tabel(dataDisplay);
+        }
+
+        function clearSearch() {
+            document.getElementById('searchUniversal').value = '';
+            document.getElementById('searchTanggal').value = '';
+            document.getElementById('infoFilter').textContent = '';
+            dataDisplay = semuaData;
+            Render_Tabel(dataDisplay);
+        }
+
+        function downloadDataSPPD() {
+            Swal.fire({
+                title: `<div class="card-headerh2" style="font-size:1.2rem;font-weight:700;color:var(--navy);padding-bottom:8px;border-bottom:2px solid var(--gray-100);">Unduh Daftar SPPD</div>`,
+                didOpen: function () {
+                    var titleEl = document.querySelector('.swal2-title');
+                    if (titleEl) {
+                        titleEl.style.paddingTop = '8px';
+                        titleEl.style.paddingBottom = '0';
+                        titleEl.style.marginBottom = '0';
+                    }
+                },
+                html: `
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;text-align:left;">
+                    <div class="form-group">
+                        <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH FORMAT:</label>
+                        <select id="swal-format" style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+                            <option value="xlsx">Excel (.xlsx)</option>
+                            <option value="pdf">PDF (.pdf)</option>
+                            <option value="docx">Word (.docx)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH BULAN:</label>
+                        <select id="swal-bulan" style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+                            <option value="">Semua Bulan</option>
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.75rem;font-weight:700;color:var(--gray-600);">PILIH TAHUN:</label>
+                        <input type="text" id="swal-tahun" placeholder="Contoh: 2026 (Kosongkan untuk semua)..." style="padding:8px;border:1.5px solid var(--gray-200);border-radius:6px;width:100%;font-family:inherit;">
+                    </div>
+                </div>`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Unduh',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    return {
+                        fmt: document.getElementById('swal-format').value,
+                        bln: document.getElementById('swal-bulan').value,
+                        thn: document.getElementById('swal-tahun').value.trim()
+                    };
+                }
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    var param = result.value;
+
+                    var filterText = [];
+                    if (param.bln) {
+                        var namaBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+                        filterText.push("Bulan " + namaBulan[parseInt(param.bln) - 1]);
+                    }
+                    if (param.thn) filterText.push("Tahun " + param.thn);
+                    var displayFilter = filterText.length > 0 ? filterText.join(' · ') : 'Pemrosesan Semua Data';
+
+                    Swal.fire({
+                        title: 'Menyiapkan File...',
+                        text: displayFilter,
+                        allowOutsideClick: false,
+                        didOpen: function () { Swal.showLoading(); }
+                    });
+
+                    google.script.run
+                        .withSuccessHandler(function (res) {
+                            Swal.close();
+                            if (res && res.url) {
+                                try { window.open(res.url, '_blank'); } catch(e) { console.error('Popup blocked', e); }
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'File Berhasil Diunduh!',
+                                    html: `<div style="margin-top:10px;"><p style="font-size:0.9rem;color:var(--gray-600);margin-bottom:15px;">Silahkan cek file yang sudah terunduh pada histori unduhan di browser anda!</p></div>`,
+                                    showConfirmButton: false,
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Tutup',
+                                    cancelButtonColor: '#94a3b8'
+                                });
+
+                                setTimeout(function () {
+                                    google.script.run.cleanupTempSheet(res.tempSheetId, res.tempDocId);
+                                }, 30000);
+                            } else {
+                                Swal.fire('Error', 'Gagal memproses file unduhan', 'error');
+                            }
+                        })
+                        .withFailureHandler(ErrH)
+                        .getDownloadUrlSPPD(param.bln, param.thn, param.fmt);
+                }
+            });
+        }
+
+        function Simpan_Data() {
+            var d = AmbilForm();
+            if (!d.No_Urut) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'No. Urut wajib diisi!' }); return; }
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+            google.script.run
+                .withSuccessHandler(function () {
+                    Swal.fire({ icon: 'success', title: 'Tersimpan!', timer: 1800, showConfirmButton: false });
+                    Reset_Form();
+                    Muat_Data();
+                })
+                .withFailureHandler(ErrH).simpanSPPD(d);
+        }
+
+        var _viewIdx = -1;
+
+        function viewData(idx) {
+            var b = semuaData[idx];
+            if (!b) return;
+            _viewIdx = idx;
+
+            function val(v) { return (v && v.toString().trim()) ? v.toString().trim() : null; }
+            function set(id, v) {
+                var el = document.getElementById(id);
+                if (val(v)) {
+                    el.textContent = v;
+                    el.classList.remove('empty');
+                } else {
+                    el.textContent = 'Tidak diisi';
+                    el.classList.add('empty');
+                }
+            }
+
+            document.getElementById('mvNoBerkas').textContent = val(b[2]) ? 'No. SPPD: ' + b[2] : 'Detail SPPD';
+
+            set('mvNoUrut', b[1]);
+            set('mvNoSPPD', b[2]);
+            set('mvNama', b[3]);
+            set('mvTujuan', b[4]);
+            set('mvTempatTujuan', b[5]);
+            set('mvDari', b[6] ? Fmt_Tgl(b[6]) : null);
+            set('mvSampai', b[7] ? Fmt_Tgl(b[7]) : null);
+            set('mvTanggal', b[8] ? Fmt_Tgl(b[8]) : null);
+
+            document.getElementById('modalView').classList.add('aktif');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function tutupView() {
+            document.getElementById('modalView').classList.remove('aktif');
+            document.body.style.overflow = '';
+            _viewIdx = -1;
+        }
+
+        document.getElementById('modalView').addEventListener('click', function (e) {
+            if (e.target === this) tutupView();
+        });
+
+        function IsiFormEdit(idx) {
+            var b = semuaData[idx]; if (!b) return;
+            document.getElementById('editRowIndex').value = idx;
+            document.getElementById('NoUrut').value = b[1] || '';
+            document.getElementById('NoSPPD').value = b[2] || '';
+            document.getElementById('Nama').value = b[3] || '';
+            document.getElementById('TujuanSPPD').value = b[4] || '';
+            document.getElementById('TempatTujuanSPPD').value = b[5] || '';
+            document.getElementById('Dari').value = b[6] ? b[6].toString().slice(0, 10) : '';
+            document.getElementById('Sampai').value = b[7] ? b[7].toString().slice(0, 10) : '';
+            document.getElementById('TanggalSPPD').value = b[8] ? b[8].toString().slice(0, 10) : '';
+
+            document.getElementById('btnKirim').style.display = 'none';
+            document.getElementById('btnUpdate').style.display = 'inline-flex';
+            document.getElementById('btnBatal').style.display = 'inline-flex';
+            document.getElementById('btnClear').style.display = 'none';
+            document.body.classList.add('edit-mode');
+            document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function Update_Data() {
+            var idx = parseInt(document.getElementById('editRowIndex').value);
+            if (idx < 0) return;
+            var d = AmbilForm();
+            d.rowIndex = idx;
+            if (!d.No_Urut) { Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'No. Urut wajib diisi!' }); return; }
+            Swal.fire({ title: 'Mengupdate...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+            google.script.run
+                .withSuccessHandler(function () {
+                    Swal.fire({ icon: 'success', title: 'Diperbarui!', timer: 1800, showConfirmButton: false });
+                    Batal_Edit();
+                    Muat_Data();
+                })
+                .withFailureHandler(ErrH).editDataSPPD(d);
+        }
+
+        function KonfirmasiHapus(idx) {
+            var b = semuaData[idx]; if (!b) return;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yakin Ingin Menghapus Data Ini?',
+                html: 'Data SPPD <b>"' + (b[2] || b[1] || 'ini') + '"</b> akan dihapus permanen.',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+                google.script.run
+                    .withSuccessHandler(function () {
+                        Swal.fire({ icon: 'success', title: 'Dihapus!', timer: 1800, showConfirmButton: false });
+                        Muat_Data();
+                    })
+                    .withFailureHandler(ErrH).hapusDataSPPD(idx);
+            });
+        }
+
+        function AmbilForm() {
+            return {
+                No_Urut: V('NoUrut'),
+                No_SPPD: V('NoSPPD'),
+                Nama: V('Nama'),
+                Tujuan_SPPD: V('TujuanSPPD'),
+                Tempat_Tujuan_SPPD: V('TempatTujuanSPPD'),
+                Dari: V('Dari'),
+                Sampai: V('Sampai'),
+                Tanggal_SPPD: V('TanggalSPPD')
+            };
+        }
+
+        function V(id) { return document.getElementById(id).value.trim(); }
+        function Esc(s) { if (!s) return ''; return s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function Fmt_Tgl(s) { if (!s) return '—'; var p = s.toString().slice(0, 10).split('-'); return p.length === 3 && p[0].length === 4 ? p[2] + '/' + p[1] + '/' + p[0] : s; }
+
+        function Upd_Info(n, dari, sampai) {
+            var teks = dari && sampai
+                ? 'Menampilkan ' + dari + '–' + sampai + ' dari ' + n + ' data'
+                : 'Menampilkan 0 dari ' + semuaData.length + ' data';
+            document.getElementById('infoJumlah').textContent = teks;
+        }
+
+        function Reset_Form() {
+            ['NoUrut', 'NoSPPD', 'Nama', 'TujuanSPPD', 'TempatTujuanSPPD', 'Dari', 'Sampai', 'TanggalSPPD'].forEach(function (id) {
+                document.getElementById(id).value = '';
+            });
+        }
+
+        function Batal_Edit() {
+            document.getElementById('editRowIndex').value = -1;
+            document.getElementById('btnKirim').style.display = 'inline-flex';
+            document.getElementById('btnUpdate').style.display = 'none';
+            document.getElementById('btnBatal').style.display = 'none';
+            document.getElementById('btnClear').style.display = 'inline-flex';
+            document.body.classList.remove('edit-mode');
+            Reset_Form();
+        }
+
+        function ErrH(err) { Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Terjadi kesalahan.' }); }
+    </script>
+</body>
+
+</html>
