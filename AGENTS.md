@@ -109,14 +109,20 @@ google.script.run
 
 ---
 
-## 5. Panduan Workflow Clasp untuk AI Agent
-Jika Anda diminta untuk memperbarui atau menguji kode secara lokal:
-1. Pastikan file konfigurasi `.clasp.json` terhubung dengan ID Script yang benar.
-2. Gunakan `clasp pull` untuk mengunduh perubahan dari server Google Apps Script (jika user mengedit dari web editor).
-3. Gunakan `clasp push` untuk mengunggah semua perubahan berkas lokal ke server Apps Script.
-4. Gunakan `clasp deploy` atau periksa deploy link secara langsung untuk memastikan versi web app terbaru telah berjalan.
+## 5. Panduan Workflow CI/CD & Deployment
+Proyek ini mengadopsi standar **Continuous Integration & Continuous Deployment (CI/CD)** via GitHub Actions.
 
----
+### A. Deployment Otomatis (GitHub Actions)
+Sebagai AI Agent, Anda **tidak perlu** menjalankan `clasp push` atau `clasp deploy` secara manual untuk merilis ke production.
+1. Saat Anda menyelesaikan perbaikan, lakukan commit kode (misalnya via `git commit -m "Deskripsi Fitur"`).
+2. Pesan commit Anda akan ditarik secara otomatis oleh GitHub Actions (`deploy.yml`) dan dijadikan sebagai **deskripsi deployment resmi** di riwayat versi Google Apps Script.
+3. Lakukan push ke branch `main` atau `master`. Sistem akan mengunggah dan mempublikasikan versi tersebut.
+
+### B. Pengujian Lokal (Manual Clasp)
+Jika Anda diminta menguji kode secara lokal tanpa push ke GitHub:
+1. Pastikan file konfigurasi `.clasp.json` terhubung dengan ID Script yang benar.
+2. Gunakan `clasp pull` untuk mengunduh perubahan dari server Google Apps Script.
+3. Gunakan `clasp push` untuk mengunggah perubahan secara lokal untuk *live testing*.
 
 ## 6. Checklist untuk AI Agent Sebelum Mengirim Kode
 Sebelum Anda menyatakan pekerjaan selesai, verifikasi hal-hal berikut:

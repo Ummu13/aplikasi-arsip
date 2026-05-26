@@ -11,17 +11,21 @@ Aplikasi ini menggunakan arsitektur serverless berbasis ekosistem cloud Google:
 
 ```mermaid
 graph TD
-    Client[Browser Pengguna] <-->|google.script.run| GAS[Google Apps Script - Kode.gs]
+    Dev[Pengembang / GitHub] -->|Git Push| GitHubActions[GitHub Actions CI/CD]
+    GitHubActions -->|clasp push & deploy| GAS[Google Apps Script - Kode.gs]
+    
+    Client[Browser Pengguna] <-->|google.script.run| GAS
     GAS <-->|SpreadsheetApp API| Sheets[(Google Sheets - Database)]
     GAS <-->|DriveApp API| Drive[(Google Drive - Berkas Fisik)]
     GAS -.->|CacheService & ScriptProperties| Cache[Pola Cache & Sesi]
 ```
 
 ### Penjelasan Komponen:
-1. **Presentation Layer (Frontend):** Berjalan langsung di browser pengguna menggunakan HTML5, Javascript, dan CSS (Tailwind CSS CDN + Custom Vanilla CSS). Menghubungi server Apps Script menggunakan metode asinkron `google.script.run`.
-2. **Logic & API Layer (Backend):** Berjalan pada container Google Apps Script (`Kode.gs`). Bertugas memproses perutean halaman, operasi CRUD, interaksi penyimpanan file, dan manajemen ekspor dokumen.
-3. **Database Layer (Spreadsheet):** Menyimpan data terstruktur (relasional-like) di dalam berkas Google Sheets.
-4. **Storage Layer (Google Drive):** Menyimpan file pindaian/digital dari arsip fisik dalam folder yang terstruktur dengan rapi.
+1. **CI/CD Pipeline (GitHub Actions):** Bertugas mendeteksi perubahan pada repositori dan secara otomatis men-deploy versi terbaru beserta pesan commit ke Google Apps Script menggunakan `clasp`.
+2. **Presentation Layer (Frontend):** Berjalan langsung di browser pengguna menggunakan HTML5, Javascript, dan CSS (Tailwind CSS CDN + Custom Vanilla CSS). Menghubungi server Apps Script menggunakan metode asinkron `google.script.run`.
+3. **Logic & API Layer (Backend):** Berjalan pada container Google Apps Script (`Kode.gs`). Bertugas memproses perutean halaman, operasi CRUD, interaksi penyimpanan file, dan manajemen ekspor dokumen.
+4. **Database Layer (Spreadsheet):** Menyimpan data terstruktur (relasional-like) di dalam berkas Google Sheets.
+5. **Storage Layer (Google Drive):** Menyimpan file pindaian/digital dari arsip fisik dalam folder yang terstruktur dengan rapi.
 
 ---
 
