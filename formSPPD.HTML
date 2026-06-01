@@ -179,10 +179,7 @@
     <div id="modalView">
         <div class="modal-card">
             <div class="modal-header">
-                <div>
-                    <div class="modal-header-title">Detail SPPD</div>
-                    <div class="modal-header-sub" id="mvNoBerkas">—</div>
-                </div>
+                <div class="modal-header-title">Detail SPPD</div>
                 <button class="modal-close" onclick="tutupView()" title="Tutup"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
@@ -202,13 +199,9 @@
                             <div class="detail-label">Nama</div>
                             <div class="detail-value" id="mvNama">—</div>
                         </div>
-                        <div class="detail-item full">
+                        <div class="detail-item">
                             <div class="detail-label">Tujuan Perjalanan Dinas</div>
                             <div class="detail-value" id="mvTujuan">—</div>
-                        </div>
-                        <div class="detail-item full">
-                            <div class="detail-label">Tempat Tujuan Perjalanan Dinas</div>
-                            <div class="detail-value" id="mvTempatTujuan">—</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Dari</div>
@@ -217,6 +210,10 @@
                         <div class="detail-item">
                             <div class="detail-label">Sampai</div>
                             <div class="detail-value" id="mvSampai">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Tempat Tujuan Perjalanan Dinas</div>
+                            <div class="detail-value" id="mvTempatTujuan">—</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Tanggal</div>
@@ -449,7 +446,7 @@
 
                     var filterText = [];
                     if (param.bln) {
-                        var namaBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+                        var namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                         filterText.push("Bulan " + namaBulan[parseInt(param.bln) - 1]);
                     }
                     if (param.thn) filterText.push("Tahun " + param.thn);
@@ -466,7 +463,7 @@
                         .withSuccessHandler(function (res) {
                             Swal.close();
                             if (res && res.url) {
-                                try { window.open(res.url, '_blank'); } catch(e) { console.error('Popup blocked', e); }
+                                try { window.open(res.url, '_blank'); } catch (e) { console.error('Popup blocked', e); }
 
                                 Swal.fire({
                                     icon: 'success',
@@ -518,12 +515,12 @@
                     el.textContent = v;
                     el.classList.remove('empty');
                 } else {
-                    el.textContent = 'Tidak diisi';
+                    el.textContent = '-';
                     el.classList.add('empty');
                 }
             }
 
-            document.getElementById('mvNoBerkas').textContent = val(b[2]) ? 'No. SPPD: ' + b[2] : 'Detail SPPD';
+
 
             set('mvNoUrut', b[1]);
             set('mvNoSPPD', b[2]);

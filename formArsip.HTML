@@ -259,18 +259,15 @@
   <div id="modalView">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <div class="modal-header-title">Detail Arsip</div>
-          <div class="modal-header-sub" id="mvNoBerkas">—</div>
-        </div>
+        <div class="modal-header-title">Detail Arsip</div>
         <button class="modal-close" onclick="tutupView()" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <div class="detail-section">
+        <div class="detail-section" style="margin-bottom: 15px;">
           <div class="detail-label">Judul Item Arsip</div>
           <div class="detail-judul" id="mvJudul">—</div>
         </div>
-        <div class="detail-section">
+        <div class="detail-section" style="margin-bottom: 15px;">
           <div class="detail-section-title"></div>
           <div class="detail-grid">
             <div class="detail-item">
@@ -299,7 +296,7 @@
             </div>
           </div>
         </div>
-        <div class="detail-section">
+        <div class="detail-section" style="margin-bottom: 15px;">
           <div class="detail-section-title"></div>
           <div class="detail-grid">
             <div class="detail-item">
@@ -314,15 +311,15 @@
               <div class="detail-label">Hak Akses</div>
               <div class="detail-value" id="mvHakAkses">—</div>
             </div>
+          </div>
+        </div>
+        <div class="detail-section" style="margin-bottom: 15px;">
+          <div class="detail-section-title"></div>
+          <div class="detail-grid">
             <div class="detail-item">
               <div class="detail-label">Dasar Pertimbangan</div>
               <div class="detail-value" id="mvDasarPertimb">—</div>
             </div>
-          </div>
-        </div>
-        <div class="detail-section">
-          <div class="detail-section-title"></div>
-          <div class="detail-grid">
             <div class="detail-item">
               <div class="detail-label">Keterangan</div>
               <div class="detail-value" id="mvKeterangan">—</div>
@@ -659,9 +656,9 @@
       function set(id, v) {
         var el = document.getElementById(id);
         if (val(v)) { el.textContent = v; el.classList.remove('empty'); }
-        else { el.textContent = 'Tidak diisi'; el.classList.add('empty'); }
+        else { el.textContent = '-'; el.classList.add('empty'); }
       }
-      document.getElementById('mvNoBerkas').textContent = val(b[1]) ? 'No Berkas: ' + b[1] : 'Detail Arsip';
+      document.getElementById('mvNoBerkasVal').textContent = val(b[1]) ? 'No Berkas: ' + b[1] : 'Detail Arsip';
       document.getElementById('mvJudul').textContent = val(b[4]) || 'Judul tidak tersedia';
       set('mvNoBerkasVal', b[1]); set('mvNoItem', b[2]); set('mvKodeKlas', b[3]);
       set('mvTanggal', val(b[5]) ? Fmt_Tgl(b[5]) : null); set('mvJumlah', b[6]); set('mvTkPerk', b[7]);
@@ -672,14 +669,14 @@
         var bdg = ket === 'Aktif' ? 'badge-aktif' : ket === 'Inaktif' ? 'badge-inaktif' : ket === 'Musnah' ? 'badge-musnah' : '';
         ketEl.innerHTML = '<span class="badge ' + bdg + '">' + ket + '</span>';
         ketEl.classList.remove('empty');
-      } else { ketEl.textContent = 'Tidak diisi'; ketEl.classList.add('empty'); }
+      } else { ketEl.textContent = '-'; ketEl.classList.add('empty'); }
       set('mvLokasi', b[13]); set('mvNoBok', b[14]);
       var linkEl = document.getElementById('mvLink');
       var lnk = val(b[15]);
       if (lnk) {
         linkEl.innerHTML = '<a href="' + Esc(lnk) + '" target="_blank" style="color:var(--blue);font-weight:600;word-break:break-all;"><i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:4px;font-size:.8rem"></i>Buka Tautan</a>';
         linkEl.classList.remove('empty');
-      } else { linkEl.textContent = 'Tidak diisi'; linkEl.classList.add('empty'); }
+      } else { linkEl.textContent = '-'; linkEl.classList.add('empty'); }
       document.getElementById('modalView').classList.add('aktif');
       document.body.style.overflow = 'hidden';
     }

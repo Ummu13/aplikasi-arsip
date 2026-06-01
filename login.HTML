@@ -116,9 +116,16 @@
 
       // Disable tombol & tampilkan status loading
       btn.disabled = true;
-      btn.value = 'Memuat...';
-      msg.style.color = '#64748b';
       msg.textContent = '';
+
+      Swal.fire({
+        title: 'Mohon Tunggu Sebentar',
+        text: 'Sedang Mengecek Email & Password...',
+        allowOutsideClick: false,
+        didOpen: function () {
+          Swal.showLoading();
+        }
+      });
 
       google.script.run
         .withSuccessHandler(function (res) {
@@ -135,20 +142,20 @@
               console.warn('[login] sessionStorage tidak tersedia, melanjutkan redirect...');
             }
 
-            /* ── LANGKAH 3: Tampilkan pesan sukses INLINE (bukan Swal) ── */
-            msg.style.color = '#22c55e';
-            msg.textContent = '✓ Login berhasil, mengalihkan...';
-            btn.value = 'Mengalihkan...';
+            /* ── LANGKAH 3: Tampilkan pesan sukses dengan Swal ── */
+            Swal.fire({
+              icon: 'success',
+              title: 'Login Berhasil',
+              // text: 'Mohon Tunggu Sebentar',
+              timer: 1500,
+              showConfirmButton: false,
+              allowOutsideClick: false
+            });
 
-            /* ── LANGKAH 4: Redirect setelah 500ms ──
-               500ms cukup agar:
-               • sessionStorage ter-flush di Safari/iOS
-               • Browser selesai merender pesan sukses di atas
-               • Tidak ada async Promise yang sempat terselip
-            ── */
+            /* ── LANGKAH 4: Redirect setelah 1500ms ── */
             setTimeout(function () {
               _redirect(BASE + '?page=Dashboard');
-            }, 500);
+            }, 1500);
 
           } else {
             /* Login gagal — re-enable tombol & tampilkan error */

@@ -196,11 +196,7 @@
   <div id="modalView">
     <div class="modal-card">
       <div class="modal-header">
-
-        <div>
-          <div class="modal-header-title">Detail Alih Media</div>
-          <div class="modal-header-sub" id="mvNoBerkas">—</div>
-        </div>
+        <div class="modal-header-title">Detail Alih Media</div>
         <button class="modal-close" onclick="tutupView()" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
@@ -213,16 +209,16 @@
               <div class="detail-value" id="mvJenis">—</div>
             </div>
             <div class="detail-item">
+              <div class="detail-label">Jumlah</div>
+              <div class="detail-value" id="mvJumlah">—</div>
+            </div>
+            <div class="detail-item">
               <div class="detail-label">Semula</div>
               <div class="detail-value" id="mvSemula">—</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">Menjadi</div>
               <div class="detail-value" id="mvMenjadi">—</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Jumlah</div>
-              <div class="detail-value" id="mvJumlah">—</div>
             </div>
             <div class="detail-item">
               <div class="detail-label">Alat</div>
@@ -543,12 +539,12 @@
           }
           el.classList.remove('empty');
         } else {
-          el.textContent = 'Tidak diisi';
+          el.textContent = '-';
           el.classList.add('empty');
         }
       }
 
-      document.getElementById('mvNoBerkas').textContent = val(b[1]) ? 'Jenis Arsip: ' + b[1] : 'Detail Alih Media';
+
 
       set('mvJenis', b[1]);
       set('mvSemula', b[2]);

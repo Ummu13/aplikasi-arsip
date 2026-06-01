@@ -62,7 +62,7 @@
     overlay.innerHTML =
       '<div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#6366f1;' +
       'border-radius:50%;animation:_spin .8s linear infinite;"></div>' +
-      '<div style="font-size:.9rem;font-weight:600;">Memeriksa sesi...</div>' +
+      '<div style="font-size:.9rem;font-weight:600;">Mohon Tunggu Sebentar...</div>' +
       '<style>@keyframes _spin{to{transform:rotate(360deg);}}</style>';
     document.body.appendChild(overlay);
 
@@ -130,7 +130,7 @@
       icon: 'question',
       text: 'Anda Yakin Ingin Keluar?',
       showCancelButton: true,
-      confirmButtonText: 'Logout',
+      confirmButtonText: 'Ya',
       cancelButtonText: 'Batal',
       confirmButtonColor: '#ef4444'
     }).then(function (res) {
