@@ -109,6 +109,7 @@
             <option>Inaktif</option>
             <option>Musnah</option>
           </select>
+          <small id="keteranganHelp" style="display:none;font-size:0.7rem;color:var(--gray-400);margin-top:2px;">Otomatis terisi berdasarkan tanggal</small>
         </div>
         <div class="form-group">
           <label>Lokasi</label>
@@ -354,6 +355,49 @@
     function _onSesiValid() {
       Muat_Data();
       Muat_KodeKlasifikasi();
+      
+      // Register event listener untuk hitung otomatis Keterangan
+      var tglEl = document.getElementById('TanggalSurat');
+      if (tglEl) {
+        tglEl.addEventListener('change', autoSetKeterangan);
+        tglEl.addEventListener('input', autoSetKeterangan);
+      }
+    }
+
+    function autoSetKeterangan() {
+      var tglInput = document.getElementById('TanggalSurat');
+      var ketSelect = document.getElementById('Keterangan');
+      var helpEl = document.getElementById('keteranganHelp');
+      if (!tglInput || !ketSelect) return;
+      
+      var tglVal = tglInput.value;
+      if (!tglVal) {
+        ketSelect.disabled = false;
+        if (helpEl) helpEl.style.display = 'none';
+        return;
+      }
+      
+      var parts = tglVal.split('-');
+      var year = parseInt(parts[0], 10);
+      if (isNaN(year) || year < 1000) {
+        ketSelect.disabled = false;
+        if (helpEl) helpEl.style.display = 'none';
+        return;
+      }
+      
+      var currentYear = new Date().getFullYear();
+      var diff = currentYear - year;
+      
+      var calculatedStatus = 'Aktif';
+      if (diff >= 5) {
+        calculatedStatus = 'Musnah';
+      } else if (diff >= 2) {
+        calculatedStatus = 'Inaktif';
+      }
+      
+      ketSelect.value = calculatedStatus;
+      ketSelect.disabled = true;
+      if (helpEl) helpEl.style.display = 'block';
     }
 
     var _kodeKlasList = [];
@@ -695,6 +739,10 @@
           if (id === 'TanggalSurat') val = val ? val.toString().slice(0, 10) : '';
           document.getElementById(id).value = val;
         });
+      
+      // Hitung otomatis & kunci dropdown Keterangan jika ada tanggal
+      autoSetKeterangan();
+      
       document.getElementById('btnKirim').style.display = 'none';
       document.getElementById('btnUpdate').style.display = 'inline-flex';
       document.getElementById('btnBatal').style.display = 'inline-flex';
@@ -755,6 +803,12 @@
       if (statusEl) { statusEl.innerHTML = 'Maks. 10MB'; statusEl.style.color = 'var(--gray-400)'; }
       var fileInput = document.getElementById('fileInput');
       if (fileInput) fileInput.value = '';
+      
+      // Reset status dropdown Keterangan & sembunyikan help text
+      var ketSelect = document.getElementById('Keterangan');
+      if (ketSelect) ketSelect.disabled = false;
+      var helpEl = document.getElementById('keteranganHelp');
+      if (helpEl) helpEl.style.display = 'none';
     }
     function Batal_Edit() {
       document.getElementById('editRowIndex').value = -1;

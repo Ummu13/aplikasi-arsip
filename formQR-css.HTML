@@ -132,7 +132,7 @@
     /* ── FORM ──────────────────────────────────────── */
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 16px;
         margin-bottom: 20px;
     }
@@ -141,6 +141,10 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
     }
 
     .form-group label {
@@ -174,7 +178,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 9px 20px;
+        padding: 10px 10px;
         border: none;
         border-radius: var(--radius-sm);
         font-family: inherit;
@@ -189,7 +193,7 @@
     }
 
     .btn-primary {
-        background: var(--blue);
+        background: #f59e0b;
         color: white;
     }
 
@@ -327,6 +331,7 @@
         gap: 28px;
         flex-wrap: wrap;
         align-items: flex-start;
+        justify-content: center;
     }
 
     .label-outer {
@@ -336,12 +341,14 @@
         padding: 20px;
         border: 1px solid var(--gray-200);
         display: flex;
-        align-items: center;
-        justify-content: center;
+        /* align-items: center; */
+        flex-direction: column;
+        gap: 12px;
     }
 
     .label-sheet {
-        display: inline-block;
+        display: flex;
+        flex-direction: column;
     }
 
     .preview-panel {
@@ -385,15 +392,15 @@
         word-break: break-word;
     }
 
-    .btn-row {
+    /* .btn-row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         margin-top: 18px;
-    }
+    } */
 
     .preview-note {
-        margin-top: 18px;
+        /* margin-top: 18px; */
         background: #eff6ff;
         border: 1px solid #bfdbfe;
         border-radius: var(--radius-sm);
@@ -404,125 +411,137 @@
     }
 
     /* ── LABEL TABLE (template arsip) ────────────────── */
+    /* ── Ukuran tabel label 13×9 cm ── */
     .lbl-table {
         border-collapse: collapse;
         border: 2px solid #000;
         font-family: 'Plus Jakarta Sans', Arial, sans-serif;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         background: #fff;
-        width: 480px;
+        width: 400px;
+        height: 350px;
+        table-layout: fixed;
     }
 
     .lbl-cell {
         border: 1.5px solid #000;
-        padding: 4px 8px;
+        padding: 2px 5px;
         text-align: center;
         vertical-align: middle;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        max-width: none !important;
+        word-wrap: break-word;
     }
 
-    /* Header RETENSI */
+    /* ── Tinggi setiap baris ── */
+    .row-header-label {
+        height: 22px;
+    }
+
+    .row-sub-label {
+        height: 18px;
+    }
+
+    .row-val-big {
+        height: 26px;
+    }
+
+    .row-instansi {
+        height: 26px;
+    }
+
+    .row-unitkerja {
+        height: 26px;
+    }
+
+    .row-tahun {
+        height: 26px;
+    }
+
+    .row-bok-header {
+        height: 18px;
+    }
+
+    .row-bok-val {
+        height: 100px;
+    }
+
+    /* ── Header RETENSI ── */
     .lbl-retensi-header {
         font-weight: 800;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         letter-spacing: 1px;
-        background: #fff;
-        padding: 5px 8px;
     }
 
-    /* Sub-header Aktif / Inaktif / Ket */
     .lbl-sub {
-        font-size: 0.7rem;
+        font-size: 0.66rem;
         font-weight: 700;
-        letter-spacing: .5px;
+        letter-spacing: .4px;
         background: #f8f8f8;
     }
 
-    /* Nilai besar retensi */
     .lbl-val-big {
-        font-size: 1.2rem;
-        font-weight: 800;
-        padding: 6px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
     }
 
-    /* LOKASI */
-    .lbl-lokasi-label {
-        font-size: 0.7rem;
+    /* ── LOKASI — struktur sama seperti KODE KLASIFIKASI ── */
+    .lbl-lokasi-header {
+        font-size: 0.66rem;
         font-weight: 700;
-        letter-spacing: .5px;
+        letter-spacing: .4px;
         background: #f8f8f8;
-        writing-mode: horizontal-tb;
     }
 
     .lbl-lokasi-val {
         font-size: 1rem;
-        font-weight: 700;
-        padding: 6px 12px;
+        font-weight: 800;
     }
 
-    /* KODE KLASIFIKASI */
+    /* ── KODE KLASIFIKASI ── */
     .lbl-kodeheader {
-        font-size: 0.7rem;
+        font-size: 0.66rem;
         font-weight: 700;
-        letter-spacing: .5px;
+        letter-spacing: .4px;
         background: #f8f8f8;
     }
 
-    /* Baris instansi / unit / tahun */
     .lbl-instansi {
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 800;
-        letter-spacing: .4px;
-        padding: 5px 8px;
-        text-align: center;
-        background: #fff;
+        letter-spacing: .3px;
     }
 
     .lbl-unitkerja {
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        font-style: italic;
-        text-align: center;
-        padding: 4px 8px;
     }
 
     .lbl-tahun {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-weight: 800;
-        text-align: center;
-        padding: 4px 8px;
     }
 
-    /* NO BOK / NO BERKAS header */
     .lbl-bokheader,
     .lbl-berkasheader,
     .lbl-bcheader {
-        font-size: 0.68rem;
+        font-size: 0.64rem;
         font-weight: 700;
-        letter-spacing: .5px;
+        letter-spacing: .4px;
         background: #f8f8f8;
-        padding: 5px 8px;
+        white-space: nowrap !important;
     }
 
-    /* Bottom row values */
-    .lbl-row-bot td {
-        padding: 10px 8px;
-    }
-
-    .lbl-bokval {
-        font-size: 1rem;
-        font-weight: 800;
-        text-align: center;
-    }
-
+    .lbl-bokval,
     .lbl-berkasval {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 800;
-        text-align: center;
     }
 
     .lbl-qrbox {
-        text-align: center;
-        padding: 8px !important;
+        padding: 4px !important;
     }
 
     .qr-box-inner {
@@ -532,6 +551,47 @@
     .qr-box-inner img,
     .qr-box-inner canvas {
         display: block;
+    }
+
+    /* ── POPUP SWAL (sama seperti formArsip) ────────── */
+    .card-headerh2 {
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        color: var(--navy);
+        border-bottom: 2px solid var(--gray-100);
+    }
+
+    .form-grid2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px 18px;
+    }
+
+    .form-grid2 .form-group label {
+        display: block;
+        text-align: left;
+        width: 100%;
+    }
+
+    .form-grid2 select {
+        padding: 9px 12px;
+        border: 1.5px solid var(--gray-200);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 0.88rem;
+        color: var(--gray-800);
+        background: var(--gray-50);
+        transition: border-color .18s, box-shadow .18s, background .18s;
+        width: 100%;
+    }
+
+    .form-grid2 select:focus {
+        outline: none;
+        border-color: var(--blue);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(26, 86, 219, .12);
     }
 
     /* ── RESPONSIVE ──────────────────────────────────── */

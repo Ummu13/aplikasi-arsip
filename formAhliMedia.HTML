@@ -25,7 +25,7 @@
         <div>
           <div class="card-title">Form Input Alih Media</div>
         </div>
-        <span class="edit-badge" id="editBadge"> MODE EDIT</span>
+        <span class="edit-badge" id="editBadge" style="background-color: #facc15"> MODE EDIT</span>
       </div>
       <input type="hidden" id="editRowIndex" value="-1">
       <div class="form-grid">
@@ -91,11 +91,16 @@
           </div>
         </div>
       </div>
+      <input type="hidden" id="FileHash" value="">
       <div class="btn-row">
-        <button class="btn btn-primary" id="btnKirim" onclick="Simpan_Data()">Simpan</button>
-        <button class="btn btn-warning" id="btnUpdate" style="display:none" onclick="Update_Data()">Simpan</button>
-        <button class="btn btn-danger" id="btnBatal" style="display:none" onclick="Batal_Edit()">Batal</button>
-        <button class="btn btn-danger" id="btnClear" onclick="Reset_Form()">Hapus</button>
+        <button class="btn btn-primary" id="btnKirim" style="background-color: #3b82f6;"
+          onclick="Simpan_Data()">Simpan</button>
+        <button class="btn btn-warning" id="btnUpdate" style="display:none; background-color:#fde047; color: white;"
+          onclick="Update_Data()">Edit</button>
+        <button class="btn btn-danger" id="btnBatal" style="display:none; background-color:#ef4444;"
+          onclick="Batal_Edit()">Batal</button>
+        <button class="btn btn-danger" id="btnClear" style="background-color:#ef4444;"
+          onclick="Reset_Form()">Hapus</button>
       </div>
     </div>
 
@@ -493,6 +498,7 @@
           .withSuccessHandler(function (res) {
             if (res.success) {
               document.getElementById('LinkTautan').value = res.url;
+              document.getElementById('FileHash').value = res.hash || '';
               statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Berhasil diunggah: ' + res.name;
               statusEl.style.color = 'var(--success)';
               Swal.fire({ icon: 'success', title: 'File Terunggah', text: 'Tautan file telah otomatis terisi.', timer: 1500, showConfirmButton: false });
@@ -577,6 +583,7 @@
         document.getElementById(id).value = val;
       });
       document.getElementById('LinkTautan').value = b[8] || '';
+      document.getElementById('FileHash').value = b[9] || '';
       document.getElementById('uploadStatus').textContent = (b[8] ? 'File sudah ada' : 'Maks. 10MB');
 
       document.getElementById('btnKirim').style.display = 'none';
@@ -617,7 +624,7 @@
       return {
         Jenis_Arsip: V('JenisArsip'), Semula: V('Semula'), Menjadi: V('Menjadi'),
         Jumlah: V('Jumlah'), Alat: V('Alat'), Waktu: V('Waktu'), Keterangan: V('Keterangan'),
-        Link_Tautan: V('LinkTautan')
+        Link_Tautan: V('LinkTautan'), File_Hash: V('FileHash')
       };
     }
 
@@ -633,7 +640,7 @@
     }
 
     function Reset_Form() {
-      ['JenisArsip', 'Semula', 'Menjadi', 'Jumlah', 'Alat', 'Waktu', 'Keterangan', 'LinkTautan'].forEach(function (id) { document.getElementById(id).value = ''; });
+      ['JenisArsip', 'Semula', 'Menjadi', 'Jumlah', 'Alat', 'Waktu', 'Keterangan', 'LinkTautan', 'FileHash'].forEach(function (id) { document.getElementById(id).value = ''; });
       document.getElementById('uploadStatus').textContent = 'Maks. 10MB';
       document.getElementById('uploadStatus').style.color = 'var(--gray-400)';
     }

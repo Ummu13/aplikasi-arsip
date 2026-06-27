@@ -25,7 +25,7 @@
         <div>
           <div class="card-title">Form Input Surat Masuk</div>
         </div>
-        <span class="edit-badge" id="editBadge"> MODE EDIT</span>
+        <span class="edit-badge" id="editBadge" style="background-color: #facc15"> MODE EDIT</span>
       </div>
       <input type="hidden" id="editRowIndex" value="-1">
       <div class="form-grid">
@@ -98,10 +98,14 @@
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-primary" id="btnKirim" onclick="Simpan_Data()">Simpan</button>
-        <button class="btn btn-warning" id="btnUpdate" style="display:none" onclick="Update_Data()">Perbarui</button>
-        <button class="btn btn-danger" id="btnBatal" style="display:none" onclick="Batal_Edit()">Batal</button>
-        <button class="btn btn-danger" id="btnClear" onclick="Reset_Form()">Bersihkan</button>
+        <button class="btn btn-primary" id="btnKirim" style="background-color: #3b82f6;"
+          onclick="Simpan_Data()">Simpan</button>
+        <button class="btn btn-warning" id="btnUpdate" style="display:none; background-color:#fde047; color: white;"
+          onclick="Update_Data()">Edit</button>
+        <button class="btn btn-danger" id="btnBatal" style="display:none; background-color:#ef4444;"
+          onclick="Batal_Edit()">Batal</button>
+        <button class="btn btn-danger" id="btnClear" style="background-color:#ef4444;"
+          onclick="Reset_Form()">Hapus</button>
       </div>
     </div>
 

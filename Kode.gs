@@ -194,6 +194,8 @@ function _readAllFromSheet() {
         safeRow.push(cell.toString());
       }
     }
+    // Auto-calculate Keterangan (index 12) berdasarkan TanggalSurat (index 5)
+    safeRow[12] = _hitungKeterangan(safeRow[5], safeRow[12]);
     return safeRow;
   });
 }
@@ -230,6 +232,30 @@ function getAll() {
 function _invalidateCache() {
   try { CacheService.getScriptCache().remove(CACHE_KEY_ALL); } catch (e) { }
 }
+
+/**
+ * Menghitung status Keterangan secara otomatis berdasarkan selisih tahun tanggal dengan tahun saat ini.
+ * Aturan: >= 5 tahun (Musnah), >= 2 tahun (Inaktif), < 2 tahun (Aktif)
+ */
+function _hitungKeterangan(tanggalStr, currentKeterangan) {
+  if (!tanggalStr || tanggalStr.toString().trim() === '') {
+    return currentKeterangan || 'Aktif';
+  }
+  var parts = tanggalStr.toString().split('-');
+  var year = parseInt(parts[0], 10);
+  if (isNaN(year) || year < 1000) {
+    return currentKeterangan || 'Aktif';
+  }
+  var currentYear = new Date().getFullYear();
+  var diff = currentYear - year;
+  if (diff >= 5) {
+    return 'Musnah';
+  } else if (diff >= 2) {
+    return 'Inaktif';
+  } else {
+    return 'Aktif';
+  }
+}
  
 function getKodeKlasifikasi() {
   try {
@@ -248,6 +274,7 @@ function getKodeKlasifikasi() {
 }
  
 function simpan(data) {
+  data.Keterangan = _hitungKeterangan(data.Tanggal_Surat, data.Keterangan);
   SpreadsheetApp.openById(SHEET_ID).getSheetByName('Database').appendRow([
     '', data.No_Berkas, data.No_Item_Arsip, data.Kode_Klasifikasi, data.Judul,
     data.Tanggal_Surat, data.Jumlah, data.Tingkat_Perkembangan,
@@ -259,6 +286,7 @@ function simpan(data) {
 }
  
 function editData(data) {
+  data.Keterangan = _hitungKeterangan(data.Tanggal_Surat, data.Keterangan);
   SpreadsheetApp.openById(SHEET_ID).getSheetByName('Database')
     .getRange(parseInt(data.rowIndex)+2, 2, 1, 15).setValues([[
       data.No_Berkas, data.No_Item_Arsip, data.Kode_Klasifikasi, data.Judul,
@@ -302,9 +330,9 @@ function getAllAhliMedia() {
   var sheet = getAhliMediaSheet();
   var lastRow = sheet.getLastRow();
   if (lastRow < 8) return [];
-  var rawData = sheet.getRange(8, 1, lastRow - 7, 9).getDisplayValues();
+  var rawData = sheet.getRange(8, 1, lastRow - 7, 10).getDisplayValues();
   return rawData.map(function(row) {
-    return [row[0]||'', row[1]||'', row[2]||'', row[3]||'', row[4]||'', row[5]||'', row[6]||'', row[7]||'', row[8]||''];
+    return [row[0]||'', row[1]||'', row[2]||'', row[3]||'', row[4]||'', row[5]||'', row[6]||'', row[7]||'', row[8]||'', row[9]||''];
   });
 }
  
@@ -316,14 +344,14 @@ function simpanAhliMedia(data) {
     var lastNo = parseInt(sheet.getRange(lr, 1).getValue());
     newNo = (!isNaN(lastNo)) ? lastNo + 1 : (lr - 7) + 1;
   }
-  sheet.appendRow([newNo, data.Jenis_Arsip, data.Semula, data.Menjadi, data.Jumlah, data.Alat, data.Waktu, data.Keterangan, data.Link_Tautan]);
+  sheet.appendRow([newNo, data.Jenis_Arsip, data.Semula, data.Menjadi, data.Jumlah, data.Alat, data.Waktu, data.Keterangan, data.Link_Tautan, data.File_Hash || '']);
 }
  
 function editDataAhliMedia(data) {
   var sheet = getAhliMediaSheet();
   var row = parseInt(data.rowIndex) + 8;
   var oldUrl = sheet.getRange(row, 9).getValue();
-  sheet.getRange(row, 2, 1, 8).setValues([[data.Jenis_Arsip, data.Semula, data.Menjadi, data.Jumlah, data.Alat, data.Waktu, data.Keterangan, data.Link_Tautan]]);
+  sheet.getRange(row, 2, 1, 9).setValues([[data.Jenis_Arsip, data.Semula, data.Menjadi, data.Jumlah, data.Alat, data.Waktu, data.Keterangan, data.Link_Tautan, data.File_Hash || '']]);
   if (oldUrl && oldUrl !== data.Link_Tautan) deleteDriveFileByUrl(oldUrl);
 }
  
@@ -584,6 +612,63 @@ function deleteDriveFileByUrl(url) {
 }
 
 /**
+ * Konversi byte array hasil digest ke format string hexadesimal (MD5).
+ */
+function _hexDigest(digest) {
+  var hash = '';
+  for (var i = 0; i < digest.length; i++) {
+    var byteVal = digest[i];
+    if (byteVal < 0) byteVal += 256;
+    var byteString = byteVal.toString(16);
+    if (byteString.length == 1) byteString = '0' + byteString;
+    hash += byteString;
+  }
+  return hash;
+}
+
+/**
+ * Mengambil semua MD5 hash dari sheet Alih Media.
+ * Jika ada baris lama yang memiliki tautan file tapi belum ada hash, hitung & simpan otomatis.
+ */
+function _getAlihMediaHashes() {
+  var sheet = getAhliMediaSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 8) return [];
+  
+  var range = sheet.getRange(8, 9, lastRow - 7, 2); // Kolom I (Link) & J (Hash)
+  var values = range.getValues();
+  var hashes = [];
+  
+  for (var i = 0; i < values.length; i++) {
+    var link = values[i][0] || '';
+    var hash = values[i][1] || '';
+    
+    if (link && !hash) {
+      // Lazy compute untuk data lama
+      try {
+        var match = link.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (match && match[1]) {
+          var file = DriveApp.getFileById(match[1]);
+          var blob = file.getBlob();
+          var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, blob.getBytes());
+          hash = _hexDigest(digest);
+          
+          // Tulis kembali ke spreadsheet kolom ke-10 (Kolom J)
+          sheet.getRange(8 + i, 10).setValue(hash);
+        }
+      } catch (e) {
+        // Abaikan jika file tidak ditemukan
+      }
+    }
+    
+    if (hash) {
+      hashes.push(hash);
+    }
+  }
+  return hashes;
+}
+
+/**
  * Upload file ke Drive (folder: aplikasi arsip / alih media)
  */
 function uploadFileToDrive(base64Data, fileName, mimeType) {
@@ -598,11 +683,16 @@ function uploadFileToDrive(base64Data, fileName, mimeType) {
     var targetFolder = childFolders.hasNext() ? childFolders.next() : parentFolder.createFolder(childFolderName);
     
     var decodedData = Utilities.base64Decode(base64Data.split(",")[1]);
+    
+    // Hitung MD5 hash
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, decodedData);
+    var hash = _hexDigest(digest);
+    
     var blob        = Utilities.newBlob(decodedData, mimeType, fileName);
     var file        = targetFolder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
-    return { success: true, url: file.getUrl(), name: fileName };
+    return { success: true, url: file.getUrl(), name: fileName, hash: hash };
   } catch (e) {
     return { success: false, message: e.message };
   }
@@ -614,6 +704,18 @@ function uploadFileToDrive(base64Data, fileName, mimeType) {
  */
 function uploadFileToDriveArsip(base64Data, fileName, mimeType, keterangan) {
   try {
+    var decodedData = Utilities.base64Decode(base64Data.split(",")[1]);
+    
+    // Hitung MD5 dari file baru
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, decodedData);
+    var uploadHash = _hexDigest(digest);
+    
+    // Cocokkan dengan daftar hash Alih Media
+    var alihMediaHashes = _getAlihMediaHashes();
+    if (alihMediaHashes.indexOf(uploadHash) !== -1) {
+      return { success: false, message: 'File yang Anda unggah sudah pernah diupload pada Alih Media.' };
+    }
+    
     keterangan = keterangan || "Tanpa Keterangan";
     var parentFolderName = "aplikasi arsip";
     var subFolderName    = "Data Arsip";
@@ -628,7 +730,6 @@ function uploadFileToDriveArsip(base64Data, fileName, mimeType, keterangan) {
     var childFolders = subFolder.getFoldersByName(childFolderName);
     var targetFolder = childFolders.hasNext() ? childFolders.next() : subFolder.createFolder(childFolderName);
     
-    var decodedData = Utilities.base64Decode(base64Data.split(",")[1]);
     var blob        = Utilities.newBlob(decodedData, mimeType, fileName);
     var file        = targetFolder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
