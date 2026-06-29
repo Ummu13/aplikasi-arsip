@@ -19,6 +19,12 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Static Analysis & Validation
+        run: npm run validate
+
       - name: Install Google Clasp
         run: npm install -g @google/clasp
 

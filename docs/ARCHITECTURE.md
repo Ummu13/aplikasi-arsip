@@ -24,8 +24,25 @@ graph TD
 1. **CI/CD Pipeline (GitHub Actions):** Bertugas mendeteksi perubahan pada repositori dan secara otomatis men-deploy versi terbaru beserta pesan commit ke Google Apps Script menggunakan `clasp`.
 2. **Presentation Layer (Frontend):** Berjalan langsung di browser pengguna menggunakan HTML5, Javascript, dan CSS (Tailwind CSS CDN + Custom Vanilla CSS). Menghubungi server Apps Script menggunakan metode asinkron `google.script.run`.
 3. **Logic & API Layer (Backend):** Berjalan pada container Google Apps Script (`Kode.gs`). Bertugas memproses perutean halaman, operasi CRUD, interaksi penyimpanan file, dan manajemen ekspor dokumen.
-4. **Database Layer (Spreadsheet):** Menyimpan data terstruktur (relasional-like) di dalam berkas Google Sheets.
+4. **Database Layer (Spreadsheet):** Menyimpan data terstruktur (relasional-like) di dalam berkas Google Sheets. Data selalu dibaca dari ID Spreadsheet yang sama (`SHEET_ID`).
 5. **Storage Layer (Google Drive):** Menyimpan file pindaian/digital dari arsip fisik dalam folder yang terstruktur dengan rapi.
+
+---
+
+## 2. Alur Data & Request Lifecycle (Penting untuk Junior Dev)
+
+Semua halaman di-render melalui satu endpoint `doGet(e)` di `Kode.gs`. 
+1. **Routing:** `doGet(e)` mengecek parameter `page`. Contoh: `URL?page=formArsip`. Jika cocok, script membaca file `formArsip.HTML` dan merendernya.
+2. **Frontend-Backend Communication:** Klien tidak pernah melakukan fetch HTTP (kecuali ekspor file), tetapi menggunakan fungsi internal Google: `google.script.run.namaFungsiDiBackend(params)`.
+3. **Caching:** Google Apps Script memiliki limit kuota untuk pemanggilan `SpreadsheetApp`. Oleh karena itu, kita menggunakan `CacheService` di backend. Setiap kali klien memanggil `getAll()`, backend mengecek cache dulu. Jika mutasi terjadi (tambah/edit/hapus), backend memanggil `_invalidateCache()`.
+
+### Peta Fungsi Penting di `Kode.gs`
+- **Routing:** `doGet()`, `include()`
+- **Auth:** `checklogin()`, `_buatSesi()`, `cekSesi()`, `logout()`, `_hashPasswordMD5()`
+- **Arsip Utama:** `getAll()`, `simpan()`, `editData()`, `hapusData()`
+- **Surat Masuk:** `getAllSM()`, `simpanSM()`, `editDataSM()`, `hapusDataSM()`
+- **Upload:** `uploadFileToDrive()`, `cekDuplikasiFile()`, `deleteDriveFileByUrl()`
+- **Export/Download:** `getDownloadUrlSPPD()`, `getDownloadUrlSM()`, dll.
 
 ---
 

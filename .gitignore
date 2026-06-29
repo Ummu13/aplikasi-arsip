@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment variables & Credentials
+.env
+.clasprc.json
+
+# Local Netlify/Vercel/etc
+.netlify
+.vercel
+
+# Clasp specific
+.clasp.json
+
+# Logs
+*.log

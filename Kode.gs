@@ -58,17 +58,66 @@ function checklogin(username, password) {
   if (lr < 2) return { ok: false };
  
   username = username.toString().trim().toUpperCase();
-  var pInput = password.toString().trim().toUpperCase();
+  var pInput = password.toString().trim();
+  var pHash = _hashPasswordMD5(pInput);
  
   var data = ws.getRange(2, 2, lr - 1, 2).getValues();
   for (var i = 0; i < data.length; i++) {
     var u = data[i][0].toString().trim().toUpperCase();
-    var p = data[i][1].toString().trim().toUpperCase();
-    if (u === username && p === pInput) {
+    var p = data[i][1].toString().trim();
+    
+    // Cek kecocokan MD5 atau fallback ke plaintext untuk kompatibilitas sementara
+    if (u === username && (p === pHash || p.toUpperCase() === pInput.toUpperCase())) {
       return { ok: true, token: _buatSesi(username) };
     }
   }
   return { ok: false };
+}
+
+// ─── UTILITY HASHING PASSWORD ────────────────────────────────────────────────
+function _hashPasswordMD5(text) {
+  var rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text);
+  var txtHash = '';
+  for (var i = 0; i < rawHash.length; i++) {
+    var hashVal = rawHash[i];
+    if (hashVal < 0) hashVal += 256;
+    if (hashVal.toString(16).length === 1) txtHash += '0';
+    txtHash += hashVal.toString(16);
+  }
+  return txtHash;
+}
+
+/**
+ * Utility untuk Admin: Jalankan fungsi ini sekali dari Apps Script Editor 
+ * untuk mengenkripsi semua password lama (plaintext) di sheet "Login" menjadi MD5.
+ */
+function utils_hashExistingPasswords() {
+  var ws = SpreadsheetApp.openById(SHEET_ID).getSheetByName('Login');
+  if (!ws) return;
+  var lr = ws.getLastRow();
+  if (lr < 2) return;
+  
+  var data = ws.getRange(2, 3, lr - 1, 1).getValues(); // Kolom C = Password
+  var newData = [];
+  var updated = false;
+  for (var i = 0; i < data.length; i++) {
+    var p = data[i][0].toString().trim();
+    // Cek jika belum dihash (MD5 selalu 32 karakter hex)
+    if (p.length === 32 && /^[a-f0-9]{32}$/i.test(p)) {
+      newData.push([p]);
+    } else if (p !== '') {
+      newData.push([_hashPasswordMD5(p)]);
+      updated = true;
+    } else {
+      newData.push(['']);
+    }
+  }
+  if (updated) {
+    ws.getRange(2, 3, lr - 1, 1).setValues(newData);
+    Logger.log('Password berhasil dienkripsi ke MD5.');
+  } else {
+    Logger.log('Tidak ada password plaintext yang ditemukan.');
+  }
 }
  
 function _buatSesi(username) {

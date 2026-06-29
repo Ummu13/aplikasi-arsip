@@ -1,0 +1,21 @@
+name: Request Smoke Test Approval
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  notify-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Issue for Smoke Test
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "🚨 REQUIRED: Manual Smoke Test for Deploy"
+          content-filepath: ./scripts/smoke-test-checklist.md
+          labels: "smoke-test, pending-approval"

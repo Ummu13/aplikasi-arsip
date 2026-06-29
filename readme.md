@@ -1,6 +1,6 @@
 # Aplikasi Arsip Balai K3
 
-![Aplikasi Arsip Balai K3](dashboard_banner.png)
+![Aplikasi Arsip Balai K3](assets/dashboard_banner.png)
 
 Aplikasi Arsip Balai K3 adalah sebuah **Sistem Informasi Kearsipan Digital** berskala instansi yang dirancang secara khusus menggunakan ekosistem *serverless* Google (Google Apps Script, Google Sheets, dan Google Drive). Aplikasi ini dibangun dengan standar arsitektur modern, UI responsif yang elegan (Tailwind CSS), serta keamanan berbasis token transien untuk pengelolaan data kearsipan yang cepat dan andal.
 
@@ -57,10 +57,23 @@ Proyek ini mengadopsi **Deployment Otomatis**. Anda tidak perlu melakukan `clasp
 
 ---
 
+## 🚀 Quick Start: Deployment
+Sudah selesai mengedit kode dan ingin mengirim ke production? Baca panduan lengkapnya di **[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)** atau ikuti versi ringkas ini:
+1. Pastikan Anda sudah login ke Clasp (`clasp login`).
+2. Kembalikan `SHEET_ID` di `Kode.gs` ke **ID Produksi**.
+3. Jalankan `npm run validate` di terminal untuk mengecek error.
+4. Lakukan Git Commit & Push: `git commit -m "feat: fitur baru" && git push origin main`.
+5. GitHub Actions akan otomatis melakukan deployment! Lakukan pengecekan akhir pada URL production Anda.
+
+---
+
 ## 📚 Dokumentasi Lebih Lanjut
-Untuk memahami arsitektur, standar penulisan kode, serta alur kerja aplikasi secara mendalam, kami menyediakan dua panduan khusus:
-- 📖 **[DESIGN.md](./DESIGN.md)**: Arsitektur sistem, struktur kolom database (Google Sheets), tata letak penyimpanan Google Drive, dan panduan desain UI/UX.
-- 🤖 **[AGENTS.md](./AGENTS.md)**: Panduan kerja *best practice* ekosistem Google Apps Script, dirancang khusus bagi asisten AI dan pengembang lanjutan.
+Untuk memahami arsitektur, standar penulisan kode, serta alur kerja aplikasi secara mendalam, kami menyediakan dokumentasi khusus di folder `docs/`:
+- 🚀 **[DEPLOYMENT.md](docs/DEPLOYMENT.md)**: DOKUMEN UTAMA — Panduan Push Production & Testing End-to-End.
+- 🤝 **[CONTRIBUTING.md](docs/CONTRIBUTING.md)**: Panduan kontribusi (konvensi commit, branching).
+- 📖 **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**: Arsitektur sistem, struktur kolom database (Google Sheets), tata letak penyimpanan Google Drive, dan alur request (Kode.gs).
+- 🛠️ **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)**: Panduan setup lokal, Troubleshooting, cara menjalankan Unit Testing, dan best practices.
+- 🤖 **[AGENTS.md](docs/AGENTS.md)**: Panduan kerja *best practice* ekosistem Google Apps Script, dirancang khusus bagi asisten AI dan pengembang lanjutan.
 
 ---
 

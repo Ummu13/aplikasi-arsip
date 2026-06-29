@@ -1,0 +1,15 @@
+{
+  "env": { "es6": true },
+  "globals": {
+    "SpreadsheetApp": "readonly", "DriveApp": "readonly",
+    "CacheService": "readonly", "PropertiesService": "readonly",
+    "HtmlService": "readonly", "ScriptApp": "readonly",
+    "DocumentApp": "readonly", "Utilities": "readonly",
+    "Session": "readonly", "Logger": "readonly", "console": "readonly"
+  },
+  "rules": {
+    "no-undef": "error",
+    "no-unused-vars": "warn",
+    "eqeqeq": "warn"
+  }
+}

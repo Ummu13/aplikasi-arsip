@@ -9,3 +9,5 @@
 .github/
 .git/
 node_modules/
+assets/
+docs/

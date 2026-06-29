@@ -1,0 +1,14 @@
+{
+  "name": "aplikasi-arsip-balai-k3",
+  "version": "1.0.0",
+  "description": "Aplikasi Arsip Balai K3",
+  "main": "Kode.gs",
+  "scripts": {
+    "lint": "eslint . --ext .gs --no-eslintrc -c .eslintrc.json --ignore-pattern tests/",
+    "validate": "node scripts/validate-structure.js",
+    "precommit": "npm run lint && npm run validate"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}
