@@ -9,6 +9,8 @@ on:
 jobs:
   notify-smoke-test:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
