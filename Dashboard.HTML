@@ -13,237 +13,247 @@
   <?!= include('Dashboard-css'); ?>
 </head>
 
-<body data-active="Dashboard">
+<body data-active="Dashboard" class="body-dashboard">
 
   <?!= include('Sidebar'); ?>
 
   <div class="container main-content">
 
-    <!-- ── SECTION: HERO BANNER ─────────────────────────────────── -->
-    <div class="dashboard-banner">
-      <div class="banner-overlay"></div>
-      <div class="banner-content">
-        <h1 class="banner-title">Sistem Arsip & Dokumentasi</h1>
-        <p class="banner-subtitle">Balai Keselamatan dan Kesehatan Kerja Samarinda</p>
-        <div class="banner-features">
-          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Surat Masuk</span>
-          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Surat Keluar</span>
-          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Alih Media</span>
-          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> SPPD</span>
-          <span class="feat-tag"><i class="fa-solid fa-circle-check"></i> Arsip</span>
-        </div>
+    <!-- ── TOP BAR HEADER ── -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Ringkasan informasi sistem arsip</p>
       </div>
-      <div class="banner-illustration">
-        <svg viewBox="0 0 400 300" class="floating-svg">
-          <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
-            </linearGradient>
-            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.8" />
-              <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.8" />
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="10" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-          <rect x="100" y="160" width="200" height="70" rx="15" fill="#1e293b" stroke="url(#grad1)" stroke-width="3"
-            filter="url(#glow)" />
-          <line x1="120" y1="195" x2="280" y2="195" stroke="#334155" stroke-dasharray="5 5" />
-          <circle cx="135" cy="195" r="5" fill="#38bdf8" />
-          <circle cx="155" cy="195" r="5" fill="#22c55e" />
-          <g class="float-item-1">
-            <path d="M 80,60 H 120 L 130,75 H 180 V 130 H 80 Z" fill="url(#grad1)" rx="10" opacity="0.9" />
-            <rect x="95" y="85" width="70" height="35" rx="5" fill="#ffffff" opacity="0.95" />
-            <line x1="105" y1="95" x2="155" y2="95" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
-            <line x1="105" y1="105" x2="135" y2="105" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
-          </g>
-          <g class="float-item-2">
-            <rect x="230" y="50" width="80" height="100" rx="10" fill="url(#grad2)" opacity="0.9" />
-            <path d="M 285,50 L 310,75 V 150 H 230 Z" fill="#f8fafc" opacity="0.1" />
-            <line x1="245" y1="80" x2="295" y2="80" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-            <line x1="245" y1="95" x2="295" y2="95" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-            <line x1="245" y1="110" x2="275" y2="110" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-          </g>
-          <path d="M 130,130 Q 150,150 200,160" stroke="#6366f1" stroke-dasharray="3 3" fill="none" opacity="0.6" />
-          <path d="M 270,150 Q 250,150 200,160" stroke="#38bdf8" stroke-dasharray="3 3" fill="none" opacity="0.6" />
-        </svg>
+      <div class="top-bar-center">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="globalSearch" placeholder="Cari data arsip..." oninput="handleGlobalSearch()">
+        </div>
       </div>
     </div>
 
-    <!-- ── SECTION: SURAT MASUK per JENIS ──────────────────────── -->
-    <div class="dash-section-title">
-      <i class="fa-solid fa-envelope-open-text"></i> Surat Masuk per Jenis Surat
-    </div>
-    <div class="filter-card-wrap" id="smCardWrap">
-      <div class="mini-card-grid" id="smCards"></div>
-    </div>
-
-    <!-- ── SECTION: SURAT KELUAR per JENIS ─────────────────────── -->
-    <div class="dash-section-title">
-      <i class="fa-solid fa-paper-plane"></i> Surat Keluar per Jenis Surat
-    </div>
-    <div class="filter-card-wrap" id="skCardWrap">
-      <div class="mini-card-grid" id="skCards"></div>
-    </div>
-
-    <!-- ── SECTION: SPPD & ALIH MEDIA (DUA KONTAINER, CARD SAMA LEBAR) ── -->
-    <div class="dash-side-by-side">
-
-      <!-- Kolom kiri: SPPD -->
-      <div class="dash-sppd-col">
-        <div class="dash-section-title">
-          <i class="fa-solid fa-file-lines"></i> Jumlah SPPD
-        </div>
-        <div class="filter-card-wrap" id="sppdCardWrap">
-          <div id="sppdCards"></div>
-        </div>
+    <!-- ── HERO BANNER with FLOATING STATS ── -->
+    <div class="hero-banner">
+      <div class="hero-content">
+        <!-- <span class="welcome-text">Selamat Datang, Admin 👋</span> -->
+        <h2 class="hero-title">Sistem Informasi Arsip Digital</h2>
+        <p class="hero-subtitle">Monitoring data arsip secara real time</p>
       </div>
 
-      <!-- Kolom kanan: Alih Media -->
-      <div class="dash-am-col">
-        <div class="dash-section-title">
-          <i class="fa-solid fa-file-video"></i> Alih Media per Keterangan
+      <!-- Floating Stats Bar -->
+      <div class="floating-stats-bar">
+        <div class="stat-item">
+          <div class="stat-icon"><i class="fa-solid fa-box-archive"></i></div>
+          <div class="stat-details">
+            <span class="stat-value" id="stat-total-arsip">0</span>
+            <span class="stat-label">Total Arsip</span>
+          </div>
         </div>
-        <div class="filter-card-wrap" id="amCardWrap">
-          <div id="amCards"></div>
+        <div class="stat-item">
+          <div class="stat-icon"><i class="fa-solid fa-envelope"></i></div>
+          <div class="stat-details">
+            <span class="stat-value" id="stat-surat-masuk">0</span>
+            <span class="stat-label">Surat Masuk</span>
+          </div>
         </div>
+        <div class="stat-item">
+          <div class="stat-icon"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="stat-details">
+            <span class="stat-value" id="stat-surat-keluar">0</span>
+            <span class="stat-label">Surat Keluar</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon"><i class="fa-solid fa-photo-film"></i></div>
+          <div class="stat-details">
+            <span class="stat-value" id="stat-alih-media">0</span>
+            <span class="stat-label">Alih Media</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="stat-details">
+            <span class="stat-value" id="stat-sppd">0</span>
+            <span class="stat-label">SPPD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD GRID ── -->
+    <div class="dashboard-grid">
+
+      <!-- COLUMN LEFT -->
+      <div class="grid-column">
+
+        <!-- Surat Masuk per Jenis -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Surat Masuk per Jenis</h3>
+            <div class="card-filters">
+              <select id="sm-tahun" class="card-filter-select" onchange="onTahunSMChange(this.value)">
+                <option value="">Tahun</option>
+              </select>
+              <select id="sm-bulan" class="card-filter-select" onchange="hitungSuratMasuk()">
+                <option value="">Bulan</option>
+              </select>
+            </div>
+          </div>
+          <div class="sub-stats-grid" id="sm-jenis-cards">
+            <!-- Dynamic Sub Stats -->
+          </div>
+          <button id="btn-sm-semua" class="btn-lihat-semua" style="display:none;" onclick="toggleLihatSemuaSM()">Lihat
+            Semua</button>
+        </div>
+
+        <!-- Surat Keluar per Jenis -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Surat Keluar per Jenis</h3>
+            <div class="card-filters">
+              <select id="sk-tahun" class="card-filter-select" onchange="onTahunSKChange(this.value)">
+                <option value="">Tahun</option>
+              </select>
+              <select id="sk-bulan" class="card-filter-select" onchange="hitungSuratKeluar()">
+                <option value="">Bulan</option>
+              </select>
+            </div>
+          </div>
+          <div class="sub-stats-grid" id="sk-jenis-cards">
+            <!-- Dynamic Sub Stats -->
+          </div>
+          <button id="btn-sk-semua" class="btn-lihat-semua" style="display:none;" onclick="toggleLihatSemuaSK()">Lihat
+            Semua</button>
+        </div>
+
+        <!-- Arsip per Keterangan -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Arsip per Keterangan</h3>
+            <div class="card-filters">
+              <select id="arsip-tahun" class="card-filter-select" onchange="onTahunArsipChange(this.value)">
+                <option value="">Tahun</option>
+              </select>
+              <select id="arsip-bulan" class="card-filter-select" onchange="hitungArsip()">
+                <option value="">Bulan</option>
+              </select>
+            </div>
+          </div>
+          <div class="sub-stats-grid three-cols" id="arsip-keterangan-cards">
+            <!-- Dynamic Sub Stats (Aktif, Inaktif, Musnah) -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUMN RIGHT -->
+      <div class="grid-column">
+
+        <!-- Alih Media per Keterangan (Donut Chart) -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Alih Media per Keterangan</h3>
+            <div class="card-filters">
+              <select id="am-tahun" class="card-filter-select" onchange="hitungAlihMedia()">
+                <option value="">Tahun</option>
+              </select>
+            </div>
+          </div>
+          <div class="am-chart-container">
+            <div class="am-donut-wrapper">
+              <canvas id="amDonutChart"></canvas>
+              <div class="am-donut-center">
+                <span class="donut-total" id="am-chart-total">0</span>
+                <span class="donut-label">Total</span>
+              </div>
+            </div>
+            <div class="am-legend">
+              <div class="legend-item">
+                <div class="legend-label-wrap">
+                  <div class="legend-dot pnbp"></div>
+                  <span class="legend-name">PNBP</span>
+                </div>
+                <span class="legend-value" id="am-val-pnbp">0 (0%)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-label-wrap">
+                  <div class="legend-dot dipa"></div>
+                  <span class="legend-name">DIPA</span>
+                </div>
+                <span class="legend-value" id="am-val-dipa">0 (0%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPPD Card -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">SPPD</h3>
+            <div class="card-filters">
+              <select id="sppd-tahun" class="card-filter-select" onchange="onTahunSPPDChange(this.value)">
+                <option value="">Tahun</option>
+              </select>
+              <select id="sppd-bulan" class="card-filter-select" onchange="hitungSPPD()">
+                <option value="">Bulan</option>
+              </select>
+            </div>
+          </div>
+          <div class="sppd-card-content">
+            <div class="sppd-card-left">
+              <span class="sppd-value" id="sppd-total-value">0</span>
+              <span class="sppd-label">Total Perjalanan Dinas</span>
+            </div>
+            <div class="sppd-large-icon">
+              <i class="fa-solid fa-briefcase"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Arsip per Tahun (Line Chart) -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Arsip per Tahun</h3>
+          </div>
+          <div class="line-chart-container">
+            <canvas id="arsipLineChart"></canvas>
+          </div>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- ── SECTION: ARSIP per KETERANGAN ───────────────────────── -->
-    <div class="dash-section-title">
-      <i class="fa-solid fa-box-archive"></i> Arsip per Keterangan
-    </div>
-    <div class="filter-card-wrap" id="arsipKetCardWrap">
-      <div class="mini-card-grid" id="arsipKetCards"></div>
-    </div>
-
-    <!-- ── CHART ARSIP ─────────────────────────────────────────── -->
-
-
-  </div><!-- /container -->
+  </div>
 
   <!-- SESSION HELPER -->
   <?!= include('session-helper'); ?>
 
   <script>
-    /* ── SEMUA DATA ── */
     var allStats = { sm: [], sk: [], sppd: [], am: [], arsip: [] };
-    var grafik = null;
-    var katAktif = 'keterangan';
+    var amDonutChart = null;
+    var arsipLineChart = null;
 
-    var WARNA = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7',
-      '#14b8a6', '#f97316', '#ec4899', '#0ea5e9', '#84cc16', '#e11d48'];
+    var showAllSM = false;
+    var showAllSK = false;
 
-    var NAMA_BULAN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-    /* ── HELPER: build card HTML ── */
-    function buildBlankCardHtml(type, key, color, icon, onchangeFn, isArsip, extraClass) {
-      extraClass = extraClass || '';
-      var filterHtml = '';
-      if (isArsip) {
-        filterHtml = '<div class="mini-card-filters arsip-filters">'
-          + '  <select class="mini-filter-sel klas-sel" onchange="' + onchangeFn + '"><option value="">Klasifikasi</option></select>'
-          + '  <select class="mini-filter-sel year-sel" onchange="' + onchangeFn + '"><option value="">Tahun</option></select>'
-          + '  <select class="mini-filter-sel month-sel" onchange="' + onchangeFn + '">'
-          + '    <option value="">Bulan</option>'
-          + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
-          + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
-          + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
-          + '  </select>'
-          + '</div>';
-      } else {
-        filterHtml = '<div class="mini-card-filters">'
-          + '  <select class="mini-filter-sel year-sel" onchange="' + onchangeFn + '"><option value="">Tahun</option></select>'
-          + '  <select class="mini-filter-sel month-sel" onchange="' + onchangeFn + '">'
-          + '    <option value="">Bulan</option>'
-          + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
-          + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
-          + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
-          + '  </select>'
-          + '</div>';
-      }
-
-      return '<div class="mini-card' + extraClass + '" data-type="' + type + '" data-key="' + key + '" style="--accent:' + color + '">'
-        + '<div class="mini-card-header" style="justify-content:center;">'
-        + '  <div class="mini-card-label" title="' + key + '" style="text-align:center;white-space:normal;">' + key + '</div>'
-        + '</div>'
-        + filterHtml
-        + '<div class="mini-card-value-wrap">'
-        + '  <div class="mini-card-count">—</div>'
-        + '  <div class="mini-card-pct">—%</div>'
-        + '</div>'
-        + '<div class="mini-card-bar-wrap">'
-        + '  <div class="mini-card-bar" style="width:0%;background:' + color + ';"></div>'
-        + '</div>'
-        + '</div>';
+    function toggleLihatSemuaSM() {
+      showAllSM = !showAllSM;
+      document.getElementById('btn-sm-semua').textContent = showAllSM ? "Sembunyikan" : "Lihat Semua";
+      hitungSuratMasuk();
     }
 
-    /* ── INIT BLANK CARDS PRE-LOAD ── */
-    function initBlankCards() {
-      // 1. Surat Masuk (9 cards)
-      var smKeys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
-      var smColors = ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e', '#f97316', '#0ea5e9', '#14b8a6', '#22c55e'];
-      var smHtml = '';
-      smKeys.forEach(function (key, i) {
-        smHtml += buildBlankCardHtml('sm', key, smColors[i], 'fa-solid fa-envelope-open-text', 'calculateAllSM()');
-      });
-      document.getElementById('smCards').innerHTML = smHtml;
-
-      // 2. Surat Keluar (9 cards)
-      var skHtml = '';
-      smKeys.forEach(function (key, i) {
-        skHtml += buildBlankCardHtml('sk', key, smColors[i], 'fa-solid fa-paper-plane', 'calculateAllSK()');
-      });
-      document.getElementById('skCards').innerHTML = skHtml;
-
-      // 3. SPPD (kolom kiri) → #sppdCards
-      var sppdHtml = '<div class="mini-card sppd-single-card" style="--accent:#3b82f6;">'
-        + '<div class="mini-card-header" style="justify-content:center;">'
-        + '  <div class="mini-card-label" style="text-align:center;">Total SPPD</div>'
-        + '</div>'
-        + '<div class="mini-card-filters">'
-        + '  <select class="mini-filter-sel year-sel" onchange="renderSPPDCard()"><option value="">Tahun</option></select>'
-        + '  <select class="mini-filter-sel month-sel" onchange="renderSPPDCard()">'
-        + '    <option value="">Bulan</option>'
-        + '    <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option>'
-        + '    <option value="05">Mei</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ags</option>'
-        + '    <option value="09">Sep</option><option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>'
-        + '  </select>'
-        + '</div>'
-        + '<div class="mini-card-value-wrap">'
-        + '  <div class="mini-card-count sppd-single-count">—</div>'
-        + '</div>'
-        + '</div>';
-      document.getElementById('sppdCards').innerHTML = sppdHtml;
-
-      // 4. Alih Media (kolom kanan) → #amCards
-      var amKeys = ['PNBP', 'DIPA'];
-      var amColors = ['#14b8a6', '#0ea5e9'];
-      var amHtml = '';
-      amKeys.forEach(function (key, i) {
-        amHtml += buildBlankCardHtml('am', key, amColors[i], 'fa-solid fa-file-video', 'calculateAllAM()');
-      });
-      document.getElementById('amCards').innerHTML = amHtml;
-
-      // 4. Arsip (3 cards)
-      var arsipKeys = ['Aktif', 'Inaktif', 'Musnah'];
-      var arsipColors = ['#22c55e', '#f59e0b', '#ef4444'];
-      var arsipHtml = '';
-      arsipKeys.forEach(function (key, i) {
-        arsipHtml += buildBlankCardHtml('arsip', key, arsipColors[i], 'fa-solid fa-box-archive', 'calculateAllArsip()', true);
-      });
-      document.getElementById('arsipKetCards').innerHTML = arsipHtml;
+    function toggleLihatSemuaSK() {
+      showAllSK = !showAllSK;
+      document.getElementById('btn-sk-semua').textContent = showAllSK ? "Sembunyikan" : "Lihat Semua";
+      hitungSuratKeluar();
     }
 
-    /* ── INIT ── */
+    var COLORS = ['blue', 'cyan', 'orange', 'green', 'purple', 'brown'];
+    var ICONS = ['fa-file-invoice', 'fa-envelope', 'fa-calendar-day', 'fa-folder-open', 'fa-file-shield', 'fa-user-check', 'fa-box', 'fa-paste'];
+
     function _onSesiValid() {
-      initBlankCards();
       Muat_Data();
     }
 
@@ -251,35 +261,52 @@
       google.script.run
         .withSuccessHandler(function (data) {
           allStats = data || { sm: [], sk: [], sppd: [], am: [], arsip: [] };
+
+          // Update Floating Header Total Counts
+          document.getElementById('stat-total-arsip').textContent = FmtNomor(allStats.arsip.length);
+          document.getElementById('stat-surat-masuk').textContent = FmtNomor(allStats.sm.length);
+          document.getElementById('stat-surat-keluar').textContent = FmtNomor(allStats.sk.length);
+          document.getElementById('stat-alih-media').textContent = FmtNomor(allStats.am.length);
+          document.getElementById('stat-sppd').textContent = FmtNomor(allStats.sppd.length);
+
           isiDropdownTahun();
-          calculateAllSM();
-          calculateAllSK();
-          calculateAllAM();
-          calculateAllArsip();
-          renderSPPDCard();
-          RenderGrafik(katAktif);
+
+          // Inisialisasi dropdown bulan dinamis pertama kali
+          isiDropdownBulan('sm-bulan', allStats.sm, 4, '');
+          isiDropdownBulan('sk-bulan', allStats.sk, 3, '');
+          isiDropdownBulan('arsip-bulan', allStats.arsip, 5, '');
+          isiDropdownBulanSPPD('sppd-bulan', '');
+
+          // Hitung & Render Konten Card
+          hitungSuratMasuk();
+          hitungSuratKeluar();
+          hitungArsip();
+          hitungAlihMedia();
+          hitungSPPD();
+          renderLineChart();
         })
         .withFailureHandler(function (err) {
-          ['smCards', 'skCards', 'sppdCards', 'amCards', 'arsipKetCards'].forEach(function (id) {
-            document.getElementById(id).innerHTML = '<div class="ls" style="color:#ef4444;">⚠️ Gagal: ' + (err.message || 'Error') + '</div>';
-          });
+          Swal.fire('Error', 'Gagal memuat data statistik: ' + err.message, 'error');
         })
         .getDashboardStats();
     }
 
-    /* ── HELPER: ekstrak tahun/bulan dari string YYYY-MM-DD ── */
     function extractYear(s) {
       if (!s) return '';
       var m = s.toString().match(/^(\d{4})/);
       return m ? m[1] : '';
     }
+
     function extractMonth(s) {
       if (!s) return '';
       var m = s.toString().match(/^\d{4}-(\d{2})/);
       return m ? m[1] : '';
     }
 
-    /* ── ISI DROPDOWN TAHUN ── */
+    function FmtNomor(n) {
+      return n.toString().replace(/\B(?=(\d{3})+(?!\n))/g, ".");
+    }
+
     function isiDropdownTahun() {
       var tahunSets = {
         sm: new Set(), sk: new Set(), sppd: new Set(), am: new Set(), arsip: new Set()
@@ -293,270 +320,457 @@
       allStats.am.forEach(function (r) { var y = extractYear(r[6]); if (y) tahunSets.am.add(y); });
       allStats.arsip.forEach(function (r) { var y = extractYear(r[5]); if (y) tahunSets.arsip.add(y); });
 
-      function fillAllSels(selector, set) {
-        var sortedYears = Array.from(set).sort().reverse();
-        document.querySelectorAll(selector).forEach(function (sel) {
-          var cur = sel.value;
-          while (sel.options.length > 1) sel.remove(1);
-          sortedYears.forEach(function (y) {
-            var opt = document.createElement('option');
-            opt.value = y; opt.textContent = y;
-            sel.appendChild(opt);
-          });
-          if (cur) sel.value = cur;
-        });
-      }
-
-      fillAllSels('.mini-card[data-type="sm"] .year-sel', tahunSets.sm);
-      fillAllSels('.mini-card[data-type="sk"] .year-sel', tahunSets.sk);
-      fillAllSels('.sppd-single-card .year-sel', tahunSets.sppd);
-      fillAllSels('.mini-card[data-type="am"] .year-sel', tahunSets.am);
-      fillAllSels('.mini-card[data-type="arsip"] .year-sel', tahunSets.arsip);
-
-      var klasSet = new Set();
-      allStats.arsip.forEach(function (r) { var k = (r[3] || '').trim(); if (k) klasSet.add(k); });
-      var sortedKlas = Array.from(klasSet).sort();
-
-      document.querySelectorAll('.mini-card[data-type="arsip"] .klas-sel').forEach(function (sel) {
+      function fillDropdown(id, set) {
+        var sel = document.getElementById(id);
+        if (!sel) return;
         var cur = sel.value;
         while (sel.options.length > 1) sel.remove(1);
-        sortedKlas.forEach(function (k) {
+        var sorted = Array.from(set).sort().reverse();
+        sorted.forEach(function (y) {
           var opt = document.createElement('option');
-          opt.value = k; opt.textContent = k;
+          opt.value = y; opt.textContent = y;
           sel.appendChild(opt);
         });
-        if (cur) sel.value = cur;
-      });
+        if (cur && set.has(cur)) { sel.value = cur; }
+      }
+
+      fillDropdown('sm-tahun', tahunSets.sm);
+      fillDropdown('sk-tahun', tahunSets.sk);
+      fillDropdown('arsip-tahun', tahunSets.arsip);
+      fillDropdown('am-tahun', tahunSets.am);
+      fillDropdown('sppd-tahun', tahunSets.sppd);
     }
 
-    /* ── FILTER helper ── */
-    function filterByTglYM(rows, colIdx, tahun, bulan) {
+    // Mengisi dropdown bulan secara dinamis berdasarkan data yang ada
+    function isiDropdownBulan(idBulanSelect, rows, dateIdx, selectedYear) {
+      var sel = document.getElementById(idBulanSelect);
+      if (!sel) return;
+      var cur = sel.value;
+      while (sel.options.length > 1) sel.remove(1);
+
+      var bulanSet = new Set();
+      rows.forEach(function (r) {
+        var d = (r[dateIdx] || '').toString();
+        if (!selectedYear || extractYear(d) === selectedYear) {
+          var m = extractMonth(d);
+          if (m) bulanSet.add(m);
+        }
+      });
+
+      var sorted = Array.from(bulanSet).sort();
+      var NAMA_BULAN = {
+        '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+        '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+        '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+      };
+
+      sorted.forEach(function (m) {
+        var opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = NAMA_BULAN[m] || m;
+        sel.appendChild(opt);
+      });
+
+      if (cur && bulanSet.has(cur)) { sel.value = cur; }
+    }
+
+    // Fungsi khusus untuk inisialisasi / perubahan bulan SPPD (karena cek 3 kolom tanggal)
+    function isiDropdownBulanSPPD(idBulanSelect, selectedYear) {
+      var sel = document.getElementById(idBulanSelect);
+      if (!sel) return;
+      var cur = sel.value;
+      while (sel.options.length > 1) sel.remove(1);
+
+      var bulanSet = new Set();
+      allStats.sppd.forEach(function (r) {
+        [r[6], r[7], r[8]].forEach(function (d) {
+          if (d) {
+            if (!selectedYear || extractYear(d) === selectedYear) {
+              var m = extractMonth(d);
+              if (m) bulanSet.add(m);
+            }
+          }
+        });
+      });
+
+      var sorted = Array.from(bulanSet).sort();
+      var NAMA_BULAN = {
+        '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+        '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+        '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+      };
+
+      sorted.forEach(function (m) {
+        var opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = NAMA_BULAN[m] || m;
+        sel.appendChild(opt);
+      });
+
+      if (cur && bulanSet.has(cur)) { sel.value = cur; }
+    }
+
+    function onTahunSMChange(val) {
+      isiDropdownBulan('sm-bulan', allStats.sm, 4, val);
+      hitungSuratMasuk();
+    }
+
+    function onTahunSKChange(val) {
+      isiDropdownBulan('sk-bulan', allStats.sk, 3, val);
+      hitungSuratKeluar();
+    }
+
+    function onTahunArsipChange(val) {
+      isiDropdownBulan('arsip-bulan', allStats.arsip, 5, val);
+      hitungArsip();
+    }
+
+    function onTahunAMChange(val) {
+      hitungAlihMedia();
+    }
+
+    function onTahunSPPDChange(val) {
+      isiDropdownBulanSPPD('sppd-bulan', val);
+      hitungSPPD();
+    }
+
+    function filterDataYM(rows, dateIdx, tahun, bulan) {
       return rows.filter(function (r) {
-        var d = (r[colIdx] || '').toString();
+        var d = (r[dateIdx] || '').toString();
         if (tahun && extractYear(d) !== tahun) return false;
         if (bulan && extractMonth(d) !== bulan) return false;
         return true;
       });
     }
 
-    /* ── CALCULATE SURAT MASUK ── */
-    function calculateAllSM() {
-      var total = 0;
-      var counts = {};
-      var keys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
+    // ── HITUNG SURAT MASUK (MENAMPILKAN SEMUA JENIS DINAMIS) ──
+    function hitungSuratMasuk() {
+      var thn = document.getElementById('sm-tahun').value;
+      var bln = document.getElementById('sm-bulan').value;
+      var filtered = filterDataYM(allStats.sm, 4, thn, bln);
+      var total = filtered.length;
 
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="sm"][data-key="' + key + '"]');
-        if (!card) return;
-        var tahun = card.querySelector('.year-sel').value;
-        var bulan = card.querySelector('.month-sel').value;
-        var rows = filterByTglYM(allStats.sm, 4, tahun, bulan);
-        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
-        counts[key] = cnt;
-        total += cnt;
+      // Kumpulkan semua jenis dari SELURUH data (agar tetap tampil walau count 0)
+      var allJenis = {};
+      allStats.sm.forEach(function (r) {
+        var j = (r[7] || 'Lainnya').toString().trim();
+        if (!j) j = 'Tanpa Keterangan';
+        j = j.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        allJenis[j] = true;
       });
 
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="sm"][data-key="' + key + '"]');
-        if (!card) return;
-        var cnt = counts[key];
-        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
-        card.querySelector('.mini-card-count').textContent = cnt;
-        card.querySelector('.mini-card-bar').style.width = pct + '%';
-        card.querySelector('.mini-card-pct').textContent = pct + '%';
-      });
-    }
-
-    /* ── CALCULATE SURAT KELUAR ── */
-    function calculateAllSK() {
-      var total = 0;
-      var counts = {};
-      var keys = ['nota dinas', 'surat pengantar', 'surat biasa', 'surat keputusan', 'surat perintah tugas', 'berita acara', 'surat kontrak', 'surat penawaran', 'surat keterangan'];
-
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="sk"][data-key="' + key + '"]');
-        if (!card) return;
-        var tahun = card.querySelector('.year-sel').value;
-        var bulan = card.querySelector('.month-sel').value;
-        var rows = filterByTglYM(allStats.sk, 3, tahun, bulan);
-        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
-        counts[key] = cnt;
-        total += cnt;
+      // Hitung dari data yang sudah difilter
+      var jenisCounts = {};
+      Object.keys(allJenis).forEach(function(j) { jenisCounts[j] = 0; });
+      filtered.forEach(function (r) {
+        var j = (r[7] || 'Lainnya').toString().trim();
+        if (!j) j = 'Tanpa Keterangan';
+        j = j.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        jenisCounts[j] = (jenisCounts[j] || 0) + 1;
       });
 
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="sk"][data-key="' + key + '"]');
-        if (!card) return;
-        var cnt = counts[key];
-        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
-        card.querySelector('.mini-card-count').textContent = cnt;
-        card.querySelector('.mini-card-bar').style.width = pct + '%';
-        card.querySelector('.mini-card-pct').textContent = pct + '%';
-      });
-    }
-
-    /* ── CALCULATE ALIH MEDIA ── */
-    function calculateAllAM() {
-      var total = 0;
-      var counts = {};
-      var keys = ['PNBP', 'DIPA'];
-
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="am"][data-key="' + key + '"]');
-        if (!card) return;
-        var tahun = card.querySelector('.year-sel').value;
-        var bulan = card.querySelector('.month-sel').value;
-
-        var rows = allStats.am.filter(function (r) {
-          var d = (r[6] || '').toString();
-          if (tahun && d.indexOf(tahun) === -1) return false;
-          if (bulan) {
-            var hasMonth = d.indexOf('-' + bulan) !== -1 || d.indexOf(bulan + '-') !== -1;
-            if (!hasMonth) return false;
-          }
-          return true;
-        });
-
-        var cnt = rows.filter(function (r) { return (r[7] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
-        counts[key] = cnt;
-        total += cnt;
+      var sortedJenis = Object.keys(jenisCounts).sort(function (a, b) {
+        return jenisCounts[b] - jenisCounts[a];
       });
 
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="am"][data-key="' + key + '"]');
-        if (!card) return;
-        var cnt = counts[key];
-        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
-        card.querySelector('.mini-card-count').textContent = cnt;
-        card.querySelector('.mini-card-bar').style.width = pct + '%';
-        card.querySelector('.mini-card-pct').textContent = pct + '%';
-      });
-    }
-
-    /* ── CALCULATE ARSIP PER KETERANGAN ── */
-    function calculateAllArsip() {
-      var total = 0;
-      var counts = {};
-      var keys = ['Aktif', 'Inaktif', 'Musnah'];
-
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="arsip"][data-key="' + key + '"]');
-        if (!card) return;
-        var klas = card.querySelector('.klas-sel').value;
-        var tahun = card.querySelector('.year-sel').value;
-        var bulan = card.querySelector('.month-sel').value;
-
-        var rows = allStats.arsip.filter(function (r) {
-          if (klas && (r[3] || '').trim() !== klas) return false;
-          if (tahun && extractYear(r[5] || '') !== tahun) return false;
-          if (bulan && extractMonth(r[5] || '') !== bulan) return false;
-          return true;
-        });
-
-        var cnt = rows.filter(function (r) { return (r[12] || '').toString().trim().toLowerCase() === key.toLowerCase(); }).length;
-        counts[key] = cnt;
-        total += cnt;
-      });
-
-      keys.forEach(function (key) {
-        var card = document.querySelector('.mini-card[data-type="arsip"][data-key="' + key + '"]');
-        if (!card) return;
-        var cnt = counts[key];
-        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
-        card.querySelector('.mini-card-count').textContent = cnt;
-        card.querySelector('.mini-card-bar').style.width = pct + '%';
-        card.querySelector('.mini-card-pct').textContent = pct + '%';
-      });
-    }
-
-    /* ── RENDER SPPD ── */
-    function renderSPPDCard() {
-      var card = document.querySelector('.sppd-single-card');
-      if (!card) return;
-      var tahun = card.querySelector('.year-sel').value;
-      var bulan = card.querySelector('.month-sel').value;
-
-      var rows = allStats.sppd.filter(function (r) {
-        var dates = [r[6], r[7], r[8]];
-        return dates.some(function (d) {
-          if (tahun && extractYear(d || '') !== tahun) return false;
-          if (bulan && extractMonth(d || '') !== bulan) return false;
-          return true;
-        });
-      });
-      if (!tahun && !bulan) rows = allStats.sppd;
-
-      card.querySelector('.sppd-single-count').textContent = rows.length;
-    }
-
-    /* ── GRAFIK ARSIP ── */
-    function gantiKat(kat) {
-      katAktif = kat;
-      ['btnByKet', 'btnByKlas', 'btnByThn'].forEach(function (id) {
-        document.getElementById(id).classList.remove('active');
-      });
-      document.getElementById({ keterangan: 'btnByKet', klasifikasi: 'btnByKlas', tahun: 'btnByThn' }[kat])
-        .classList.add('active');
-      RenderGrafik(kat);
-    }
-
-    function NilaiKunci(b, kat) {
-      if (kat === 'keterangan') return b[12] ? b[12].trim() : '(Kosong)';
-      if (kat === 'klasifikasi') return b[3] ? b[3].trim() : '(Kosong)';
-      if (kat === 'tahun') {
-        var t = b[5] ? b[5].toString().trim() : '';
-        return (t.length >= 4 && parseInt(t.slice(0, 4)) > 1900) ? t.slice(0, 4) : '(Tidak diketahui)';
+      if (sortedJenis.length === 0) {
+        document.getElementById('sm-jenis-cards').innerHTML = '<div class="ls" style="grid-column: span 4; text-align: center;">Tidak ada data</div>';
+        return;
       }
-      return '';
+
+      var html = '';
+      var renderJenis = showAllSM ? sortedJenis.slice(0, 11) : sortedJenis.slice(0, 3);
+
+      renderJenis.forEach(function (name, idx) {
+        var cnt = jenisCounts[name];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        var colorClass = COLORS[idx % COLORS.length];
+        var icon = ICONS[idx % ICONS.length];
+
+        html += `
+          <div class="sub-stat-card">
+            <div class="sub-stat-header">
+              <div class="sub-stat-icon ${colorClass}"><i class="fa-solid ${icon}"></i></div>
+              <span class="sub-stat-name" title="${name}">${name}</span>
+            </div>
+            <div class="sub-stat-body">
+              <span class="sub-stat-value">${FmtNomor(cnt)}</span>
+              <span class="sub-stat-pct">${pct}%</span>
+            </div>
+          </div>`;
+      });
+      document.getElementById('sm-jenis-cards').innerHTML = html;
+
+      var btn = document.getElementById('btn-sm-semua');
+      if (sortedJenis.length > 3) {
+        btn.style.display = 'block';
+      } else {
+        btn.style.display = 'none';
+      }
     }
 
-    function RenderGrafik(kat) {
-      var data = allStats.arsip;
-      var g = {};
-      data.forEach(function (b) {
-        var k = NilaiKunci(b, kat);
-        g[k] = (g[k] || 0) + 1;
+    // ── HITUNG SURAT KELUAR (MENAMPILKAN SEMUA JENIS DINAMIS) ──
+    function hitungSuratKeluar() {
+      var thn = document.getElementById('sk-tahun').value;
+      var bln = document.getElementById('sk-bulan').value;
+      var filtered = filterDataYM(allStats.sk, 3, thn, bln);
+      var total = filtered.length;
+
+      // Kumpulkan semua jenis dari SELURUH data (agar tetap tampil walau count 0)
+      var allJenis = {};
+      allStats.sk.forEach(function (r) {
+        var j = (r[7] || 'Lainnya').toString().trim();
+        if (!j) j = 'Tanpa Keterangan';
+        j = j.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        allJenis[j] = true;
       });
-      var lbl = Object.keys(g).sort(function (a, b) {
-        return kat === 'tahun' ? parseInt(a) - parseInt(b) : g[b] - g[a];
+
+      // Hitung dari data yang sudah difilter
+      var jenisCounts = {};
+      Object.keys(allJenis).forEach(function(j) { jenisCounts[j] = 0; });
+      filtered.forEach(function (r) {
+        var j = (r[7] || 'Lainnya').toString().trim();
+        if (!j) j = 'Tanpa Keterangan';
+        j = j.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        jenisCounts[j] = (jenisCounts[j] || 0) + 1;
       });
-      var val = lbl.map(function (l) { return g[l]; });
-      var ctx = document.getElementById('chartArsip').getContext('2d');
-      if (grafik) { grafik.destroy(); grafik = null; }
-      grafik = new Chart(ctx, {
-        type: 'bar',
+
+      var sortedJenis = Object.keys(jenisCounts).sort(function (a, b) {
+        return jenisCounts[b] - jenisCounts[a];
+      });
+
+      if (sortedJenis.length === 0) {
+        document.getElementById('sk-jenis-cards').innerHTML = '<div class="ls" style="grid-column: span 4; text-align: center;">Tidak ada data</div>';
+        return;
+      }
+
+      var html = '';
+      var renderJenis = showAllSK ? sortedJenis.slice(0, 11) : sortedJenis.slice(0, 3);
+
+      renderJenis.forEach(function (name, idx) {
+        var cnt = jenisCounts[name];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        var colorClass = COLORS[(idx + 2) % COLORS.length];
+        var icon = ICONS[(idx + 3) % ICONS.length];
+
+        html += `
+          <div class="sub-stat-card">
+            <div class="sub-stat-header">
+              <div class="sub-stat-icon ${colorClass}"><i class="fa-solid ${icon}"></i></div>
+              <span class="sub-stat-name" title="${name}">${name}</span>
+            </div>
+            <div class="sub-stat-body">
+              <span class="sub-stat-value">${FmtNomor(cnt)}</span>
+              <span class="sub-stat-pct">${pct}%</span>
+            </div>
+          </div>`;
+      });
+      document.getElementById('sk-jenis-cards').innerHTML = html;
+
+      var btn = document.getElementById('btn-sk-semua');
+      if (sortedJenis.length > 3) {
+        btn.style.display = 'block';
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+
+    // ── HITUNG ARSIP per KETERANGAN ──
+    function hitungArsip() {
+      var thn = document.getElementById('arsip-tahun').value;
+      var bln = document.getElementById('arsip-bulan').value;
+      var filtered = filterDataYM(allStats.arsip, 5, thn, bln);
+      var total = filtered.length;
+
+      var ketCounts = { 'Aktif': 0, 'Inaktif': 0, 'Musnah': 0 };
+      filtered.forEach(function (r) {
+        var k = (r[12] || '').toString().trim();
+        if (k.toLowerCase() === 'aktif') ketCounts['Aktif']++;
+        else if (k.toLowerCase() === 'inaktif') ketCounts['Inaktif']++;
+        else if (k.toLowerCase() === 'musnah') ketCounts['Musnah']++;
+      });
+
+      var config = [
+        { name: 'Aktif', colorClass: 'blue', icon: 'fa-circle-check' },
+        { name: 'Inaktif', colorClass: 'green', icon: 'fa-clock' },
+        { name: 'Musnah', colorClass: 'orange', icon: 'fa-trash-can' }
+      ];
+
+      var html = '';
+      config.forEach(function (cfg) {
+        var cnt = ketCounts[cfg.name];
+        var pct = total > 0 ? Math.round(cnt / total * 100) : 0;
+        html += `
+          <div class="sub-stat-card">
+            <div class="sub-stat-header">
+              <div class="sub-stat-icon ${cfg.colorClass}"><i class="fa-solid ${cfg.icon}"></i></div>
+              <span class="sub-stat-name">${cfg.name}</span>
+            </div>
+            <div class="sub-stat-body">
+              <span class="sub-stat-value">${FmtNomor(cnt)}</span>
+              <span class="sub-stat-pct">${pct}%</span>
+            </div>
+          </div>`;
+      });
+      document.getElementById('arsip-keterangan-cards').innerHTML = html;
+    }
+
+    // ── HITUNG ALIH MEDIA ──
+    function hitungAlihMedia() {
+      var thn = document.getElementById('am-tahun').value;
+
+      var filtered = allStats.am.filter(function (r) {
+        var d = (r[6] || '').toString();
+        if (thn && d.indexOf(thn) === -1) return false;
+        return true;
+      });
+
+      var pnbp = 0, dipa = 0;
+      filtered.forEach(function (r) {
+        var k = (r[7] || '').toString().trim().toUpperCase();
+        if (k === 'PNBP') pnbp++;
+        else if (k === 'DIPA') dipa++;
+      });
+
+      var total = pnbp + dipa;
+      document.getElementById('am-chart-total').textContent = total;
+
+      var pnbpPct = total > 0 ? Math.round(pnbp / total * 100) : 0;
+      var dipaPct = total > 0 ? Math.round(dipa / total * 100) : 0;
+
+      document.getElementById('am-val-pnbp').textContent = pnbp + ' (' + pnbpPct + '%)';
+      document.getElementById('am-val-dipa').textContent = dipa + ' (' + dipaPct + '%)';
+
+      // Render Donut Chart
+      var ctx = document.getElementById('amDonutChart').getContext('2d');
+      if (amDonutChart) { amDonutChart.destroy(); }
+
+      amDonutChart = new Chart(ctx, {
+        type: 'doughnut',
         data: {
-          labels: lbl.length ? lbl : ['(Tidak ada data)'],
+          labels: ['PNBP', 'DIPA'],
           datasets: [{
-            label: { keterangan: 'Keterangan', klasifikasi: 'Kode Klasifikasi', tahun: 'Tahun' }[kat] || kat,
-            data: val.length ? val : [0],
-            backgroundColor: lbl.map(function (_, i) { return WARNA[i % WARNA.length]; }),
-            borderRadius: 8, borderSkipped: false, barPercentage: 0.65
+            data: [pnbp, dipa],
+            backgroundColor: ['#1e3a8a', '#f59e0b'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
           }]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function (c) {
-                  var base = data.length;
-                  var p = base > 0 ? Math.round(c.raw / base * 100) : 0;
-                  return '  ' + c.raw + ' arsip (' + p + '%)';
-                }
-              }
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' }, color: '#475569', maxRotation: 35 } },
-            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#94a3b8', precision: 0 } }
+            tooltip: { enabled: true }
           }
         }
       });
     }
 
-    function Esc(s) { if (!s) return ''; return s.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    // ── HITUNG SPPD ──
+    function hitungSPPD() {
+      var thn = document.getElementById('sppd-tahun').value;
+      var bln = document.getElementById('sppd-bulan').value;
+
+      var filtered = allStats.sppd.filter(function (r) {
+        var dates = [r[6], r[7], r[8]];
+        return dates.some(function (d) {
+          if (thn && extractYear(d || '') !== thn) return false;
+          if (bln && extractMonth(d || '') !== bln) return false;
+          return true;
+        });
+      });
+
+      if (!thn && !bln) filtered = allStats.sppd;
+      document.getElementById('sppd-total-value').textContent = filtered.length;
+    }
+
+    // ── RENDER LINE CHART ──
+    function renderLineChart() {
+      var countsByYear = {};
+      allStats.arsip.forEach(function (r) {
+        var y = extractYear(r[5]);
+        if (y && parseInt(y) > 1900) {
+          countsByYear[y] = (countsByYear[y] || 0) + 1;
+        }
+      });
+
+      // Ambil 5 tahun terakhir secara berurutan
+      var currentYear = new Date().getFullYear();
+      var labels = [];
+      for (var i = 4; i >= 0; i--) {
+        labels.push((currentYear - i).toString());
+      }
+
+      var data = labels.map(function (y) {
+        return countsByYear[y] || 0;
+      });
+
+      var ctx = document.getElementById('arsipLineChart').getContext('2d');
+      if (arsipLineChart) { arsipLineChart.destroy(); }
+
+      var gradient = ctx.createLinearGradient(0, 0, 0, 200);
+      gradient.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+      gradient.addColorStop(1, 'rgba(245, 158, 11, 0)');
+
+      arsipLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Arsip',
+            data: data,
+            borderColor: '#f59e0b',
+            borderWidth: 3,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: '#0f172a',
+            pointBorderColor: '#f59e0b',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, color: '#94a3b8' } },
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#94a3b8', precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // ── GLOBAL SEARCH FILTER ──
+    function handleGlobalSearch() {
+      var query = document.getElementById('globalSearch').value.toLowerCase().trim();
+      if (!query) {
+        Muat_Data();
+        return;
+      }
+
+      // Filter data di memori
+      var sm = allStats.sm.filter(function (r) { return r.some(function (c) { return c.toString().toLowerCase().indexOf(query) !== -1; }) });
+      var sk = allStats.sk.filter(function (r) { return r.some(function (c) { return c.toString().toLowerCase().indexOf(query) !== -1; }) });
+      var am = allStats.am.filter(function (r) { return r.some(function (c) { return c.toString().toLowerCase().indexOf(query) !== -1; }) });
+      var sppd = allStats.sppd.filter(function (r) { return r.some(function (c) { return c.toString().toLowerCase().indexOf(query) !== -1; }) });
+      var arsip = allStats.arsip.filter(function (r) { return r.some(function (c) { return c.toString().toLowerCase().indexOf(query) !== -1; }) });
+
+      // Simulasikan data ter-filter
+      var tempStats = { sm: sm, sk: sk, sppd: sppd, am: am, arsip: arsip };
+
+      document.getElementById('stat-total-arsip').textContent = FmtNomor(arsip.length);
+      document.getElementById('stat-surat-masuk').textContent = FmtNomor(sm.length);
+      document.getElementById('stat-surat-keluar').textContent = FmtNomor(sk.length);
+      document.getElementById('stat-alih-media').textContent = FmtNomor(am.length);
+      document.getElementById('stat-sppd').textContent = FmtNomor(sppd.length);
+    }
   </script>
 </body>
 

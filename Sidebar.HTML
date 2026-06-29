@@ -11,97 +11,64 @@
 <aside class="vertical-sidebar" id="sidebarEl">
     <nav>
         <header>
-            <div class="sidebar__toggle-container">
-                <label class="nav__toggle" id="sidebarToggleBtn">
-                    <span class="toggle--icons" aria-hidden="true">
-                        <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--hamburger">
-                            <path
-                                d="M3 5a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1M2 18a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1">
-                            </path>
-                        </svg>
-                        <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--cross">
-                            <path
-                                d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12z">
-                            </path>
-                        </svg>
-                    </span>
-                </label>
+            <div class="sidebar-brand" onclick="navTo('Dashboard')">
+                <img class="brand-logo" src="https://drive.google.com/thumbnail?id=1G05GQInVXiJXHP9Jbz_Yu9EYpo1SeSB4"
+                    alt="Logo Kemnaker" style="width: 70px; height: 70px; object-fit: contain; flex-shrink: 0;" />
+                <div class="brand-text">
+                    <span class="brand-title">SISTEM ARSIP</span>
+                    <span class="brand-subtitle">Balai K3 Samarinda</span>
+                </div>
             </div>
-            <figure onclick="navTo('Dashboard')" style="cursor:pointer;">
-                <img class="codepen-logo" src="https://drive.google.com/thumbnail?id=1vbl0hdbHOMXATKigkGn5VZocawfEVR8-"
-                    alt="Logo" />
-                <figcaption>
-                    <p class="user-id" style="color:#0a0a5c">SISTEM KEARSIPAN</p>
-                    <p class="user-role" style="background: linear-gradient(135deg, #1e3a5f 0%, #0ea5e9 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent; 
-                    background-clip: text;">
-                        BALAI K3 SAMARINDA
-                    </p>
-                </figcaption>
-            </figure>
         </header>
 
         <section class="sidebar__wrapper">
-            <ul class="sidebar__list list--primary">
-                <li class="sidebar__item item--heading">
-                    <h2 class="sidebar__item--heading">Menu Utama</h2>
-                </li>
-
-                <li class="sidebar__item">
+            <ul class="sidebar__list">
+                <li class="sidebar__item" id="menu-Dashboard">
                     <a class="sidebar__link" href="#" onclick="navTo('Dashboard')" title="Dashboard">
                         <span class="icon"><i class="fa-solid fa-house"></i></span>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
 
-                <li class="sidebar__item">
-                    <a class="sidebar__link" href="#" onclick="navTo('formArsip')" title="Arsip">
-                        <span class="icon"><i class="fa-solid fa-box-archive"></i></span>
-                        <span class="text">Arsip</span>
-                    </a>
-                </li>
-
-                <li class="sidebar__item">
+                <li class="sidebar__item" id="menu-formSM">
                     <a class="sidebar__link" href="#" onclick="navTo('formSM')" title="Surat Masuk">
-                        <span class="icon"><i class="fa-solid fa-envelopes-bulk"></i></span>
+                        <span class="icon"><i class="fa-solid fa-envelope-open-text"></i></span>
                         <span class="text">Surat Masuk</span>
                     </a>
                 </li>
 
-                <li class="sidebar__item">
+                <li class="sidebar__item" id="menu-formSK">
                     <a class="sidebar__link" href="#" onclick="navTo('formSK')" title="Surat Keluar">
                         <span class="icon"><i class="fa-solid fa-paper-plane"></i></span>
                         <span class="text">Surat Keluar</span>
                     </a>
                 </li>
 
-                <li class="sidebar__item">
-                    <a class="sidebar__link" href="#" onclick="navTo('formSPPD')" title="SPPD">
-                        <span class="icon"><i class="fa-solid fa-inbox"></i></span>
-                        <span class="text">SPPD</span>
-                    </a>
-                </li>
-
-                <li class="sidebar__item">
+                <li class="sidebar__item" id="menu-formAhliMedia">
                     <a class="sidebar__link" href="#" onclick="navTo('formAhliMedia')" title="Alih Media">
                         <span class="icon"><i class="fa-solid fa-photo-film"></i></span>
                         <span class="text">Alih Media</span>
                     </a>
                 </li>
 
-                <li class="sidebar__item">
-                    <a class="sidebar__link" href="#" onclick="navTo('formQR')" title="QR Code">
-                        <span class="icon"><i class="fa-solid fa-qrcode"></i></span>
-                        <span class="text">QR Code</span>
+                <li class="sidebar__item" id="menu-formSPPD">
+                    <a class="sidebar__link" href="#" onclick="navTo('formSPPD')" title="SPPD">
+                        <span class="icon"><i class="fa-solid fa-briefcase"></i></span>
+                        <span class="text">SPPD</span>
+                    </a>
+                </li>
+
+                <li class="sidebar__item" id="menu-formArsip">
+                    <a class="sidebar__link" href="#" onclick="navTo('formArsip')" title="Arsip">
+                        <span class="icon"><i class="fa-solid fa-box-archive"></i></span>
+                        <span class="text">Arsip</span>
                     </a>
                 </li>
             </ul>
 
-            <ul class="sidebar__list list--secondary">
-                <li class="sidebar__item item--heading">
-                    <h2 class="sidebar__item--heading">Database</h2>
-                </li>
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar__list">
                 <li class="sidebar__item">
                     <a class="sidebar__link"
                         href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?gid=1148381401"
@@ -114,14 +81,21 @@
                     <a class="sidebar__link"
                         href="https://docs.google.com/spreadsheets/d/147OCWGJHSlzxt6HiprOsZs6dvdULXeo-4BuhV9qU8yg/edit?gid=1508608401"
                         target="_blank" title="Alih Media DB">
-                        <span class="icon"><i class="fa-solid fa-link"></i></span>
+                        <span class="icon"><i class="fa-solid fa-share-nodes"></i></span>
                         <span class="text">Alih Media DB</span>
                     </a>
                 </li>
+                <li class="sidebar__item" id="menu-formQR">
+                    <a class="sidebar__link" href="#" onclick="navTo('formQR')" title="QR Code">
+                        <span class="icon"><i class="fa-solid fa-qrcode"></i></span>
+                        <span class="text">QR Code</span>
+                    </a>
+                </li>
+            </ul>
 
-                <li class="sidebar__item" style="margin-top: 10px;">
-                    <a class="sidebar__link" href="#" onclick="konfirmasiLogout()" title="Logout"
-                        style="color: var(--danger);">
+            <ul class="sidebar__list list--logout" style="margin-top: auto;">
+                <li class="sidebar__item">
+                    <a class="sidebar__link link--logout" href="#" onclick="konfirmasiLogout()" title="Logout">
                         <span class="icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
                         <span class="text">Logout</span>
                     </a>
@@ -129,6 +103,8 @@
             </ul>
         </section>
     </nav>
+</aside>
+</nav>
 </aside>
 
 <script>

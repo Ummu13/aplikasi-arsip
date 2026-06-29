@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Form Arsip</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/spark-md5.min.js"></script>
   <!--
     PERBAIKAN QR: Ganti jsqr CDN menjadi versi yang lebih reliable.
     jsQR sudah di-host di jsdelivr dengan versi stabil.
@@ -63,7 +64,7 @@
         </div>
         <div class="form-group">
           <label>Tanggal</label>
-          <input type="date" id="TanggalSurat">
+          <input type="date" id="TanggalSurat" oninput="_autoFillKeterangan()">
         </div>
         <div class="form-group">
           <label>Jumlah</label>
@@ -103,13 +104,8 @@
         </div>
         <div class="form-group">
           <label>Keterangan</label>
-          <select id="Keterangan">
-            <option value="">-- Pilih --</option>
-            <option>Aktif</option>
-            <option>Inaktif</option>
-            <option>Musnah</option>
-          </select>
-          <small id="keteranganHelp" style="display:none;font-size:0.7rem;color:var(--gray-400);margin-top:2px;">Otomatis terisi berdasarkan tanggal</small>
+          <input type="text" id="Keterangan" readonly style="background:#f1f5f9;cursor:not-allowed;font-weight:600;"
+            placeholder="Otomatis berdasarkan tanggal...">
         </div>
         <div class="form-group">
           <label>Lokasi</label>
@@ -355,49 +351,6 @@
     function _onSesiValid() {
       Muat_Data();
       Muat_KodeKlasifikasi();
-      
-      // Register event listener untuk hitung otomatis Keterangan
-      var tglEl = document.getElementById('TanggalSurat');
-      if (tglEl) {
-        tglEl.addEventListener('change', autoSetKeterangan);
-        tglEl.addEventListener('input', autoSetKeterangan);
-      }
-    }
-
-    function autoSetKeterangan() {
-      var tglInput = document.getElementById('TanggalSurat');
-      var ketSelect = document.getElementById('Keterangan');
-      var helpEl = document.getElementById('keteranganHelp');
-      if (!tglInput || !ketSelect) return;
-      
-      var tglVal = tglInput.value;
-      if (!tglVal) {
-        ketSelect.disabled = false;
-        if (helpEl) helpEl.style.display = 'none';
-        return;
-      }
-      
-      var parts = tglVal.split('-');
-      var year = parseInt(parts[0], 10);
-      if (isNaN(year) || year < 1000) {
-        ketSelect.disabled = false;
-        if (helpEl) helpEl.style.display = 'none';
-        return;
-      }
-      
-      var currentYear = new Date().getFullYear();
-      var diff = currentYear - year;
-      
-      var calculatedStatus = 'Aktif';
-      if (diff >= 5) {
-        calculatedStatus = 'Musnah';
-      } else if (diff >= 2) {
-        calculatedStatus = 'Inaktif';
-      }
-      
-      ketSelect.value = calculatedStatus;
-      ketSelect.disabled = true;
-      if (helpEl) helpEl.style.display = 'block';
     }
 
     var _kodeKlasList = [];
@@ -443,6 +396,7 @@
       google.script.run
         .withSuccessHandler(function (rows) {
           semuaData = dataDisplay = rows || [];
+          _autoUpdateKeterangan(); // Auto-update keterangan berdasarkan usia arsip
           Render_Tabel(dataDisplay);
           document.getElementById('subtitleTabel').textContent = 'Total ' + semuaData.length + ' arsip tersimpan';
         })
@@ -451,6 +405,63 @@
             '<tr class="state-row"><td colspan="17">Gagal memuat: ' + err.message + '</td></tr>';
         })
         .getAll();
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       AUTO-UPDATE KETERANGAN BERDASARKAN USIA ARSIP
+       
+       Aturan:
+       - < 730 hari (2 tahun)  → Aktif
+       - 730 - 1825 hari       → Inaktif
+       - ≥ 1825 hari (5 tahun) → Musnah
+       
+       Status dihitung real-time di client, lalu perubahan disinkronkan
+       ke Spreadsheet secara batch.
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    function _hitungStatusKeterangan(tanggalStr) {
+      if (!tanggalStr || tanggalStr.toString().trim() === '' || tanggalStr === '—') return '';
+      var tgl = new Date(tanggalStr.toString().slice(0, 10));
+      if (isNaN(tgl.getTime())) return '';
+      var now = new Date();
+      var selisihHari = Math.floor((now.getTime() - tgl.getTime()) / (1000 * 60 * 60 * 24));
+      if (selisihHari >= 1825) return 'Musnah';   // ≥ 5 tahun
+      if (selisihHari >= 730) return 'Inaktif';    // ≥ 2 tahun
+      return 'Aktif';                              // < 2 tahun
+    }
+
+    function _autoUpdateKeterangan() {
+      var changes = [];
+      for (var i = 0; i < semuaData.length; i++) {
+        var tanggal = semuaData[i][5]; // Index 5 = Tanggal Surat
+        var statusBaru = _hitungStatusKeterangan(tanggal);
+        if (!statusBaru) continue; // Tidak ada tanggal, skip
+        var statusLama = (semuaData[i][12] || '').toString().trim();
+        if (statusBaru !== statusLama) {
+          semuaData[i][12] = statusBaru; // Update di memori client
+          changes.push({ rowIndex: i, keterangan: statusBaru });
+        }
+      }
+      // Sinkronkan perubahan ke Spreadsheet secara batch (fire-and-forget)
+      if (changes.length > 0) {
+        google.script.run
+          .withSuccessHandler(function () { /* silent success */ })
+          .withFailureHandler(function () { /* silent fail */ })
+          .batchUpdateKeterangan(changes);
+      }
+    }
+
+    /* Auto-fill keterangan di form input saat tanggal berubah */
+    function _autoFillKeterangan() {
+      var tgl = document.getElementById('TanggalSurat').value;
+      var ketEl = document.getElementById('Keterangan');
+      var status = _hitungStatusKeterangan(tgl);
+      ketEl.value = status || '';
+      // Warna badge visual pada input
+      if (status === 'Aktif') { ketEl.style.color = '#16a34a'; }
+      else if (status === 'Inaktif') { ketEl.style.color = '#d97706'; }
+      else if (status === 'Musnah') { ketEl.style.color = '#dc2626'; }
+      else { ketEl.style.color = 'var(--gray-500)'; }
     }
 
     function Render_Tabel(arr) {
@@ -472,15 +483,15 @@
         var idx = semuaData.indexOf(b);
         var bdg = b[12] === 'Aktif' ? 'badge-aktif' : b[12] === 'Inaktif' ? 'badge-inaktif' : b[12] === 'Musnah' ? 'badge-musnah' : '';
         var lnk = b[15]
-          ? '<a href="' + Esc(b[15]) + '" target="_blank" style="color:var(--blue);font-weight:600;">🔗</a>'
+          ? '<a href="' + Esc(b[15]) + '" target="_blank" style="color:var(--blue);font-weight:600;"><i class="fa-solid fa-link"></i></a>'
           : '<span style="color:#cbd5e1">—</span>';
         html += '<tr>'
           + '<td class="td-no">' + (mulai + i + 1) + '</td>'
-          + '<td>' + (Esc(b[1]) || '—') + '</td><td>' + (Esc(b[2]) || '—') + '</td><td>' + (Esc(b[3]) || '—') + '</td>'
+          + '<td style="text-align:center;">' + (Esc(b[1]) || '—') + '</td><td style="text-align:center;">' + (Esc(b[2]) || '—') + '</td><td style="text-align:center;">' + (Esc(b[3]) || '—') + '</td>'
           + '<td title="' + Esc(b[4]) + '">' + (Esc(b[4]) || '—') + '</td>'
           + '<td>' + Fmt_Tgl(b[5]) + '</td>'
-          + '<td>' + (Esc(b[6]) || '—') + '</td><td>' + (Esc(b[7]) || '—') + '</td><td>' + (Esc(b[8]) || '—') + '</td>'
-          + '<td>' + (Esc(b[9]) || '—') + '</td><td>' + (Esc(b[10]) || '—') + '</td><td>' + (Esc(b[11]) || '—') + '</td>'
+          + '<td>' + (Esc(b[6]) || '—') + '</td><td style="text-align:center;">' + (Esc(b[7]) || '—') + '</td><td style="text-align:center;">' + (Esc(b[8]) || '—') + '</td>'
+          + '<td>' + (Esc(b[9]) || '—') + '</td><td>' + (Esc(b[10]) || '—') + '</td><td style="text-align:center;">' + (Esc(b[11]) || '—') + '</td>'
           + '<td><span class="badge ' + bdg + '">' + (Esc(b[12]) || '—') + '</span></td>'
           + '<td>' + (Esc(b[13]) || '—') + '</td><td>' + (Esc(b[14]) || '—') + '</td>'
           + '<td style="text-align:center;">' + lnk + '</td>'
@@ -553,17 +564,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════════
-       QR SCANNER — PERBAIKAN UTAMA
-       
-       Masalah sebelumnya: proses gambar dilakukan di UI thread dengan 4 
-       percobaan decode berulang → browser hang/lambat terutama HP.
-       
-       Perbaikan:
-       1. Resize gambar SEKALI ke 1024px (optimal untuk jsQR).
-       2. Decode LANGSUNG — tidak ada loop 4 langkah yang boros.
-       3. Setelah QR terbaca, langsung filter semuaData di CLIENT (sudah ada di 
-          memori) — TIDAK ada request ke server sama sekali → instan.
-       4. Gunakan requestAnimationFrame agar UI tidak freeze.
+       QR SCANNER
     ═══════════════════════════════════════════════════════════════════════ */
 
     async function startQR() {
@@ -599,7 +600,6 @@
       input.click();
     }
 
-    /* ── PERBAIKAN: decode cepat, 1 ukuran, lalu fallback 1 ukuran lebih besar ── */
     function _prosesGambarQR(file) {
       var statusEl = document.getElementById('qrStatus');
       statusEl.textContent = '🔍 Memproses gambar...';
@@ -635,11 +635,11 @@
                 html: [
                   '<div style="text-align:left;font-size:.88rem;line-height:2">',
                   '<b>Tips agar berhasil:</b><br>',
-                  '📏 Jarak ideal <b>10–25 cm</b> dari QR<br>',
-                  '💡 Pastikan <b>cahaya cukup</b>, tidak ada bayangan<br>',
-                  '📐 Foto <b>dari depan lurus</b>, bukan miring<br>',
-                  '🔍 Pastikan <b>3 sudut kotak QR</b> terlihat penuh<br>',
-                  '📂 Coba gunakan <b>"Pilih dari Galeri"</b>',
+                  'Jarak ideal <b>10–25 cm</b> dari QR<br>',
+                  'Pastikan <b>cahaya cukup</b>, tidak ada bayangan<br>',
+                  'Foto <b>dari depan lurus</b>, bukan miring<br>',
+                  'Pastikan <b>3 sudut kotak QR</b> terlihat penuh<br>',
+                  'Coba gunakan <b>"Pilih dari Galeri"</b>',
                   '</div>'
                 ].join(''),
                 confirmButtonText: '📷 Coba Lagi',
@@ -739,10 +739,8 @@
           if (id === 'TanggalSurat') val = val ? val.toString().slice(0, 10) : '';
           document.getElementById(id).value = val;
         });
-      
-      // Hitung otomatis & kunci dropdown Keterangan jika ada tanggal
-      autoSetKeterangan();
-      
+      // Auto-fill keterangan berdasarkan tanggal saat edit
+      _autoFillKeterangan();
       document.getElementById('btnKirim').style.display = 'none';
       document.getElementById('btnUpdate').style.display = 'inline-flex';
       document.getElementById('btnBatal').style.display = 'inline-flex';
@@ -795,20 +793,18 @@
       document.getElementById('infoJumlah').textContent = teks;
     }
     function Reset_Form() {
-      ['NoBerkas', 'NoItemArsip', 'Judul', 'TanggalSurat', 'Jumlah', 'DasarPertimbangan', 'Lokasi', 'NoBok', 'LinkTautan', 'KodeKlasifikasi']
+      ['NoBerkas', 'NoItemArsip', 'Judul', 'TanggalSurat', 'Jumlah', 'DasarPertimbangan', 'Lokasi', 'NoBok', 'LinkTautan', 'KodeKlasifikasi', 'Keterangan']
         .forEach(function (id) { document.getElementById(id).value = ''; });
-      ['TingkatPerkembangan', 'KlasifikasiKeamanan', 'AksesPublik', 'HakAkses', 'Keterangan']
+      ['TingkatPerkembangan', 'KlasifikasiKeamanan', 'AksesPublik', 'HakAkses']
         .forEach(function (id) { document.getElementById(id).selectedIndex = 0; });
       var statusEl = document.getElementById('uploadStatus');
       if (statusEl) { statusEl.innerHTML = 'Maks. 10MB'; statusEl.style.color = 'var(--gray-400)'; }
       var fileInput = document.getElementById('fileInput');
       if (fileInput) fileInput.value = '';
-      
-      // Reset status dropdown Keterangan & sembunyikan help text
-      var ketSelect = document.getElementById('Keterangan');
-      if (ketSelect) ketSelect.disabled = false;
-      var helpEl = document.getElementById('keteranganHelp');
-      if (helpEl) helpEl.style.display = 'none';
+
+      // Reset style warna teks Keterangan
+      var ketEl = document.getElementById('Keterangan');
+      if (ketEl) { ketEl.style.color = ''; }
     }
     function Batal_Edit() {
       document.getElementById('editRowIndex').value = -1;
@@ -886,11 +882,82 @@
       });
     }
 
+    /* ═══════════════════════════════════════════════════════════════════════
+       FILE UPLOAD DENGAN PENGECEKAN DUPLIKASI (MD5 HASH)
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    function _hitungMD5(file, callback) {
+      var chunkSize = 2 * 1024 * 1024; // 2MB per chunk
+      var spark = new SparkMD5.ArrayBuffer();
+      var reader = new FileReader();
+      var chunks = Math.ceil(file.size / chunkSize);
+      var currentChunk = 0;
+
+      reader.onload = function (e) {
+        spark.append(e.target.result);
+        currentChunk++;
+        if (currentChunk < chunks) {
+          loadNext();
+        } else {
+          callback(spark.end()); // Return MD5 hash hex string
+        }
+      };
+      reader.onerror = function () { callback(null); };
+
+      function loadNext() {
+        var start = currentChunk * chunkSize;
+        var end = Math.min(start + chunkSize, file.size);
+        reader.readAsArrayBuffer(file.slice(start, end));
+      }
+      loadNext();
+    }
+
     function handleFileUpload(input) {
       if (!input.files || input.files.length === 0) return;
       var file = input.files[0];
       if (file.size > 10 * 1024 * 1024) { Swal.fire('Gagal', 'Ukuran file maksimal 10MB', 'error'); input.value = ''; return; }
       var statusEl = document.getElementById('uploadStatus');
+      statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa file...';
+      statusEl.style.color = 'var(--blue)';
+
+      // Langkah 1: Hitung MD5 hash di client
+      _hitungMD5(file, function (md5Hash) {
+        if (!md5Hash) {
+          // Hash gagal dihitung, lanjutkan upload tanpa pengecekan
+          _prosesUploadArsip(file, statusEl);
+          return;
+        }
+
+        // Langkah 2: Cek duplikasi di server
+        statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa duplikasi...';
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (res && res.isDuplicate) {
+              // File duplikat terdeteksi!
+              statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> File duplikat!';
+              statusEl.style.color = 'var(--danger)';
+              input.value = '';
+              Swal.fire({
+                icon: 'error',
+                title: 'Terdeteksi Duplikat',
+                html: 'File pernah diunggah pada <b>Alih Media.</b>'
+                  + ' Upload file yang berbeda untuk menghindari duplikasi.',
+                confirmButtonText: 'Tutup'
+              });
+            } else {
+              // File unik, lanjutkan upload
+              _prosesUploadArsip(file, statusEl);
+            }
+          })
+          .withFailureHandler(function () {
+            // Jika pengecekan gagal, tetap lanjutkan upload
+            _prosesUploadArsip(file, statusEl);
+          })
+          .cekDuplikasiFile(md5Hash);
+      });
+    }
+
+    function _prosesUploadArsip(file, statusEl) {
       statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunggah: ' + file.name + '...';
       statusEl.style.color = 'var(--blue)';
       var reader = new FileReader();
